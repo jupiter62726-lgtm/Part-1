@@ -1,0 +1,11 @@
+// Root-level build.gradle (for Gradle 7.0+ and AGP 8.0+)
+
+plugins {
+    id 'com.android.application' version '8.0.0' apply false
+    id 'com.android.library' version '8.0.0' apply false
+    // No IDE or LogSender related plugins
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
