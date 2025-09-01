@@ -1,4 +1,112 @@
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/AndroidManifest.xml
+/ModLoader/build.gradle
+
+// Root-level build.gradle (for Gradle 7.0+ and AGP 8.0+)
+
+plugins {
+    id 'com.android.application' version '8.0.0' apply false
+    id 'com.android.library' version '8.0.0' apply false
+    // No IDE or LogSender related plugins
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
+
+--------------------------------------------------------------------------------
+/ModLoader/settings.gradle
+
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "ModLoader"
+include ':app'
+
+--------------------------------------------------------------------------------
+/ModLoader/app/build.gradle
+
+plugins {
+    id 'com.android.application'
+}
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+android {
+    namespace 'com.modloader'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.modloader"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        vectorDrawables {
+            useSupportLibrary true
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            debuggable true
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildFeatures {
+        viewBinding true
+        dataBinding true
+    }
+}
+
+dependencies {
+
+    // AndroidX Core
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.recyclerview:recyclerview:1.3.1'
+    implementation 'androidx.cardview:cardview:1.0.0'
+
+    // NEW: Shizuku Dependencies for Enhanced Permissions
+    implementation 'dev.rikka.shizuku:api:13.1.5'
+    implementation 'dev.rikka.shizuku:provider:13.1.5'
+
+    // Testing
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}
+
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/AndroidManifest.xml
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
@@ -173,9 +281,8 @@
 
 </manifest>
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/AboutActivity.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/AboutActivity.java
 
 package com.modloader;
 
@@ -192,19 +299,16 @@ public class AboutActivity extends AppCompatActivity {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/IntegrationManager.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/IntegrationManager.java
 
 package com.modloader;
 
 public class IntegrationManager {
 }
 
-
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/LogActivity.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/LogActivity.java
 
 package com.modloader;
 
@@ -274,9 +378,8 @@ public class LogActivity extends AppCompatActivity {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/MainActivity.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/MainActivity.java
 
 // File: MainActivity.java (Activity Class) - Fixed Navigation Structure
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/MainActivity.java
@@ -339,9 +442,8 @@ public class MainActivity extends AppCompatActivity {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/MyApplication.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/MyApplication.java
 
 // File: MyApplication.java (FIXED) - Initialize Logs and Handle Migration
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/MyApplication.java
@@ -641,9 +743,8 @@ public class MyApplication extends Application {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/SandboxActivity.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/SandboxActivity.java
 
 package com.modloader;
 
@@ -674,9 +775,8 @@ public class SandboxActivity extends Activity {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/SpecificSelectionActivity.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/SpecificSelectionActivity.java
 
 // File: SpecificSelectionActivity.java (Fixed Activity Class) - Fixed App Selection
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/SpecificSelectionActivity.java
@@ -730,9 +830,8 @@ public class SpecificSelectionActivity extends AppCompatActivity {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/TerrariaSpecificActivity.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/TerrariaSpecificActivity.java
 
 // File: TerrariaSpecificActivity.java (Updated) - Elegant UI with Dynamic Theming
 // Path: /main/java/com/terrarialoader/TerrariaSpecificActivity.java
@@ -963,9 +1062,8 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/UniversalActivity.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/UniversalActivity.java
 
 package com.modloader;
 
@@ -1092,19 +1190,16 @@ public class UniversalActivity extends AppCompatActivity {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/Diagnostic/ApkProcessLogger.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/Diagnostic/ApkProcessLogger.java
 
 package com.modloader.Diagnostic;
 
 public class ApkProcessLogger {
 }
 
-
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/Diagnostic/DiagnosticManager.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/Diagnostic/DiagnosticManager.java
 
 package com.modloader.diagnostic;
 
@@ -1332,9 +1427,8 @@ public class DiagnosticManager {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/installer/ModInstaller.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/installer/ModInstaller.java
 
 // File: ModInstaller.java (FIXED) - Updated to use new directory structure
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/installer/ModInstaller.java
@@ -1809,9 +1903,8 @@ public class ModInstaller {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/loader/LoaderFileManager.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/loader/LoaderFileManager.java
 
 // File: LoaderFileManager.java (Fixed Component) - Complete Path Management Fix
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/LoaderFileManager.java
@@ -2356,9 +2449,8 @@ public class LoaderFileManager {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/loader/LoaderInstaller.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/loader/LoaderInstaller.java
 
 // File: LoaderInstaller.java (Complete Fixed Version) - Uses Correct App-Specific Paths
 // Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/app/src/main/java/com/modloader/loader/LoaderInstaller.java
@@ -2794,9 +2886,8 @@ public class LoaderInstaller {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/loader/LoaderValidator.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/loader/LoaderValidator.java
 
 // File: LoaderValidator.java (Fixed Component) - Complete Path Management Fix
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/LoaderValidator.java
@@ -3198,9 +3289,8 @@ public class LoaderValidator {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/loader/MainLoader.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/loader/MainLoader.java
 
 package com.loader;
 
@@ -3237,9 +3327,8 @@ public class MainLoader extends Application {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/loader/MelonLoaderManager.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/loader/MelonLoaderManager.java
 
 // File: MelonLoaderManager.java (Fixed Facade) - Updated with PathManager
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/MelonLoaderManager.java
@@ -3702,9 +3791,8 @@ public class MelonLoaderManager {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/loader/ModBase.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/loader/ModBase.java
 
 // File: ModBase.java (Interface Class) - Phase 4 Enhanced with DLL Support
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModBase.java
@@ -3834,9 +3922,8 @@ public interface ModBase {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/loader/ModConfiguration.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/loader/ModConfiguration.java
 
 package com.modloader.loader;
 
@@ -4035,9 +4122,8 @@ public class ModConfiguration {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/loader/ModController.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/loader/ModController.java
 
 // File: ModController.java (Extracted Component) - Handles mod state management
 // Path: /storage/emulated/0/AndroidIDEProjects/main/java/com/terrarialoader/loader/ModController.java
@@ -4347,9 +4433,8 @@ public class ModController {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/loader/ModLoader.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/loader/ModLoader.java
 
 // File: ModLoader.java (Complete Fixed Component) - Updated Method Calls with Context
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModLoader.java
@@ -4763,9 +4848,8 @@ public class ModLoader {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/loader/ModManager.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/loader/ModManager.java
 
 // File: ModManager.java (Fixed Facade) - Updated with PathManager
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModManager.java
@@ -5070,9 +5154,8 @@ public class ModManager {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/loader/ModMetadata.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/loader/ModMetadata.java
 
 // File: ModMetadata.java (Fixed Class) - Enhanced Null Safety
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModMetadata.java
@@ -5301,9 +5384,8 @@ public class ModMetadata {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/loader/ModRepository.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/loader/ModRepository.java
 
 // File: ModRepository.java (Fixed Component) - Updated Method Calls
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModRepository.java
@@ -5506,9 +5588,8 @@ public class ModRepository {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/loader/debugger/ApkProcessTracker.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/loader/debugger/ApkProcessTracker.java
 
 // File: ApkProcessTracker.java - Real-time APK operation monitoring and debugging
 // Path: app/src/main/java/com/modloader/loader/debug/ApkProcessTracker.java
@@ -6059,9 +6140,8 @@ public class ApkProcessTracker {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/loader/debugger/MelonLoaderDebugger.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/loader/debugger/MelonLoaderDebugger.java
 
 // File: MelonLoaderDebugger.java - Advanced MelonLoader integration debugging
 // Path: app/src/main/java/com/modloader/loader/debug/MelonLoaderDebugger.java
@@ -6893,9 +6973,8 @@ public class MelonLoaderDebugger {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/logging/ApkProcessLogger.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/logging/ApkProcessLogger.java
 
 // File: ApkProcessLogger.java - Specialized APK process tracking
 // Path: app/src/main/java/com/terrarialoader/logging/ApkProcessLogger.java
@@ -7219,19 +7298,16 @@ public class ApkProcessLogger {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/logging/BasicLogger.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/logging/BasicLogger.java
 
 package com.modloader.logging;
 
 public class BasicLogger {
 }
 
-
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/logging/ErrorLogger.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/logging/ErrorLogger.java
 
 // File: ErrorLogger.java - Specialized error and exception tracking
 // Path: app/src/main/java/com/terrarialoader/logging/ErrorLogger.java
@@ -7794,9 +7870,8 @@ public class ErrorLogger {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/logging/FileLogger.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/logging/FileLogger.java
 
 // File: FileLogger.java (Complete Fixed Version) - Full logging system with all properties
 // Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/app/src/main/java/com/modloader/logging/FileLogger.java
@@ -8264,19 +8339,16 @@ public class FileLogger {
     }
 }
 
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/logging/LogExporter.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/logging/LogExporter.java
 
 package com.terrarialoader.logging;
 
 public class LogExporter {
 }
 
-
-================================================================================
-
-/storage/emulated/0/AndroidIDEProjects/TerrariaML/main/java/com/modloader/plugin/Plugin.java
+--------------------------------------------------------------------------------
+/ModLoader/app/src/main/java/com/modloader/plugin/Plugin.java
 
 // File: Plugin.java - Base Plugin Interface
 // Path: /app/src/main/java/com/modloader/plugin/Plugin.java
@@ -9050,696 +9122,4 @@ abstract class BasePlugin implements Plugin {
     }
 }
 
-================================================================================
-
-// File: PluginContext.java - Plugin Context and Utilities
-// Path: /app/src/main/java/com/modloader/plugin/PluginContext.java
-package com.modloader.plugin;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-import com.modloader.util.LogUtils;
-import com.modloader.util.FileUtils;
-
-import java.io.File;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-/**
- * Plugin Context provides plugins with access to TerrariaLoader APIs and utilities
- * Acts as a bridge between plugins and the main application
- */
-public class PluginContext {
-    private static final String TAG = "PluginContext";
-    
-    private final Context androidContext;
-    private final PluginInfo pluginInfo;
-    private final PluginManager pluginManager;
-    private final PluginConfig pluginConfig;
-    private final Map<String, PluginHook> registeredHooks = new ConcurrentHashMap<>();
-    private final SharedPreferences pluginPrefs;
-    private final File pluginDataDirectory;
-    private final File pluginConfigFile;
-    
-    // Plugin API access
-    private final PluginAPI pluginAPI;
-    
-    public PluginContext(Context androidContext, PluginInfo pluginInfo, PluginManager pluginManager) {
-        this.androidContext = androidContext;
-        this.pluginInfo = pluginInfo;
-        this.pluginManager = pluginManager;
-        
-        // Initialize plugin-specific directories
-        this.pluginDataDirectory = new File(pluginManager.getPluginDataDirectory(), pluginInfo.getId());
-        this.pluginConfigFile = new File(pluginManager.getPluginConfigDirectory(), pluginInfo.getId() + ".json");
-        
-        // Ensure data directory exists
-        if (!pluginDataDirectory.exists()) {
-            pluginDataDirectory.mkdirs();
-        }
-        
-        // Initialize plugin preferences
-        this.pluginPrefs = androidContext.getSharedPreferences(
-            "plugin_" + pluginInfo.getId(), Context.MODE_PRIVATE);
-        
-        // Initialize plugin configuration
-        this.pluginConfig = new PluginConfig(pluginInfo.getId(), pluginConfigFile);
-        this.pluginConfig.load();
-        
-        // Initialize plugin API
-        this.pluginAPI = new PluginAPI(this);
-        
-        LogUtils.logDebug("PluginContext created for: " + pluginInfo.getName());
-    }
-    
-    /**
-     * Get Android application context
-     */
-    public Context getAndroidContext() {
-        return androidContext;
-    }
-    
-    /**
-     * Get plugin information
-     */
-    public PluginInfo getPluginInfo() {
-        return pluginInfo;
-    }
-    
-    /**
-     * Get plugin manager
-     */
-    public PluginManager getPluginManager() {
-        return pluginManager;
-    }
-    
-    /**
-     * Get plugin configuration
-     */
-    public PluginConfig getPluginConfig() {
-        return pluginConfig;
-    }
-    
-    /**
-     * Get plugin API
-     */
-    public PluginAPI getPluginAPI() {
-        return pluginAPI;
-    }
-    
-    /**
-     * Get plugin data directory
-     */
-    public File getPluginDataDirectory() {
-        return pluginDataDirectory;
-    }
-    
-    /**
-     * Get plugin config file
-     */
-    public File getPluginConfigFile() {
-        return pluginConfigFile;
-    }
-    
-    /**
-     * Check if another plugin is loaded
-     */
-    public boolean isPluginLoaded(String pluginId) {
-        return pluginManager.isPluginLoaded(pluginId);
-    }
-    
-    /**
-     * Get another plugin instance
-     */
-    public Plugin getPlugin(String pluginId) {
-        return pluginManager.getPlugin(pluginId);
-    }
-    
-    /**
-     * Register a hook into TerrariaLoader functionality
-     */
-    public void registerHook(String hookPoint, PluginHook hook) {
-        if (hookPoint == null || hook == null) {
-            LogUtils.logError("Cannot register null hook or hookPoint");
-            return;
-        }
-        
-        registeredHooks.put(hookPoint, hook);
-        
-        // Register with global hook system
-        PluginHookManager.getInstance().registerHook(pluginInfo.getId(), hookPoint, hook);
-        
-        LogUtils.logDebug("Plugin " + pluginInfo.getName() + " registered hook: " + hookPoint);
-    }
-    
-    /**
-     * Unregister a hook
-     */
-    public void unregisterHook(String hookPoint) {
-        if (hookPoint == null) {
-            return;
-        }
-        
-        registeredHooks.remove(hookPoint);
-        
-        // Unregister from global hook system
-        PluginHookManager.getInstance().unregisterHook(pluginInfo.getId(), hookPoint);
-        
-        LogUtils.logDebug("Plugin " + pluginInfo.getName() + " unregistered hook: " + hookPoint);
-    }
-    
-    /**
-     * Unregister all hooks for this plugin
-     */
-    public void unregisterAllHooks() {
-        for (String hookPoint : registeredHooks.keySet()) {
-            PluginHookManager.getInstance().unregisterHook(pluginInfo.getId(), hookPoint);
-        }
-        registeredHooks.clear();
-        
-        LogUtils.logDebug("Plugin " + pluginInfo.getName() + " unregistered all hooks");
-    }
-    
-    /**
-     * Get registered hooks
-     */
-    public Map<String, PluginHook> getRegisteredHooks() {
-        return new ConcurrentHashMap<>(registeredHooks);
-    }
-    
-    /**
-     * Save plugin data to SharedPreferences
-     */
-    public void saveData(String key, String value) {
-        if (key == null) {
-            LogUtils.logError("Cannot save data with null key");
-            return;
-        }
-        
-        pluginPrefs.edit().putString(key, value).apply();
-        LogUtils.logDebug("Plugin " + pluginInfo.getName() + " saved data: " + key);
-    }
-    
-    /**
-     * Save plugin data (various types)
-     */
-    public void saveData(String key, int value) {
-        if (key != null) {
-            pluginPrefs.edit().putInt(key, value).apply();
-        }
-    }
-    
-    public void saveData(String key, boolean value) {
-        if (key != null) {
-            pluginPrefs.edit().putBoolean(key, value).apply();
-        }
-    }
-    
-    public void saveData(String key, float value) {
-        if (key != null) {
-            pluginPrefs.edit().putFloat(key, value).apply();
-        }
-    }
-    
-    public void saveData(String key, long value) {
-        if (key != null) {
-            pluginPrefs.edit().putLong(key, value).apply();
-        }
-    }
-    
-    /**
-     * Load plugin data from SharedPreferences
-     */
-    public String loadData(String key, String defaultValue) {
-        if (key == null) {
-            return defaultValue;
-        }
-        
-        return pluginPrefs.getString(key, defaultValue);
-    }
-    
-    /**
-     * Load plugin data (various types)
-     */
-    public int loadData(String key, int defaultValue) {
-        return key != null ? pluginPrefs.getInt(key, defaultValue) : defaultValue;
-    }
-    
-    public boolean loadData(String key, boolean defaultValue) {
-        return key != null ? pluginPrefs.getBoolean(key, defaultValue) : defaultValue;
-    }
-    
-    public float loadData(String key, float defaultValue) {
-        return key != null ? pluginPrefs.getFloat(key, defaultValue) : defaultValue;
-    }
-    
-    public long loadData(String key, long defaultValue) {
-        return key != null ? pluginPrefs.getLong(key, defaultValue) : defaultValue;
-    }
-    
-    /**
-     * Remove plugin data
-     */
-    public void removeData(String key) {
-        if (key != null) {
-            pluginPrefs.edit().remove(key).apply();
-            LogUtils.logDebug("Plugin " + pluginInfo.getName() + " removed data: " + key);
-        }
-    }
-    
-    /**
-     * Clear all plugin data
-     */
-    public void clearAllData() {
-        pluginPrefs.edit().clear().apply();
-        LogUtils.logDebug("Plugin " + pluginInfo.getName() + " cleared all data");
-    }
-    
-    /**
-     * Check if data exists
-     */
-    public boolean hasData(String key) {
-        return key != null && pluginPrefs.contains(key);
-    }
-    
-    /**
-     * Get all data keys
-     */
-    public java.util.Set<String> getDataKeys() {
-        return pluginPrefs.getAll().keySet();
-    }
-    
-    /**
-     * Create a file in plugin data directory
-     */
-    public File createDataFile(String fileName) {
-        if (fileName == null || fileName.trim().isEmpty()) {
-            LogUtils.logError("Cannot create file with null/empty name");
-            return null;
-        }
-        
-        // Sanitize filename
-        fileName = fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
-        
-        File file = new File(pluginDataDirectory, fileName);
-        try {
-            if (!file.exists()) {
-                file.createNewFile();
-                LogUtils.logDebug("Plugin " + pluginInfo.getName() + " created file: " + fileName);
-            }
-            return file;
-        } catch (java.io.IOException e) {
-            LogUtils.logError("Failed to create plugin file: " + e.getMessage());
-            return null;
-        }
-    }
-    
-    /**
-     * Get a file from plugin data directory
-     */
-    public File getDataFile(String fileName) {
-        if (fileName == null || fileName.trim().isEmpty()) {
-            return null;
-        }
-        
-        return new File(pluginDataDirectory, fileName);
-    }
-    
-    /**
-     * Delete a file from plugin data directory
-     */
-    public boolean deleteDataFile(String fileName) {
-        File file = getDataFile(fileName);
-        if (file != null && file.exists()) {
-            boolean deleted = file.delete();
-            if (deleted) {
-                LogUtils.logDebug("Plugin " + pluginInfo.getName() + " deleted file: " + fileName);
-            }
-            return deleted;
-        }
-        return false;
-    }
-    
-    /**
-     * List files in plugin data directory
-     */
-    public File[] listDataFiles() {
-        if (pluginDataDirectory.exists() && pluginDataDirectory.isDirectory()) {
-            return pluginDataDirectory.listFiles();
-        }
-        return new File[0];
-    }
-    
-    /**
-     * Get plugin data directory size
-     */
-    public long getDataDirectorySize() {
-        return FileUtils.getDirectorySize(pluginDataDirectory);
-    }
-    
-    /**
-     * Clean up plugin data directory (delete all files)
-     */
-    public boolean cleanupDataDirectory() {
-        try {
-            File[] files = listDataFiles();
-            boolean success = true;
-            
-            for (File file : files) {
-                if (!file.delete()) {
-                    success = false;
-                    LogUtils.logDebug("Failed to delete plugin file: " + file.getName());
-                }
-            }
-            
-            if (success) {
-                LogUtils.logDebug("Plugin " + pluginInfo.getName() + " cleaned up data directory");
-            }
-            
-            return success;
-            
-        } catch (Exception e) {
-            LogUtils.logError("Failed to cleanup plugin data directory: " + e.getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Write text to a file in plugin data directory
-     */
-    public boolean writeTextFile(String fileName, String content) {
-        File file = createDataFile(fileName);
-        if (file == null) {
-            return false;
-        }
-        
-        try (java.io.FileWriter writer = new java.io.FileWriter(file)) {
-            writer.write(content != null ? content : "");
-            LogUtils.logDebug("Plugin " + pluginInfo.getName() + " wrote to file: " + fileName);
-            return true;
-        } catch (java.io.IOException e) {
-            LogUtils.logError("Failed to write plugin file: " + e.getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Read text from a file in plugin data directory
-     */
-    public String readTextFile(String fileName) {
-        File file = getDataFile(fileName);
-        if (file == null || !file.exists()) {
-            return null;
-        }
-        
-        try (java.io.FileReader reader = new java.io.FileReader(file);
-             java.io.BufferedReader bufferedReader = new java.io.BufferedReader(reader)) {
-            
-            StringBuilder content = new StringBuilder();
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                content.append(line).append("\n");
-            }
-            
-            LogUtils.logDebug("Plugin " + pluginInfo.getName() + " read from file: " + fileName);
-            return content.toString();
-            
-        } catch (java.io.IOException e) {
-            LogUtils.logError("Failed to read plugin file: " + e.getMessage());
-            return null;
-        }
-    }
-    
-    /**
-     * Append text to a file in plugin data directory
-     */
-    public boolean appendTextFile(String fileName, String content) {
-        File file = getDataFile(fileName);
-        if (file == null) {
-            file = createDataFile(fileName);
-        }
-        
-        if (file == null) {
-            return false;
-        }
-        
-        try (java.io.FileWriter writer = new java.io.FileWriter(file, true)) {
-            writer.write(content != null ? content : "");
-            LogUtils.logDebug("Plugin " + pluginInfo.getName() + " appended to file: " + fileName);
-            return true;
-        } catch (java.io.IOException e) {
-            LogUtils.logError("Failed to append to plugin file: " + e.getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Get plugin resource directory (for read-only plugin assets)
-     */
-    public File getPluginResourceDirectory() {
-        File resourceDir = new File(pluginDataDirectory, "resources");
-        if (!resourceDir.exists()) {
-            resourceDir.mkdirs();
-        }
-        return resourceDir;
-    }
-    
-    /**
-     * Get plugin cache directory (for temporary files)
-     */
-    public File getPluginCacheDirectory() {
-        File cacheDir = new File(pluginDataDirectory, "cache");
-        if (!cacheDir.exists()) {
-            cacheDir.mkdirs();
-        }
-        return cacheDir;
-    }
-    
-    /**
-     * Clear plugin cache directory
-     */
-    public boolean clearCache() {
-        File cacheDir = getPluginCacheDirectory();
-        try {
-            FileUtils.deleteDirectory(cacheDir);
-            cacheDir.mkdirs();
-            LogUtils.logDebug("Plugin " + pluginInfo.getName() + " cleared cache");
-            return true;
-        } catch (Exception e) {
-            LogUtils.logError("Failed to clear plugin cache: " + e.getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Log a message with plugin context
-     */
-    public void log(String message) {
-        LogUtils.logDebug("[Plugin:" + pluginInfo.getName() + "] " + message);
-    }
-    
-    /**
-     * Log a user message with plugin context
-     */
-    public void logUser(String message) {
-        LogUtils.logUser("[Plugin:" + pluginInfo.getName() + "] " + message);
-    }
-    
-    /**
-     * Log an error with plugin context
-     */
-    public void logError(String message) {
-        LogUtils.logError("[Plugin:" + pluginInfo.getName() + "] " + message);
-    }
-    
-    /**
-     * Get context information as string
-     */
-    public String getContextInfo() {
-        StringBuilder info = new StringBuilder();
-        info.append("=== Plugin Context Info ===\n");
-        info.append("Plugin: ").append(pluginInfo.getName()).append(" v").append(pluginInfo.getVersion()).append("\n");
-        info.append("ID: ").append(pluginInfo.getId()).append("\n");
-        info.append("Author: ").append(pluginInfo.getAuthor()).append("\n");
-        info.append("Category: ").append(pluginInfo.getCategory()).append("\n");
-        info.append("Data Directory: ").append(pluginDataDirectory.getAbsolutePath()).append("\n");
-        info.append("Data Size: ").append(FileUtils.formatFileSize(getDataDirectorySize())).append("\n");
-        info.append("Config File: ").append(pluginConfigFile.getAbsolutePath()).append("\n");
-        info.append("Registered Hooks: ").append(registeredHooks.size()).append("\n");
-        info.append("Stored Data Keys: ").append(getDataKeys().size()).append("\n");
-        
-        if (!registeredHooks.isEmpty()) {
-            info.append("Hooks: ").append(registeredHooks.keySet()).append("\n");
-        }
-        
-        return info.toString();
-    }
-    
-    /**
-     * Export plugin context data
-     */
-    public String exportContextData() {
-        StringBuilder export = new StringBuilder();
-        export.append("=== Plugin Context Export ===\n");
-        export.append("Plugin: ").append(pluginInfo.getName()).append("\n");
-        export.append("Export Time: ").append(new java.util.Date().toString()).append("\n\n");
-        
-        // Export configuration
-        export.append("Configuration:\n");
-        export.append(pluginConfig.toString()).append("\n\n");
-        
-        // Export stored data
-        export.append("Stored Data:\n");
-        for (String key : getDataKeys()) {
-            String value = loadData(key, "");
-            export.append("  ").append(key).append(" = ").append(value).append("\n");
-        }
-        export.append("\n");
-        
-        // Export registered hooks
-        export.append("Registered Hooks:\n");
-        for (String hookPoint : registeredHooks.keySet()) {
-            PluginHook hook = registeredHooks.get(hookPoint);
-            export.append("  ").append(hookPoint).append(" -> ").append(hook.getHookName()).append("\n");
-        }
-        
-        return export.toString();
-    }
-    
-    /**
-     * Get context statistics
-     */
-    public ContextStatistics getStatistics() {
-        ContextStatistics stats = new ContextStatistics();
-        stats.pluginName = pluginInfo.getName();
-        stats.pluginId = pluginInfo.getId();
-        stats.dataDirectorySize = getDataDirectorySize();
-        stats.storedDataKeys = getDataKeys().size();
-        stats.registeredHooks = registeredHooks.size();
-        stats.dataFiles = listDataFiles().length;
-        
-        return stats;
-    }
-    
-    /**
-     * Context Statistics class
-     */
-    public static class ContextStatistics {
-        public String pluginName;
-        public String pluginId;
-        public long dataDirectorySize;
-        public int storedDataKeys;
-        public int registeredHooks;
-        public int dataFiles;
-        
-        @Override
-        public String toString() {
-            return String.format("Context[%s]: %s data, %d keys, %d hooks, %d files",
-                pluginName, FileUtils.formatFileSize(dataDirectorySize),
-                storedDataKeys, registeredHooks, dataFiles);
-        }
-    }
-    
-    /**
-     * Cleanup plugin context
-     */
-    public void cleanup() {
-        LogUtils.logDebug("Cleaning up PluginContext for: " + pluginInfo.getName());
-        
-        // Unregister all hooks
-        unregisterAllHooks();
-        
-        // Save configuration
-        pluginConfig.save();
-        
-        LogUtils.logDebug("PluginContext cleanup completed for: " + pluginInfo.getName());
-    }
-    
-    /**
-     * Check if plugin has permission
-     */
-    public boolean hasPermission(String permission) {
-        String[] permissions = pluginInfo.getPermissions();
-        if (permissions != null) {
-            for (String perm : permissions) {
-                if (permission.equals(perm)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    
-    /**
-     * Request permission (placeholder for future implementation)
-     */
-    public boolean requestPermission(String permission) {
-        // For now, just check if plugin declares the permission
-        boolean hasPermission = hasPermission(permission);
-        
-        if (!hasPermission) {
-            logError("Plugin does not have permission: " + permission);
-        }
-        
-        return hasPermission;
-    }
-    
-    /**
-     * Get available permissions
-     */
-    public String[] getAvailablePermissions() {
-        return pluginInfo.getPermissions();
-    }
-}
-
-/**
- * Simple Plugin Hook Manager for coordinating hooks
- */
-class PluginHookManager {
-    private static PluginHookManager instance;
-    private final Map<String, Map<String, PluginHook>> hooks = new ConcurrentHashMap<>();
-    
-    public static synchronized PluginHookManager getInstance() {
-        if (instance == null) {
-            instance = new PluginHookManager();
-        }
-        return instance;
-    }
-    
-    public void registerHook(String pluginId, String hookPoint, PluginHook hook) {
-        hooks.computeIfAbsent(pluginId, k -> new ConcurrentHashMap<>()).put(hookPoint, hook);
-    }
-    
-    public void unregisterHook(String pluginId, String hookPoint) {
-        Map<String, PluginHook> pluginHooks = hooks.get(pluginId);
-        if (pluginHooks != null) {
-            pluginHooks.remove(hookPoint);
-            if (pluginHooks.isEmpty()) {
-                hooks.remove(pluginId);
-            }
-        }
-    }
-    
-    public boolean callHook(String hookPoint, Object... args) {
-        boolean handled = false;
-        
-        for (Map<String, PluginHook> pluginHooks : hooks.values()) {
-            PluginHook hook = pluginHooks.get(hookPoint);
-            if (hook != null) {
-                try {
-                    if (hook.onHookCalled(hookPoint, args)) {
-                        handled = true;
-                    }
-                } catch (Exception e) {
-                    LogUtils.logError("Hook execution failed: " + e.getMessage());
-                }
-            }
-        }
-        
-        return handled;
-    }
-    
-    public void cleanup() {
-        hooks.clear();
-    }
-}
+--------------------------------------------------------------------------------
