@@ -1,3 +1,5 @@
+
+
 /ModLoader/build.gradle
 
 // Root-level build.gradle (for Gradle 7.0+ and AGP 8.0+)
@@ -12,7 +14,7 @@ tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/settings.gradle
 
 pluginManagement {
@@ -34,7 +36,8 @@ dependencyResolutionManagement {
 rootProject.name = "ModLoader"
 include ':app'
 
---------------------------------------------------------------------------------
+
+
 /ModLoader/app/build.gradle
 
 plugins {
@@ -105,7 +108,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/AndroidManifest.xml
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -281,7 +284,7 @@ dependencies {
 
 </manifest>
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/AboutActivity.java
 
 package com.modloader;
@@ -299,7 +302,7 @@ public class AboutActivity extends AppCompatActivity {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/IntegrationManager.java
 
 package com.modloader;
@@ -307,7 +310,8 @@ package com.modloader;
 public class IntegrationManager {
 }
 
---------------------------------------------------------------------------------
+
+
 /ModLoader/app/src/main/java/com/modloader/LogActivity.java
 
 package com.modloader;
@@ -378,7 +382,7 @@ public class LogActivity extends AppCompatActivity {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/MainActivity.java
 
 // File: MainActivity.java (Activity Class) - Fixed Navigation Structure
@@ -442,7 +446,7 @@ public class MainActivity extends AppCompatActivity {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/MyApplication.java
 
 // File: MyApplication.java (FIXED) - Initialize Logs and Handle Migration
@@ -743,7 +747,7 @@ public class MyApplication extends Application {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/SandboxActivity.java
 
 package com.modloader;
@@ -775,7 +779,7 @@ public class SandboxActivity extends Activity {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/SpecificSelectionActivity.java
 
 // File: SpecificSelectionActivity.java (Fixed Activity Class) - Fixed App Selection
@@ -830,7 +834,7 @@ public class SpecificSelectionActivity extends AppCompatActivity {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/TerrariaSpecificActivity.java
 
 // File: TerrariaSpecificActivity.java (Updated) - Elegant UI with Dynamic Theming
@@ -1062,7 +1066,7 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/UniversalActivity.java
 
 package com.modloader;
@@ -1190,7 +1194,7 @@ public class UniversalActivity extends AppCompatActivity {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/Diagnostic/ApkProcessLogger.java
 
 package com.modloader.Diagnostic;
@@ -1198,7 +1202,8 @@ package com.modloader.Diagnostic;
 public class ApkProcessLogger {
 }
 
---------------------------------------------------------------------------------
+
+
 /ModLoader/app/src/main/java/com/modloader/Diagnostic/DiagnosticManager.java
 
 package com.modloader.diagnostic;
@@ -1427,7 +1432,7 @@ public class DiagnosticManager {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/installer/ModInstaller.java
 
 // File: ModInstaller.java (FIXED) - Updated to use new directory structure
@@ -1903,7 +1908,7 @@ public class ModInstaller {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/loader/LoaderFileManager.java
 
 // File: LoaderFileManager.java (Fixed Component) - Complete Path Management Fix
@@ -2449,7 +2454,7 @@ public class LoaderFileManager {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/loader/LoaderInstaller.java
 
 // File: LoaderInstaller.java (Complete Fixed Version) - Uses Correct App-Specific Paths
@@ -2886,7 +2891,7 @@ public class LoaderInstaller {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/loader/LoaderValidator.java
 
 // File: LoaderValidator.java (Fixed Component) - Complete Path Management Fix
@@ -3289,7 +3294,7 @@ public class LoaderValidator {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/loader/MainLoader.java
 
 package com.loader;
@@ -3327,7 +3332,7 @@ public class MainLoader extends Application {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/loader/MelonLoaderManager.java
 
 // File: MelonLoaderManager.java (Fixed Facade) - Updated with PathManager
@@ -3791,7 +3796,7 @@ public class MelonLoaderManager {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/loader/ModBase.java
 
 // File: ModBase.java (Interface Class) - Phase 4 Enhanced with DLL Support
@@ -3922,7 +3927,7 @@ public interface ModBase {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/loader/ModConfiguration.java
 
 package com.modloader.loader;
@@ -4122,7 +4127,7 @@ public class ModConfiguration {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/loader/ModController.java
 
 // File: ModController.java (Extracted Component) - Handles mod state management
@@ -4433,7 +4438,7 @@ public class ModController {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/loader/ModLoader.java
 
 // File: ModLoader.java (Complete Fixed Component) - Updated Method Calls with Context
@@ -4848,7 +4853,7 @@ public class ModLoader {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/loader/ModManager.java
 
 // File: ModManager.java (Fixed Facade) - Updated with PathManager
@@ -5154,7 +5159,7 @@ public class ModManager {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/loader/ModMetadata.java
 
 // File: ModMetadata.java (Fixed Class) - Enhanced Null Safety
@@ -5384,7 +5389,7 @@ public class ModMetadata {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/loader/ModRepository.java
 
 // File: ModRepository.java (Fixed Component) - Updated Method Calls
@@ -5588,7 +5593,7 @@ public class ModRepository {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/loader/debugger/ApkProcessTracker.java
 
 // File: ApkProcessTracker.java - Real-time APK operation monitoring and debugging
@@ -6140,7 +6145,7 @@ public class ApkProcessTracker {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/loader/debugger/MelonLoaderDebugger.java
 
 // File: MelonLoaderDebugger.java - Advanced MelonLoader integration debugging
@@ -6973,7 +6978,7 @@ public class MelonLoaderDebugger {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/logging/ApkProcessLogger.java
 
 // File: ApkProcessLogger.java - Specialized APK process tracking
@@ -7298,7 +7303,7 @@ public class ApkProcessLogger {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/logging/BasicLogger.java
 
 package com.modloader.logging;
@@ -7306,7 +7311,8 @@ package com.modloader.logging;
 public class BasicLogger {
 }
 
---------------------------------------------------------------------------------
+
+
 /ModLoader/app/src/main/java/com/modloader/logging/ErrorLogger.java
 
 // File: ErrorLogger.java - Specialized error and exception tracking
@@ -7870,7 +7876,7 @@ public class ErrorLogger {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/logging/FileLogger.java
 
 // File: FileLogger.java (Complete Fixed Version) - Full logging system with all properties
@@ -8339,7 +8345,7 @@ public class FileLogger {
     }
 }
 
---------------------------------------------------------------------------------
+
 /ModLoader/app/src/main/java/com/modloader/logging/LogExporter.java
 
 package com.terrarialoader.logging;
@@ -8347,7 +8353,8 @@ package com.terrarialoader.logging;
 public class LogExporter {
 }
 
---------------------------------------------------------------------------------
+
+
 /ModLoader/app/src/main/java/com/modloader/plugin/Plugin.java
 
 // File: Plugin.java - Base Plugin Interface
@@ -9121,5 +9128,3 @@ abstract class BasePlugin implements Plugin {
         return true;
     }
 }
-
---------------------------------------------------------------------------------
