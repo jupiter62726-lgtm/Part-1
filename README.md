@@ -1,6 +1,4 @@
-
-
-/ModLoader/build.gradle
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/build.gradle
 
 // Root-level build.gradle (for Gradle 7.0+ and AGP 8.0+)
 
@@ -14,8 +12,7 @@ tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
 
-
-/ModLoader/settings.gradle
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/settings.gradle
 
 pluginManagement {
     repositories {
@@ -37,8 +34,7 @@ rootProject.name = "ModLoader"
 include ':app'
 
 
-
-/ModLoader/app/build.gradle
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/build.gradle
 
 plugins {
     id 'com.android.application'
@@ -108,39 +104,31 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
 
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/AndroidManifest.xml
 
-/ModLoader/app/src/main/AndroidManifest.xml
+<?xml version="1.0" encoding="utf-8"?>
+<!-- File: AndroidManifest.xml - Updated with Plugin System Activities -->
+<!-- Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/app/src/main/AndroidManifest.xml -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- ENHANCED PERMISSIONS - Fixed APK installation issues -->
-    
-    <!-- Storage permissions -->
+    <!-- Existing Permissions -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
-    
-    <!-- Network permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    
-    <!-- APK Installation permissions (FIXED) -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.INSTALL_PACKAGES"
         tools:ignore="ProtectedPermissions" />
-    
-    <!-- Package management permissions -->
+
+    <!-- NEW: Plugin System Permissions -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
-    
-    <!-- Wake lock for long operations -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    
-    <!-- Vibration for notifications -->
-    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".MyApplication"
@@ -150,12 +138,10 @@ dependencies {
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MaterialComponents.DayNight.DarkActionBar"
-        android:requestLegacyExternalStorage="true"
-        android:preserveLegacyExternalStorage="true"
-        android:largeHeap="true">
+        android:theme="@style/Theme.ModLoader"
+        android:requestLegacyExternalStorage="true">
 
-        <!-- ENHANCED FILE PROVIDER - Fixed APK installation -->
+        <!-- File Provider -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -170,6 +156,7 @@ dependencies {
         <activity 
             android:name=".MainActivity" 
             android:exported="true"
+            android:screenOrientation="portrait"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -178,98 +165,134 @@ dependencies {
         </activity>
 
         <!-- Core activities -->
-        <activity android:name=".TerrariaSpecificActivity" 
+        <activity 
+            android:name=".TerrariaSpecificActivity" 
             android:exported="false"
-            android:parentActivityName=".SpecificSelectionActivity"/>
-        <activity android:name=".AboutActivity" 
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
+        
+        <activity 
+            android:name=".AboutActivity" 
             android:exported="false"
-            android:parentActivityName=".MainActivity"/>
-        <activity android:name=".UniversalActivity" 
+            android:parentActivityName=".MainActivity" />
+        
+        <activity 
+            android:name=".UniversalActivity" 
             android:exported="false"
-            android:parentActivityName=".MainActivity"/>
-        <activity android:name=".SpecificSelectionActivity" 
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
+        
+        <activity 
+            android:name=".SpecificSelectionActivity" 
             android:exported="false"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity" />
 
-        <!-- Diagnostic and utility activities -->
-        <activity android:name=".ui.OfflineDiagnosticActivity" 
+        <!-- UI Activities -->
+        <activity 
+            android:name=".ui.OfflineDiagnosticActivity" 
             android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity"/>
-
-        <!-- NEW: Unified Loader Activity (replaces TerrariaActivity and DllModActivity) -->
-        <activity android:name=".ui.UnifiedLoaderActivity" 
+            android:parentActivityName=".TerrariaSpecificActivity" />
+        
+        <activity 
+            android:name=".ui.UnifiedLoaderActivity" 
             android:exported="false"
             android:parentActivityName=".TerrariaSpecificActivity"
-            android:windowSoftInputMode="adjustResize"/>
-
-        <!-- Updated: Pure mod management only -->
-        <activity android:name=".ui.ModManagementActivity" 
+            android:screenOrientation="portrait" />
+        
+        <activity 
+            android:name=".ui.ModManagementActivity" 
             android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity"/>
-        <activity android:name=".ui.ModListActivity" 
+            android:parentActivityName=".TerrariaSpecificActivity" />
+        
+        <activity 
+            android:name=".ui.ModListActivity" 
             android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity"/>
-
-        <!-- Updated: Setup guide with offline ZIP import -->
-        <activity android:name=".ui.SetupGuideActivity" 
+            android:parentActivityName=".TerrariaSpecificActivity" />
+        
+        <activity 
+            android:name=".ui.SetupGuideActivity" 
             android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity"/>
+            android:parentActivityName=".TerrariaSpecificActivity" />
 
         <!-- Utility activities -->
-        <activity android:name=".ui.SettingsActivity" 
+        <activity 
+            android:name=".ui.SettingsActivity" 
             android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity"/>
-
-        <!-- ENHANCED: Advanced Log Viewer -->
-        <activity android:name=".ui.LogViewerActivity" 
+            android:parentActivityName=".TerrariaSpecificActivity" />
+        
+        <activity 
+            android:name=".ui.LogViewerActivity" 
             android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity"
-            android:windowSoftInputMode="adjustResize"/>
-
-        <activity android:name=".ui.InstructionsActivity" 
+            android:parentActivityName=".TerrariaSpecificActivity" />
+        
+        <activity 
+            android:name=".ui.InstructionsActivity" 
             android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity"/>
-
-        <!-- Testing and development -->
-        <activity android:name=".SandboxActivity" 
+            android:parentActivityName=".TerrariaSpecificActivity" />
+        
+        <activity 
+            android:name=".SandboxActivity" 
             android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity"/>
+            android:parentActivityName=".TerrariaSpecificActivity" />
 
-        <!-- NEW: APK Management Activity -->
-        <activity android:name=".ui.ApkManagerActivity"
+        <!-- NEW: Plugin System Activities -->
+        <activity
+            android:name=".plugin.PluginManagementActivity"
             android:exported="false"
-            android:parentActivityName=".ui.UnifiedLoaderActivity"/>
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait"
+            android:label="Plugin Management"
+            android:theme="@style/Theme.ModLoader">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
 
-        <!-- Intent filters for APK files (ENHANCED) -->
-        <activity-alias
-            android:name=".ApkHandler"
-            android:targetActivity=".ui.ApkManagerActivity"
-            android:exported="true">
-            <intent-filter android:priority="50">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="file" />
-                <data android:mimeType="application/vnd.android.package-archive" />
-            </intent-filter>
-            <intent-filter android:priority="50">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="content" />
-                <data android:mimeType="application/vnd.android.package-archive" />
-            </intent-filter>
-        </activity-alias>
+        <activity
+            android:name=".plugin.PluginInstallActivity"
+            android:exported="false"
+            android:parentActivityName=".plugin.PluginManagementActivity"
+            android:screenOrientation="portrait"
+            android:label="Install Plugin"
+            android:theme="@style/Theme.ModLoader">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".plugin.PluginManagementActivity" />
+        </activity>
 
-        <!-- Service for background operations -->
+        <activity
+            android:name=".plugin.PluginConfigActivity"
+            android:exported="false"
+            android:parentActivityName=".plugin.PluginManagementActivity"
+            android:screenOrientation="portrait"
+            android:label="Plugin Configuration"
+            android:theme="@style/Theme.ModLoader">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".plugin.PluginManagementActivity" />
+        </activity>
+
+        <!-- NEW: Plugin Service for Background Operations -->
         <service
-            android:name=".service.LoaderService"
+            android:name=".plugin.PluginService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:stopWithTask="true"
+            android:description="@string/plugin_service_description">
+        </service>
 
-        <!-- Broadcast receiver for package events -->
+        <!-- NEW: Plugin Content Provider for Inter-Plugin Communication -->
+        <provider
+            android:name=".plugin.PluginContentProvider"
+            android:authorities="${applicationId}.plugin.provider"
+            android:enabled="true"
+            android:exported="false"
+            android:grantUriPermissions="true">
+        </provider>
+
+        <!-- NEW: Plugin Broadcast Receiver for System Events -->
         <receiver
-            android:name=".receiver.PackageReceiver"
+            android:name=".plugin.PluginBroadcastReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter android:priority="1000">
@@ -278,14 +301,68 @@ dependencies {
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
                 <data android:scheme="package" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
         </receiver>
+
+        <!-- NEW: Plugin File Handler for .jar/.dex Plugin Files -->
+        <activity
+            android:name=".plugin.PluginFileHandlerActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:excludeFromRecents="true"
+            android:taskAffinity="">
+            <intent-filter android:priority="100">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:mimeType="application/java-archive" />
+                <data android:pathPattern=".*\\.jar" />
+                <data android:pathPattern=".*\\.dex" />
+            </intent-filter>
+            <intent-filter android:priority="100">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/java-archive" />
+            </intent-filter>
+        </activity>
+
+        <!-- NEW: Plugin Security Manager Component -->
+        <service
+            android:name=".plugin.PluginSecurityService"
+            android:enabled="true"
+            android:exported="false"
+            android:isolatedProcess="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+        </service>
 
     </application>
 
+    <!-- NEW: Custom Plugin Permissions -->
+    <permission
+        android:name="${applicationId}.permission.PLUGIN_API"
+        android:label="@string/permission_plugin_api_label"
+        android:description="@string/permission_plugin_api_desc"
+        android:protectionLevel="signature" />
+
+    <permission
+        android:name="${applicationId}.permission.PLUGIN_INSTALL"
+        android:label="@string/permission_plugin_install_label"
+        android:description="@string/permission_plugin_install_desc"
+        android:protectionLevel="dangerous" />
+
+    <permission
+        android:name="${applicationId}.permission.PLUGIN_MANAGE"
+        android:label="@string/permission_plugin_manage_label"
+        android:description="@string/permission_plugin_manage_desc"
+        android:protectionLevel="signature" />
+
 </manifest>
 
-
-/ModLoader/app/src/main/java/com/modloader/AboutActivity.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/AboutActivity.java
 
 package com.modloader;
 
@@ -302,8 +379,7 @@ public class AboutActivity extends AppCompatActivity {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/IntegrationManager.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/IntegrationManager.java
 
 package com.modloader;
 
@@ -311,8 +387,7 @@ public class IntegrationManager {
 }
 
 
-
-/ModLoader/app/src/main/java/com/modloader/LogActivity.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/LogActivity.java
 
 package com.modloader;
 
@@ -382,11 +457,10 @@ public class LogActivity extends AppCompatActivity {
     }
 }
 
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/MainActivity.java
 
-/ModLoader/app/src/main/java/com/modloader/MainActivity.java
-
-// File: MainActivity.java (Activity Class) - Fixed Navigation Structure
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/MainActivity.java
+// File: MainActivity.java (Updated) - Added Plugin Management Menu Button
+// Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/app/src/main/java/com/modloader/MainActivity.java
 
 package com.modloader;
 
@@ -397,6 +471,7 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.modloader.plugin.PluginManagementActivity;
 import com.modloader.util.LogUtils;
 
 public class MainActivity extends AppCompatActivity {
@@ -404,7 +479,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        
         try {
             stopService(new Intent().setClassName(getPackageName(), "com.itsaky.androidide.logsender.LogSenderService"));
         } catch (Exception ignored) {}
@@ -415,17 +490,17 @@ public class MainActivity extends AppCompatActivity {
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
             LogUtils.logDebug("FATAL CRASH: " + throwable);
             for (StackTraceElement e : throwable.getStackTrace()) {
-                LogUtils.logDebug("    at " + e.toString());
+                LogUtils.logDebug(" at " + e.toString());
             }
         });
 
         LogUtils.logDebug("Setting up main navigation");
-
         setContentView(R.layout.activity_main);
         setTitle("Mod Loader - Main Menu");
 
         Button universalButton = findViewById(R.id.universal_button);
         Button specificButton = findViewById(R.id.specific_button);
+        Button pluginButton = findViewById(R.id.plugin_button); // NEW: Plugin management button
 
         universalButton.setOnClickListener(v -> {
             LogUtils.logUser("Universal Mode selected");
@@ -436,21 +511,26 @@ public class MainActivity extends AppCompatActivity {
             LogUtils.logUser("Specific Mode selected - showing app selection");
             startActivity(new Intent(MainActivity.this, SpecificSelectionActivity.class));
         });
+
+        // NEW: Plugin management button listener
+        pluginButton.setOnClickListener(v -> {
+            LogUtils.logUser("Plugin Management selected");
+            startActivity(new Intent(MainActivity.this, PluginManagementActivity.class));
+        });
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+                                         @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         LogUtils.logDebug("Permission result callback triggered");
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/MyApplication.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/MyApplication.java
 
 // File: MyApplication.java (FIXED) - Initialize Logs and Handle Migration
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/MyApplication.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/MyApplication.java
 
 package com.modloader;
 
@@ -472,16 +552,16 @@ public class MyApplication extends Application {
         // FIXED: Initialize app startup logging
         LogUtils.initializeAppStartup();
         
-        // Auto-create TerrariaLoader directory structure on first run
-        initializeTerrariaLoaderStructure();
+        // Auto-create ModLoader directory structure on first run
+        initializeModLoaderStructure();
         
         // FIXED: Handle migration from legacy structure
         handleMigration();
     }
     
-    private void initializeTerrariaLoaderStructure() {
+    private void initializeModLoaderStructure() {
         try {
-            LogUtils.logUser("🚀 Initializing TerrariaLoader directory structure...");
+            LogUtils.logUser("🚀 Initializing ModLoader directory structure...");
             
             // The primary and most reliable location for app files.
             File baseDir = getExternalFilesDir(null);
@@ -491,12 +571,12 @@ public class MyApplication extends Application {
             }
 
             // FIXED: Use new directory structure
-            File terrariaLoaderDir = new File(baseDir, "TerrariaLoader");
+            File terrariaLoaderDir = new File(baseDir, "ModLoader");
             File gameDir = new File(terrariaLoaderDir, "com.and.games505.TerrariaPaid");
 
             if (!gameDir.exists()) {
                 if (gameDir.mkdirs()) {
-                    LogUtils.logUser("✅ Created base TerrariaLoader directory at: " + gameDir.getAbsolutePath());
+                    LogUtils.logUser("✅ Created base ModLoader directory at: " + gameDir.getAbsolutePath());
                 } else {
                     LogUtils.logDebug("❌ Failed to create base directory: " + gameDir.getAbsolutePath());
                     return; // Stop if we can't create the main folder
@@ -523,7 +603,7 @@ public class MyApplication extends Application {
                 basePath + "/Mods/DLL",      // FIXED: DLL mods directory
                 basePath + "/Config",
                 basePath + "/Logs",          // FIXED: Game logs (MelonLoader logs)
-                basePath + "/AppLogs",       // FIXED: App logs (TerrariaLoader logs)
+                basePath + "/AppLogs",       // FIXED: App logs (ModLoader logs)
                 basePath + "/Backups",
                 basePath + "/Loaders",
                 basePath + "/Loaders/MelonLoader",
@@ -557,12 +637,12 @@ public class MyApplication extends Application {
             }
             
             if (createdCount > 0) {
-                LogUtils.logUser("✅ TerrariaLoader directory structure created successfully");
+                LogUtils.logUser("✅ ModLoader directory structure created successfully");
                 LogUtils.logUser("📁 Path: " + basePath);
                 LogUtils.logUser("📊 Created " + createdCount + " directories");
                 createInfoFiles(basePath);
             } else {
-                LogUtils.logUser("📁 TerrariaLoader directories already exist");
+                LogUtils.logUser("📁 ModLoader directories already exist");
             }
             
         } catch (Exception e) {
@@ -578,7 +658,7 @@ public class MyApplication extends Application {
             File dexReadme = new File(basePath + "/Mods/DEX", "README.txt");
             if (!dexReadme.exists()) {
                 try (java.io.FileWriter writer = new java.io.FileWriter(dexReadme)) {
-                    writer.write("=== TerrariaLoader - DEX/JAR Mods ===\n\n");
+                    writer.write("=== ModLoader - DEX/JAR Mods ===\n\n");
                     writer.write("Place your .dex and .jar mod files here.\n");
                     writer.write("Supported formats:\n");
                     writer.write("• .dex files (enabled)\n");
@@ -594,7 +674,7 @@ public class MyApplication extends Application {
             File dllReadme = new File(basePath + "/Mods/DLL", "README.txt");
             if (!dllReadme.exists()) {
                 try (java.io.FileWriter writer = new java.io.FileWriter(dllReadme)) {
-                    writer.write("=== TerrariaLoader - DLL Mods ===\n\n");
+                    writer.write("=== ModLoader - DLL Mods ===\n\n");
                     writer.write("Place your .dll mod files here.\n");
                     writer.write("Requires MelonLoader to be installed.\n");
                     writer.write("Supported formats:\n");
@@ -655,8 +735,8 @@ public class MyApplication extends Application {
             File appLogsReadme = new File(basePath + "/AppLogs", "README.txt");
             if (!appLogsReadme.exists()) {
                 try (java.io.FileWriter writer = new java.io.FileWriter(appLogsReadme)) {
-                    writer.write("=== TerrariaLoader App Logs ===\n\n");
-                    writer.write("This directory contains logs from TerrariaLoader app.\n");
+                    writer.write("=== ModLoader App Logs ===\n\n");
+                    writer.write("This directory contains logs from ModLoader app.\n");
                     writer.write("These are generated when using this app.\n\n");
                     writer.write("Log files follow rotation:\n");
                     writer.write("• AppLog.txt (current log)\n");
@@ -715,7 +795,7 @@ public class MyApplication extends Application {
             LogUtils.logUser("📋 Migrating " + legacyLogFiles.length + " legacy log files...");
             
             // Create new app logs directory
-            File gameBaseDir = new File(getExternalFilesDir(null), "TerrariaLoader/com.and.games505.TerrariaPaid");
+            File gameBaseDir = new File(getExternalFilesDir(null), "ModLoader/com.and.games505.TerrariaPaid");
             File newAppLogsDir = new File(gameBaseDir, "AppLogs");
             if (!newAppLogsDir.exists()) {
                 newAppLogsDir.mkdirs();
@@ -747,8 +827,7 @@ public class MyApplication extends Application {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/SandboxActivity.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/SandboxActivity.java
 
 package com.modloader;
 
@@ -779,11 +858,10 @@ public class SandboxActivity extends Activity {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/SpecificSelectionActivity.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/SpecificSelectionActivity.java
 
 // File: SpecificSelectionActivity.java (Fixed Activity Class) - Fixed App Selection
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/SpecificSelectionActivity.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/SpecificSelectionActivity.java
 
 package com.modloader;
 
@@ -834,11 +912,10 @@ public class SpecificSelectionActivity extends AppCompatActivity {
     }
 }
 
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/TerrariaSpecificActivity.java
 
-/ModLoader/app/src/main/java/com/modloader/TerrariaSpecificActivity.java
-
-// File: TerrariaSpecificActivity.java (Updated) - Elegant UI with Dynamic Theming
-// Path: /main/java/com/terrarialoader/TerrariaSpecificActivity.java
+// File: TerrariaSpecificActivity.java (Updated) - Added Plugin Management Option
+// Path: /main/java/com/modloader/TerrariaSpecificActivity.java
 
 package com.modloader;
 
@@ -853,6 +930,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.modloader.R;
+import com.modloader.plugin.PluginManagementActivity;
 import com.modloader.ui.UnifiedLoaderActivity;
 import com.modloader.ui.ModListActivity;
 import com.modloader.ui.SettingsActivity;
@@ -863,7 +941,6 @@ import com.modloader.loader.MelonLoaderManager;
 import com.modloader.util.LogUtils;
 import com.modloader.ui.OfflineDiagnosticActivity;
 
-
 public class TerrariaSpecificActivity extends AppCompatActivity {
 
     private LinearLayout rootLayout;
@@ -871,16 +948,16 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
     private CardView setupCard;
     private CardView modManagementCard;
     private CardView toolsCard;
+    private CardView pluginCard; // NEW: Plugin management card
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_terraria_specific_updated);
-        
         setTitle("🌍 Terraria Mod Loader");
-        
+
         LogUtils.logUser("Terraria Menu Activity opened");
-        
+
         initializeViews();
         applyTerrariaTheme();
         setupUI();
@@ -893,6 +970,7 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
         setupCard = findViewById(R.id.setupCard);
         modManagementCard = findViewById(R.id.modManagementCard);
         toolsCard = findViewById(R.id.toolsCard);
+        pluginCard = findViewById(R.id.pluginCard); // NEW: Plugin card
     }
 
     private void applyTerrariaTheme() {
@@ -900,15 +978,21 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
         int primaryGreen = Color.parseColor("#4CAF50");
         int secondaryBlue = Color.parseColor("#2196F3");
         int accentGreen = Color.parseColor("#81C784");
-        
+        int pluginPurple = Color.parseColor("#9C27B0"); // NEW: Plugin theme color
+
         // Apply theme to root layout
         rootLayout.setBackgroundColor(Color.parseColor("#E8F5E8"));
-        
+
         // Apply theme to cards
         setupCard.setCardBackgroundColor(Color.parseColor("#F1F8E9"));
         modManagementCard.setCardBackgroundColor(Color.parseColor("#E3F2FD"));
         toolsCard.setCardBackgroundColor(Color.parseColor("#F3E5F5"));
         
+        // NEW: Plugin card theme
+        if (pluginCard != null) {
+            pluginCard.setCardBackgroundColor(Color.parseColor("#F3E5F5"));
+        }
+
         // Set status bar color
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(primaryGreen);
@@ -917,7 +1001,6 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
 
     private void setupUI() {
         // === SETUP SECTION ===
-        
         // Unified Loader Setup (NEW - replaces multiple buttons)
         Button unifiedSetupBtn = findViewById(R.id.unifiedSetupButton);
         unifiedSetupBtn.setOnClickListener(v -> {
@@ -925,7 +1008,7 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
             Intent intent = new Intent(this, UnifiedLoaderActivity.class);
             startActivity(intent);
         });
-        
+
         // Quick Setup Guide
         Button setupGuideBtn = findViewById(R.id.setupGuideButton);
         setupGuideBtn.setOnClickListener(v -> {
@@ -933,7 +1016,7 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
             Intent intent = new Intent(this, com.modloader.ui.SetupGuideActivity.class);
             startActivity(intent);
         });
-        
+
         // Manual Instructions (fallback)
         Button manualInstructionsBtn = findViewById(R.id.manualInstructionsButton);
         manualInstructionsBtn.setOnClickListener(v -> {
@@ -941,9 +1024,8 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
             Intent intent = new Intent(this, InstructionsActivity.class);
             startActivity(intent);
         });
-        
+
         // === MOD MANAGEMENT SECTION ===
-        
         // DEX/JAR Mod Manager
         Button dexModManagerBtn = findViewById(R.id.dexModManagerButton);
         dexModManagerBtn.setOnClickListener(v -> {
@@ -951,12 +1033,11 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
             Intent intent = new Intent(this, ModListActivity.class);
             startActivity(intent);
         });
-        
+
         // DLL Mod Manager (redirects to unified system)
         Button dllModManagerBtn = findViewById(R.id.dllModManagerButton);
         dllModManagerBtn.setOnClickListener(v -> {
             LogUtils.logUser("Opening DLL Mod Management via Unified Loader");
-            
             // Check if loader is installed
             if (MelonLoaderManager.isMelonLoaderInstalled(this) || MelonLoaderManager.isLemonLoaderInstalled(this)) {
                 // If loader is installed, go directly to mod management
@@ -968,9 +1049,36 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        
+
+        // === PLUGIN MANAGEMENT SECTION (NEW) ===
+        Button pluginManagerBtn = findViewById(R.id.pluginManagerButton);
+        if (pluginManagerBtn != null) {
+            pluginManagerBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Opening Plugin Management System");
+                Intent intent = new Intent(this, PluginManagementActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        Button pluginInstallBtn = findViewById(R.id.pluginInstallButton);
+        if (pluginInstallBtn != null) {
+            pluginInstallBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Opening Plugin Installation");
+                Intent intent = new Intent(this, com.modloader.plugin.PluginInstallActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        Button pluginConfigBtn = findViewById(R.id.pluginConfigButton);
+        if (pluginConfigBtn != null) {
+            pluginConfigBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Opening Plugin Configuration");
+                Intent intent = new Intent(this, com.modloader.plugin.PluginConfigActivity.class);
+                startActivity(intent);
+            });
+        }
+
         // === TOOLS SECTION ===
-        
         // Log Viewer
         Button logViewerBtn = findViewById(R.id.logViewerButton);
         logViewerBtn.setOnClickListener(v -> {
@@ -978,7 +1086,7 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
             Intent intent = new Intent(this, LogViewerActivity.class);
             startActivity(intent);
         });
-        
+
         // Settings
         Button settingsBtn = findViewById(R.id.settingsButton);
         settingsBtn.setOnClickListener(v -> {
@@ -986,27 +1094,24 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
         });
-        
+
         // Sandbox Mode
         Button sandboxBtn = findViewById(R.id.sandboxButton);
         sandboxBtn.setOnClickListener(v -> {
             LogUtils.logUser("Opening Sandbox Mode");
             Intent intent = new Intent(this, SandboxActivity.class);
             startActivity(intent);
-            
-        });    
-            
+        });
+
         // Diagnostic Tool
         Button diagnosticBtn = findViewById(R.id.diagnosticButton);
         diagnosticBtn.setOnClickListener(v -> {
             LogUtils.logUser("Opening Offline Diagnostic Tool");
             Intent intent = new Intent(this, OfflineDiagnosticActivity.class);
             startActivity(intent);
-   
         });
-        
+
         // === NAVIGATION ===
-        
         // Back to App Selection
         Button backBtn = findViewById(R.id.backButton);
         backBtn.setOnClickListener(v -> {
@@ -1018,10 +1123,10 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
     private void updateLoaderStatus() {
         boolean melonInstalled = MelonLoaderManager.isMelonLoaderInstalled(this);
         boolean lemonInstalled = MelonLoaderManager.isLemonLoaderInstalled(this);
-        
+
         String statusText;
         int statusColor;
-        
+
         if (melonInstalled) {
             statusText = "✅ MelonLoader " + MelonLoaderManager.getInstalledLoaderVersion() + " ready for DLL mods";
             statusColor = Color.parseColor("#4CAF50"); // Green
@@ -1032,17 +1137,16 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
             statusText = "⚠️ No loader installed - Use 'Complete Setup Wizard' to install MelonLoader";
             statusColor = Color.parseColor("#FF9800"); // Orange
         }
-        
+
         loaderStatusText.setText(statusText);
         loaderStatusText.setTextColor(statusColor);
-        
+
         // Update button states based on loader status
         updateButtonStates(melonInstalled || lemonInstalled);
     }
 
     private void updateButtonStates(boolean loaderInstalled) {
         Button dllModManagerBtn = findViewById(R.id.dllModManagerButton);
-        
         if (loaderInstalled) {
             dllModManagerBtn.setText("🔧 Manage DLL Mods");
             dllModManagerBtn.setBackgroundColor(Color.parseColor("#4CAF50"));
@@ -1066,8 +1170,7 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/UniversalActivity.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/UniversalActivity.java
 
 package com.modloader;
 
@@ -1194,8 +1297,7 @@ public class UniversalActivity extends AppCompatActivity {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/Diagnostic/ApkProcessLogger.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/Diagnostic/ApkProcessLogger.java
 
 package com.modloader.Diagnostic;
 
@@ -1203,8 +1305,7 @@ public class ApkProcessLogger {
 }
 
 
-
-/ModLoader/app/src/main/java/com/modloader/Diagnostic/DiagnosticManager.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/Diagnostic/DiagnosticManager.java
 
 package com.modloader.diagnostic;
 
@@ -1227,7 +1328,7 @@ public class DiagnosticManager {
 
     public DiagnosticManager(Context context) {
         this.context = context;
-        this.gameBaseDir = new File(context.getExternalFilesDir(null), "TerrariaLoader/" + gamePackage);
+        this.gameBaseDir = new File(context.getExternalFilesDir(null), "ModLoader/" + gamePackage);
     }
 
     public String runFullDiagnostics() {
@@ -1365,7 +1466,7 @@ public class DiagnosticManager {
             if (!readme.exists()) {
                 try {
                     FileWriter writer = new FileWriter(readme);
-                    writer.write("README for " + relPath + "\nThis directory is used by TerrariaLoader.");
+                    writer.write("README for " + relPath + "\nThis directory is used by ModLoader.");
                     writer.close();
                     log("📘 Created README in: " + relPath);
                 } catch (IOException e) {
@@ -1376,7 +1477,7 @@ public class DiagnosticManager {
     }
 
     private void generateReport() {
-        reportLines.add("=== TerrariaLoader Offline Diagnostic Report ===");
+        reportLines.add("=== ModLoader Offline Diagnostic Report ===");
         reportLines.add("Timestamp: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
         reportLines.add("Base Directory: " + gameBaseDir.getAbsolutePath());
         reportLines.add("\nChecks:");
@@ -1432,11 +1533,10 @@ public class DiagnosticManager {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/installer/ModInstaller.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/installer/ModInstaller.java
 
 // File: ModInstaller.java (FIXED) - Updated to use new directory structure
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/installer/ModInstaller.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/installer/ModInstaller.java
 
 package com.modloader.installer;
 
@@ -1908,11 +2008,10 @@ public class ModInstaller {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/loader/LoaderFileManager.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/LoaderFileManager.java
 
 // File: LoaderFileManager.java (Fixed Component) - Complete Path Management Fix
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/LoaderFileManager.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/LoaderFileManager.java
 
 package com.modloader.loader;
 
@@ -2385,7 +2484,7 @@ public class LoaderFileManager {
             List<File> allMods = getAllMods(context, gamePackage);
             
             try (java.io.FileWriter writer = new java.io.FileWriter(outputFile)) {
-                writer.write("=== TerrariaLoader Mod List ===\n");
+                writer.write("=== ModLoader Mod List ===\n");
                 writer.write("Game Package: " + gamePackage + "\n");
                 writer.write("Export Date: " + new java.util.Date().toString() + "\n");
                 writer.write("Total Mods: " + (allMods != null ? allMods.size() : 0) + "\n\n");
@@ -2454,8 +2553,7 @@ public class LoaderFileManager {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/loader/LoaderInstaller.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/LoaderInstaller.java
 
 // File: LoaderInstaller.java (Complete Fixed Version) - Uses Correct App-Specific Paths
 // Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/app/src/main/java/com/modloader/loader/LoaderInstaller.java
@@ -2507,7 +2605,7 @@ public class LoaderInstaller {
         "Mods/DEX", // DEX/JAR mods go here
         "Loaders/MelonLoader/UserLibs", // User libraries
         "Loaders/MelonLoader/Plugins", // Plugin files
-        "Logs", // All logs (both MelonLoader and TerrariaLoader)
+        "Logs", // All logs (both MelonLoader and ModLoader)
         // Backup and Config
         "Backups", // APK backups
         "Config" // Configuration files
@@ -2546,7 +2644,7 @@ public class LoaderInstaller {
         // DLL Mods directory README
         File dllModsReadme = new File(baseDir, "Mods/DLL/README.txt");
         try (java.io.FileWriter writer = new java.io.FileWriter(dllModsReadme)) {
-            writer.write("=== TerrariaLoader - DLL Mods Directory ===\n\n");
+            writer.write("=== ModLoader - DLL Mods Directory ===\n\n");
             writer.write("Place your .dll mod files here.\n");
             writer.write("Mods will be loaded automatically when Terraria starts.\n\n");
             writer.write("Supported formats:\n");
@@ -2563,7 +2661,7 @@ public class LoaderInstaller {
         // DEX Mods directory README
         File dexModsReadme = new File(baseDir, "Mods/DEX/README.txt");
         try (java.io.FileWriter writer = new java.io.FileWriter(dexModsReadme)) {
-            writer.write("=== TerrariaLoader - DEX/JAR Mods Directory ===\n\n");
+            writer.write("=== ModLoader - DEX/JAR Mods Directory ===\n\n");
             writer.write("Place your .dex and .jar mod files here.\n");
             writer.write("These are Java-based mods for Android.\n\n");
             writer.write("Supported formats:\n");
@@ -2580,12 +2678,12 @@ public class LoaderInstaller {
         // Config directory info
         File configReadme = new File(baseDir, "Config/README.txt");
         try (java.io.FileWriter writer = new java.io.FileWriter(configReadme)) {
-            writer.write("=== TerrariaLoader Configuration Directory ===\n\n");
-            writer.write("This directory contains configuration files for TerrariaLoader and MelonLoader.\n");
+            writer.write("=== ModLoader Configuration Directory ===\n\n");
+            writer.write("This directory contains configuration files for ModLoader and MelonLoader.\n");
             writer.write("Mod-specific config files will appear here automatically.\n\n");
             writer.write("File types you might see:\n");
             writer.write("• .cfg files (MelonLoader configs)\n");
-            writer.write("• .json files (TerrariaLoader configs)\n");
+            writer.write("• .json files (ModLoader configs)\n");
             writer.write("• .txt files (Various settings)\n");
         }
     }
@@ -2891,11 +2989,10 @@ public class LoaderInstaller {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/loader/LoaderValidator.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/LoaderValidator.java
 
 // File: LoaderValidator.java (Fixed Component) - Complete Path Management Fix
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/LoaderValidator.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/LoaderValidator.java
 
 package com.modloader.loader;
 
@@ -3294,8 +3391,7 @@ public class LoaderValidator {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/loader/MainLoader.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/MainLoader.java
 
 package com.loader;
 
@@ -3332,11 +3428,10 @@ public class MainLoader extends Application {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/loader/MelonLoaderManager.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/MelonLoaderManager.java
 
 // File: MelonLoaderManager.java (Fixed Facade) - Updated with PathManager
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/MelonLoaderManager.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/MelonLoaderManager.java
 
 package com.modloader.loader;
 
@@ -3575,7 +3670,7 @@ public class MelonLoaderManager {
         LoaderStatus status = getStatus(context, gamePackage);
         StringBuilder summary = new StringBuilder();
         
-        summary.append("=== TerrariaLoader Summary ===\n");
+        summary.append("=== ModLoader Summary ===\n");
         summary.append("Game: ").append(gamePackage != null ? gamePackage : "null").append("\n");
         summary.append("Loader Status: ").append(status.melonLoaderInstalled ? "Installed" : "Not Installed").append("\n");
         
@@ -3796,11 +3891,10 @@ public class MelonLoaderManager {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/loader/ModBase.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/ModBase.java
 
 // File: ModBase.java (Interface Class) - Phase 4 Enhanced with DLL Support
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModBase.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/ModBase.java
 
 package com.modloader.loader;
 
@@ -3927,8 +4021,7 @@ public interface ModBase {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/loader/ModConfiguration.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/ModConfiguration.java
 
 package com.modloader.loader;
 
@@ -4127,11 +4220,10 @@ public class ModConfiguration {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/loader/ModController.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/ModController.java
 
 // File: ModController.java (Extracted Component) - Handles mod state management
-// Path: /storage/emulated/0/AndroidIDEProjects/main/java/com/terrarialoader/loader/ModController.java
+// Path: /storage/emulated/0/AndroidIDEProjects/main/java/com/modloader/loader/ModController.java
 
 package com.modloader.loader;
 
@@ -4438,11 +4530,10 @@ public class ModController {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/loader/ModLoader.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/ModLoader.java
 
 // File: ModLoader.java (Complete Fixed Component) - Updated Method Calls with Context
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModLoader.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/ModLoader.java
 
 package com.modloader.loader;
 
@@ -4624,7 +4715,7 @@ public class ModLoader {
             }
 
             // Create mods directory for MelonLoader using proper path management
-            File melonModsDir = new File(context.getExternalFilesDir(null), "TerrariaLoader/com.and.games505.TerrariaPaid/Mods/DLL");
+            File melonModsDir = new File(context.getExternalFilesDir(null), "ModLoader/com.and.games505.TerrariaPaid/Mods/DLL");
             if (!melonModsDir.exists()) {
                 melonModsDir.mkdirs();
             }
@@ -4747,7 +4838,7 @@ public class ModLoader {
         }
 
         try {
-            File melonModsDir = new File(context.getExternalFilesDir(null), "TerrariaLoader/com.and.games505.TerrariaPaid/Mods/DLL");
+            File melonModsDir = new File(context.getExternalFilesDir(null), "ModLoader/com.and.games505.TerrariaPaid/Mods/DLL");
             File targetFile = new File(melonModsDir, modFile.getName().replace(".disabled", ""));
             if (targetFile.exists()) {
                 if (targetFile.delete()) {
@@ -4853,11 +4944,10 @@ public class ModLoader {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/loader/ModManager.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/ModManager.java
 
 // File: ModManager.java (Fixed Facade) - Updated with PathManager
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModManager.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/ModManager.java
 
 package com.modloader.loader;
 
@@ -5159,11 +5249,10 @@ public class ModManager {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/loader/ModMetadata.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/ModMetadata.java
 
 // File: ModMetadata.java (Fixed Class) - Enhanced Null Safety
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModMetadata.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/ModMetadata.java
 
 package com.modloader.loader;
 
@@ -5389,11 +5478,10 @@ public class ModMetadata {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/loader/ModRepository.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/ModRepository.java
 
 // File: ModRepository.java (Fixed Component) - Updated Method Calls
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModRepository.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/ModRepository.java
 
 package com.modloader.loader;
 
@@ -5593,8 +5681,7 @@ public class ModRepository {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/loader/debugger/ApkProcessTracker.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/debugger/ApkProcessTracker.java
 
 // File: ApkProcessTracker.java - Real-time APK operation monitoring and debugging
 // Path: app/src/main/java/com/modloader/loader/debug/ApkProcessTracker.java
@@ -6145,8 +6232,7 @@ public class ApkProcessTracker {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/loader/debugger/MelonLoaderDebugger.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/debugger/MelonLoaderDebugger.java
 
 // File: MelonLoaderDebugger.java - Advanced MelonLoader integration debugging
 // Path: app/src/main/java/com/modloader/loader/debug/MelonLoaderDebugger.java
@@ -6978,11 +7064,10 @@ public class MelonLoaderDebugger {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/logging/ApkProcessLogger.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/logging/ApkProcessLogger.java
 
 // File: ApkProcessLogger.java - Specialized APK process tracking
-// Path: app/src/main/java/com/terrarialoader/logging/ApkProcessLogger.java
+// Path: app/src/main/java/com/modloader/logging/ApkProcessLogger.java
 
 package com.modloader.logging;
 
@@ -7007,7 +7092,7 @@ public class ApkProcessLogger {
     
     public ApkProcessLogger(Context context) {
         this.context = context;
-        File logDir = new File(context.getExternalFilesDir(null), "TerrariaLoader/com.and.games505.TerrariaPaid/AppLogs");
+        File logDir = new File(context.getExternalFilesDir(null), "ModLoader/com.and.games505.TerrariaPaid/AppLogs");
         logDir.mkdirs();
         this.logFile = new File(logDir, APK_LOG_FILE);
         
@@ -7303,8 +7388,7 @@ public class ApkProcessLogger {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/logging/BasicLogger.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/logging/BasicLogger.java
 
 package com.modloader.logging;
 
@@ -7312,11 +7396,10 @@ public class BasicLogger {
 }
 
 
-
-/ModLoader/app/src/main/java/com/modloader/logging/ErrorLogger.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/logging/ErrorLogger.java
 
 // File: ErrorLogger.java - Specialized error and exception tracking
-// Path: app/src/main/java/com/terrarialoader/logging/ErrorLogger.java
+// Path: app/src/main/java/com/modloader/logging/ErrorLogger.java
 
 package com.modloader.logging;
 
@@ -7344,7 +7427,7 @@ public class ErrorLogger {
     public ErrorLogger(Context context) {
         this.context = context;
         File logDir = new File(context.getExternalFilesDir(null), 
-                             "TerrariaLoader/com.and.games505.TerrariaPaid/AppLogs");
+                             "ModLoader/com.and.games505.TerrariaPaid/AppLogs");
         logDir.mkdirs();
         
         this.errorLogFile = new File(logDir, ERROR_LOG_FILE);
@@ -7392,7 +7475,7 @@ public class ErrorLogger {
         }
         
         // Also log to Android system
-        android.util.Log.e("TerrariaLoader", "CRITICAL: " + message, throwable);
+        android.util.Log.e("ModLoader", "CRITICAL: " + message, throwable);
     }
     
     /**
@@ -7449,7 +7532,7 @@ public class ErrorLogger {
         StringBuilder report = new StringBuilder();
         
         synchronized (errorLock) {
-            report.append("=== TerrariaLoader Error Report ===\n");
+            report.append("=== ModLoader Error Report ===\n");
             report.append("Generated: ").append(dateFormat.format(new Date())).append("\n");
             report.append("Total Errors in Memory: ").append(recentErrors.size()).append("\n");
             
@@ -7517,7 +7600,7 @@ public class ErrorLogger {
     public boolean exportErrorLogs(File outputFile) {
         synchronized (errorLock) {
             try (PrintWriter writer = new PrintWriter(new FileWriter(outputFile))) {
-                writer.println("=== Complete TerrariaLoader Error Log Export ===");
+                writer.println("=== Complete ModLoader Error Log Export ===");
                 writer.println("Export Date: " + dateFormat.format(new Date()));
                 writer.println("Export Location: " + outputFile.getAbsolutePath());
                 writer.println();
@@ -7876,8 +7959,7 @@ public class ErrorLogger {
     }
 }
 
-
-/ModLoader/app/src/main/java/com/modloader/logging/FileLogger.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/logging/FileLogger.java
 
 // File: FileLogger.java (Complete Fixed Version) - Full logging system with all properties
 // Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/app/src/main/java/com/modloader/logging/FileLogger.java
@@ -7931,7 +8013,7 @@ public class FileLogger {
     private void initialize() {
         try {
             // Create log directory in app-specific external files directory
-            logDirectory = new File(context.getExternalFilesDir(null), "TerrariaLoader/com.and.games505.TerrariaPaid/AppLogs");
+            logDirectory = new File(context.getExternalFilesDir(null), "ModLoader/com.and.games505.TerrariaPaid/AppLogs");
             if (!logDirectory.exists()) {
                 logDirectory.mkdirs();
             }
@@ -7982,7 +8064,7 @@ public class FileLogger {
     }
     
     public void logUser(String message) {
-        logMessage("USER", "TerrariaLoader", message);
+        logMessage("USER", "ModLoader", message);
     }
     
     private void logMessage(String level, String tag, String message) {
@@ -8151,7 +8233,7 @@ public class FileLogger {
     
     public boolean exportLogs(File exportFile) {
         try (FileWriter writer = new FileWriter(exportFile)) {
-            writer.write("=== TerrariaLoader Export ===\n");
+            writer.write("=== ModLoader Export ===\n");
             writer.write("Export Date: " + new Date().toString() + "\n");
             writer.write("Log Directory: " + logDirectory.getAbsolutePath() + "\n\n");
             writer.write(readAllLogs());
@@ -8345,17 +8427,15 @@ public class FileLogger {
     }
 }
 
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/logging/LogExporter.java
 
-/ModLoader/app/src/main/java/com/modloader/logging/LogExporter.java
-
-package com.terrarialoader.logging;
+package com.modloader.logging;
 
 public class LogExporter {
 }
 
 
-
-/ModLoader/app/src/main/java/com/modloader/plugin/Plugin.java
+/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/plugin/Plugin.java
 
 // File: Plugin.java - Base Plugin Interface
 // Path: /app/src/main/java/com/modloader/plugin/Plugin.java
@@ -8364,7 +8444,7 @@ package com.modloader.plugin;
 import com.modloader.util.LogUtils;
 
 /**
- * Base interface that all TerrariaLoader plugins must implement
+ * Base interface that all ModLoader plugins must implement
  * Defines the core lifecycle and functionality requirements for plugins
  */
 public interface Plugin {
@@ -8379,7 +8459,7 @@ public interface Plugin {
      * Called when the plugin is loaded by the PluginManager
      * Use this method to initialize your plugin, register hooks, and set up resources
      * 
-     * @param context PluginContext providing access to TerrariaLoader APIs and utilities
+     * @param context PluginContext providing access to ModLoader APIs and utilities
      */
     void onLoad(PluginContext context);
     
@@ -8666,7 +8746,7 @@ abstract class BasePlugin implements Plugin {
     }
     
     /**
-     * Register a hook into TerrariaLoader functionality
+     * Register a hook into ModLoader functionality
      * @param hookPoint Hook point identifier
      * @param hook Hook implementation
      */
@@ -9063,7 +9143,7 @@ abstract class BasePlugin implements Plugin {
     }
     
     /**
-     * Register a hook into TerrariaLoader functionality
+     * Register a hook into ModLoader functionality
      * @param hookPoint Hook point identifier
      * @param hook Hook implementation
      */
@@ -9128,3 +9208,4 @@ abstract class BasePlugin implements Plugin {
         return true;
     }
 }
+
