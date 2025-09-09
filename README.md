@@ -1,4 +1,5 @@
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/build.gradle
+
+/ModLoader/build.gradle
 
 // Root-level build.gradle (for Gradle 7.0+ and AGP 8.0+)
 
@@ -12,7 +13,7 @@ tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/settings.gradle
+/ModLoader/settings.gradle
 
 pluginManagement {
     repositories {
@@ -34,7 +35,7 @@ rootProject.name = "ModLoader"
 include ':app'
 
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/build.gradle
+/ModLoader/app/build.gradle
 
 plugins {
     id 'com.android.application'
@@ -104,31 +105,38 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/AndroidManifest.xml
-
-<?xml version="1.0" encoding="utf-8"?>
-<!-- File: AndroidManifest.xml - Updated with Plugin System Activities -->
-<!-- Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/app/src/main/AndroidManifest.xml -->
+/ModLoader/app/src/main/AndroidManifest.xml
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Existing Permissions -->
+    <!-- ENHANCED PERMISSIONS - Fixed APK installation issues -->
+    
+    <!-- Storage permissions -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
+    
+    <!-- Network permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    
+    <!-- APK Installation permissions (FIXED) -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.INSTALL_PACKAGES"
         tools:ignore="ProtectedPermissions" />
-
-    <!-- NEW: Plugin System Permissions -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- Package management permissions -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
+    
+    <!-- Wake lock for long operations -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- Vibration for notifications -->
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".MyApplication"
@@ -138,10 +146,12 @@ dependencies {
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ModLoader"
-        android:requestLegacyExternalStorage="true">
+        android:theme="@style/Theme.MaterialComponents.DayNight.DarkActionBar"
+        android:requestLegacyExternalStorage="true"
+        android:preserveLegacyExternalStorage="true"
+        android:largeHeap="true">
 
-        <!-- File Provider -->
+        <!-- ENHANCED FILE PROVIDER - Fixed APK installation -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -156,7 +166,6 @@ dependencies {
         <activity 
             android:name=".MainActivity" 
             android:exported="true"
-            android:screenOrientation="portrait"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -165,134 +174,98 @@ dependencies {
         </activity>
 
         <!-- Core activities -->
-        <activity 
-            android:name=".TerrariaSpecificActivity" 
+        <activity android:name=".TerrariaSpecificActivity" 
             android:exported="false"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait" />
-        
-        <activity 
-            android:name=".AboutActivity" 
+            android:parentActivityName=".SpecificSelectionActivity"/>
+        <activity android:name=".AboutActivity" 
             android:exported="false"
-            android:parentActivityName=".MainActivity" />
-        
-        <activity 
-            android:name=".UniversalActivity" 
+            android:parentActivityName=".MainActivity"/>
+        <activity android:name=".UniversalActivity" 
             android:exported="false"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait" />
-        
-        <activity 
-            android:name=".SpecificSelectionActivity" 
+            android:parentActivityName=".MainActivity"/>
+        <activity android:name=".SpecificSelectionActivity" 
             android:exported="false"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"/>
 
-        <!-- UI Activities -->
-        <activity 
-            android:name=".ui.OfflineDiagnosticActivity" 
+        <!-- Diagnostic and utility activities -->
+        <activity android:name=".ui.OfflineDiagnosticActivity" 
             android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity" />
-        
-        <activity 
-            android:name=".ui.UnifiedLoaderActivity" 
+            android:parentActivityName=".TerrariaSpecificActivity"/>
+
+        <!-- NEW: Unified Loader Activity (replaces TerrariaActivity and DllModActivity) -->
+        <activity android:name=".ui.UnifiedLoaderActivity" 
             android:exported="false"
             android:parentActivityName=".TerrariaSpecificActivity"
-            android:screenOrientation="portrait" />
-        
-        <activity 
-            android:name=".ui.ModManagementActivity" 
+            android:windowSoftInputMode="adjustResize"/>
+
+        <!-- Updated: Pure mod management only -->
+        <activity android:name=".ui.ModManagementActivity" 
             android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity" />
-        
-        <activity 
-            android:name=".ui.ModListActivity" 
+            android:parentActivityName=".TerrariaSpecificActivity"/>
+        <activity android:name=".ui.ModListActivity" 
             android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity" />
-        
-        <activity 
-            android:name=".ui.SetupGuideActivity" 
+            android:parentActivityName=".TerrariaSpecificActivity"/>
+
+        <!-- Updated: Setup guide with offline ZIP import -->
+        <activity android:name=".ui.SetupGuideActivity" 
             android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity" />
+            android:parentActivityName=".TerrariaSpecificActivity"/>
 
         <!-- Utility activities -->
-        <activity 
-            android:name=".ui.SettingsActivity" 
+        <activity android:name=".ui.SettingsActivity" 
             android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity" />
-        
-        <activity 
-            android:name=".ui.LogViewerActivity" 
-            android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity" />
-        
-        <activity 
-            android:name=".ui.InstructionsActivity" 
-            android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity" />
-        
-        <activity 
-            android:name=".SandboxActivity" 
-            android:exported="false"
-            android:parentActivityName=".TerrariaSpecificActivity" />
+            android:parentActivityName=".TerrariaSpecificActivity"/>
 
-        <!-- NEW: Plugin System Activities -->
-        <activity
-            android:name=".plugin.PluginManagementActivity"
+        <!-- ENHANCED: Advanced Log Viewer -->
+        <activity android:name=".ui.LogViewerActivity" 
             android:exported="false"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait"
-            android:label="Plugin Management"
-            android:theme="@style/Theme.ModLoader">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
-        </activity>
+            android:parentActivityName=".TerrariaSpecificActivity"
+            android:windowSoftInputMode="adjustResize"/>
 
-        <activity
-            android:name=".plugin.PluginInstallActivity"
+        <activity android:name=".ui.InstructionsActivity" 
             android:exported="false"
-            android:parentActivityName=".plugin.PluginManagementActivity"
-            android:screenOrientation="portrait"
-            android:label="Install Plugin"
-            android:theme="@style/Theme.ModLoader">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".plugin.PluginManagementActivity" />
-        </activity>
+            android:parentActivityName=".TerrariaSpecificActivity"/>
 
-        <activity
-            android:name=".plugin.PluginConfigActivity"
+        <!-- Testing and development -->
+        <activity android:name=".SandboxActivity" 
             android:exported="false"
-            android:parentActivityName=".plugin.PluginManagementActivity"
-            android:screenOrientation="portrait"
-            android:label="Plugin Configuration"
-            android:theme="@style/Theme.ModLoader">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".plugin.PluginManagementActivity" />
-        </activity>
+            android:parentActivityName=".TerrariaSpecificActivity"/>
 
-        <!-- NEW: Plugin Service for Background Operations -->
+        <!-- NEW: APK Management Activity -->
+        <activity android:name=".ui.ApkManagerActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.UnifiedLoaderActivity"/>
+
+        <!-- Intent filters for APK files (ENHANCED) -->
+        <activity-alias
+            android:name=".ApkHandler"
+            android:targetActivity=".ui.ApkManagerActivity"
+            android:exported="true">
+            <intent-filter android:priority="50">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:mimeType="application/vnd.android.package-archive" />
+            </intent-filter>
+            <intent-filter android:priority="50">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:mimeType="application/vnd.android.package-archive" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Service for background operations -->
         <service
-            android:name=".plugin.PluginService"
+            android:name=".service.LoaderService"
             android:enabled="true"
-            android:exported="false"
-            android:stopWithTask="true"
-            android:description="@string/plugin_service_description">
-        </service>
+            android:exported="false" />
 
-        <!-- NEW: Plugin Content Provider for Inter-Plugin Communication -->
-        <provider
-            android:name=".plugin.PluginContentProvider"
-            android:authorities="${applicationId}.plugin.provider"
-            android:enabled="true"
-            android:exported="false"
-            android:grantUriPermissions="true">
-        </provider>
-
-        <!-- NEW: Plugin Broadcast Receiver for System Events -->
+        <!-- Broadcast receiver for package events -->
         <receiver
-            android:name=".plugin.PluginBroadcastReceiver"
+            android:name=".receiver.PackageReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter android:priority="1000">
@@ -301,68 +274,13 @@ dependencies {
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
                 <data android:scheme="package" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
         </receiver>
-
-        <!-- NEW: Plugin File Handler for .jar/.dex Plugin Files -->
-        <activity
-            android:name=".plugin.PluginFileHandlerActivity"
-            android:exported="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:excludeFromRecents="true"
-            android:taskAffinity="">
-            <intent-filter android:priority="100">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="file" />
-                <data android:scheme="content" />
-                <data android:mimeType="application/java-archive" />
-                <data android:pathPattern=".*\\.jar" />
-                <data android:pathPattern=".*\\.dex" />
-            </intent-filter>
-            <intent-filter android:priority="100">
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="application/java-archive" />
-            </intent-filter>
-        </activity>
-
-        <!-- NEW: Plugin Security Manager Component -->
-        <service
-            android:name=".plugin.PluginSecurityService"
-            android:enabled="true"
-            android:exported="false"
-            android:isolatedProcess="true"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
-        </service>
 
     </application>
 
-    <!-- NEW: Custom Plugin Permissions -->
-    <permission
-        android:name="${applicationId}.permission.PLUGIN_API"
-        android:label="@string/permission_plugin_api_label"
-        android:description="@string/permission_plugin_api_desc"
-        android:protectionLevel="signature" />
-
-    <permission
-        android:name="${applicationId}.permission.PLUGIN_INSTALL"
-        android:label="@string/permission_plugin_install_label"
-        android:description="@string/permission_plugin_install_desc"
-        android:protectionLevel="dangerous" />
-
-    <permission
-        android:name="${applicationId}.permission.PLUGIN_MANAGE"
-        android:label="@string/permission_plugin_manage_label"
-        android:description="@string/permission_plugin_manage_desc"
-        android:protectionLevel="signature" />
-
 </manifest>
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/AboutActivity.java
+/ModLoader/app/src/main/java/com/modloader/AboutActivity.java
 
 package com.modloader;
 
@@ -379,7 +297,7 @@ public class AboutActivity extends AppCompatActivity {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/IntegrationManager.java
+/ModLoader/app/src/main/java/com/modloader/IntegrationManager.java
 
 package com.modloader;
 
@@ -387,7 +305,7 @@ public class IntegrationManager {
 }
 
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/LogActivity.java
+/ModLoader/app/src/main/java/com/modloader/LogActivity.java
 
 package com.modloader;
 
@@ -457,10 +375,10 @@ public class LogActivity extends AppCompatActivity {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/MainActivity.java
+/ModLoader/app/src/main/java/com/modloader/MainActivity.java
 
-// File: MainActivity.java (Updated) - Added Plugin Management Menu Button
-// Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/app/src/main/java/com/modloader/MainActivity.java
+// File: MainActivity.java (Activity Class) - Fixed Navigation Structure
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/MainActivity.java
 
 package com.modloader;
 
@@ -471,7 +389,6 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.modloader.plugin.PluginManagementActivity;
 import com.modloader.util.LogUtils;
 
 public class MainActivity extends AppCompatActivity {
@@ -479,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         try {
             stopService(new Intent().setClassName(getPackageName(), "com.itsaky.androidide.logsender.LogSenderService"));
         } catch (Exception ignored) {}
@@ -490,17 +407,17 @@ public class MainActivity extends AppCompatActivity {
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
             LogUtils.logDebug("FATAL CRASH: " + throwable);
             for (StackTraceElement e : throwable.getStackTrace()) {
-                LogUtils.logDebug(" at " + e.toString());
+                LogUtils.logDebug("    at " + e.toString());
             }
         });
 
         LogUtils.logDebug("Setting up main navigation");
+
         setContentView(R.layout.activity_main);
         setTitle("Mod Loader - Main Menu");
 
         Button universalButton = findViewById(R.id.universal_button);
         Button specificButton = findViewById(R.id.specific_button);
-        Button pluginButton = findViewById(R.id.plugin_button); // NEW: Plugin management button
 
         universalButton.setOnClickListener(v -> {
             LogUtils.logUser("Universal Mode selected");
@@ -511,23 +428,17 @@ public class MainActivity extends AppCompatActivity {
             LogUtils.logUser("Specific Mode selected - showing app selection");
             startActivity(new Intent(MainActivity.this, SpecificSelectionActivity.class));
         });
-
-        // NEW: Plugin management button listener
-        pluginButton.setOnClickListener(v -> {
-            LogUtils.logUser("Plugin Management selected");
-            startActivity(new Intent(MainActivity.this, PluginManagementActivity.class));
-        });
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                         @NonNull int[] grantResults) {
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         LogUtils.logDebug("Permission result callback triggered");
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/MyApplication.java
+/ModLoader/app/src/main/java/com/modloader/MyApplication.java
 
 // File: MyApplication.java (FIXED) - Initialize Logs and Handle Migration
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/MyApplication.java
@@ -827,7 +738,7 @@ public class MyApplication extends Application {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/SandboxActivity.java
+/ModLoader/app/src/main/java/com/modloader/SandboxActivity.java
 
 package com.modloader;
 
@@ -858,7 +769,7 @@ public class SandboxActivity extends Activity {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/SpecificSelectionActivity.java
+/ModLoader/app/src/main/java/com/modloader/SpecificSelectionActivity.java
 
 // File: SpecificSelectionActivity.java (Fixed Activity Class) - Fixed App Selection
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/SpecificSelectionActivity.java
@@ -912,9 +823,9 @@ public class SpecificSelectionActivity extends AppCompatActivity {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/TerrariaSpecificActivity.java
+/ModLoader/app/src/main/java/com/modloader/TerrariaSpecificActivity.java
 
-// File: TerrariaSpecificActivity.java (Updated) - Added Plugin Management Option
+// File: TerrariaSpecificActivity.java (Updated) - Elegant UI with Dynamic Theming
 // Path: /main/java/com/modloader/TerrariaSpecificActivity.java
 
 package com.modloader;
@@ -930,7 +841,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.modloader.R;
-import com.modloader.plugin.PluginManagementActivity;
 import com.modloader.ui.UnifiedLoaderActivity;
 import com.modloader.ui.ModListActivity;
 import com.modloader.ui.SettingsActivity;
@@ -941,6 +851,7 @@ import com.modloader.loader.MelonLoaderManager;
 import com.modloader.util.LogUtils;
 import com.modloader.ui.OfflineDiagnosticActivity;
 
+
 public class TerrariaSpecificActivity extends AppCompatActivity {
 
     private LinearLayout rootLayout;
@@ -948,16 +859,16 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
     private CardView setupCard;
     private CardView modManagementCard;
     private CardView toolsCard;
-    private CardView pluginCard; // NEW: Plugin management card
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_terraria_specific_updated);
+        
         setTitle("🌍 Terraria Mod Loader");
-
+        
         LogUtils.logUser("Terraria Menu Activity opened");
-
+        
         initializeViews();
         applyTerrariaTheme();
         setupUI();
@@ -970,7 +881,6 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
         setupCard = findViewById(R.id.setupCard);
         modManagementCard = findViewById(R.id.modManagementCard);
         toolsCard = findViewById(R.id.toolsCard);
-        pluginCard = findViewById(R.id.pluginCard); // NEW: Plugin card
     }
 
     private void applyTerrariaTheme() {
@@ -978,21 +888,15 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
         int primaryGreen = Color.parseColor("#4CAF50");
         int secondaryBlue = Color.parseColor("#2196F3");
         int accentGreen = Color.parseColor("#81C784");
-        int pluginPurple = Color.parseColor("#9C27B0"); // NEW: Plugin theme color
-
+        
         // Apply theme to root layout
         rootLayout.setBackgroundColor(Color.parseColor("#E8F5E8"));
-
+        
         // Apply theme to cards
         setupCard.setCardBackgroundColor(Color.parseColor("#F1F8E9"));
         modManagementCard.setCardBackgroundColor(Color.parseColor("#E3F2FD"));
         toolsCard.setCardBackgroundColor(Color.parseColor("#F3E5F5"));
         
-        // NEW: Plugin card theme
-        if (pluginCard != null) {
-            pluginCard.setCardBackgroundColor(Color.parseColor("#F3E5F5"));
-        }
-
         // Set status bar color
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(primaryGreen);
@@ -1001,6 +905,7 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
 
     private void setupUI() {
         // === SETUP SECTION ===
+        
         // Unified Loader Setup (NEW - replaces multiple buttons)
         Button unifiedSetupBtn = findViewById(R.id.unifiedSetupButton);
         unifiedSetupBtn.setOnClickListener(v -> {
@@ -1008,7 +913,7 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
             Intent intent = new Intent(this, UnifiedLoaderActivity.class);
             startActivity(intent);
         });
-
+        
         // Quick Setup Guide
         Button setupGuideBtn = findViewById(R.id.setupGuideButton);
         setupGuideBtn.setOnClickListener(v -> {
@@ -1016,7 +921,7 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
             Intent intent = new Intent(this, com.modloader.ui.SetupGuideActivity.class);
             startActivity(intent);
         });
-
+        
         // Manual Instructions (fallback)
         Button manualInstructionsBtn = findViewById(R.id.manualInstructionsButton);
         manualInstructionsBtn.setOnClickListener(v -> {
@@ -1024,8 +929,9 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
             Intent intent = new Intent(this, InstructionsActivity.class);
             startActivity(intent);
         });
-
+        
         // === MOD MANAGEMENT SECTION ===
+        
         // DEX/JAR Mod Manager
         Button dexModManagerBtn = findViewById(R.id.dexModManagerButton);
         dexModManagerBtn.setOnClickListener(v -> {
@@ -1033,11 +939,12 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
             Intent intent = new Intent(this, ModListActivity.class);
             startActivity(intent);
         });
-
+        
         // DLL Mod Manager (redirects to unified system)
         Button dllModManagerBtn = findViewById(R.id.dllModManagerButton);
         dllModManagerBtn.setOnClickListener(v -> {
             LogUtils.logUser("Opening DLL Mod Management via Unified Loader");
+            
             // Check if loader is installed
             if (MelonLoaderManager.isMelonLoaderInstalled(this) || MelonLoaderManager.isLemonLoaderInstalled(this)) {
                 // If loader is installed, go directly to mod management
@@ -1049,36 +956,9 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        // === PLUGIN MANAGEMENT SECTION (NEW) ===
-        Button pluginManagerBtn = findViewById(R.id.pluginManagerButton);
-        if (pluginManagerBtn != null) {
-            pluginManagerBtn.setOnClickListener(v -> {
-                LogUtils.logUser("Opening Plugin Management System");
-                Intent intent = new Intent(this, PluginManagementActivity.class);
-                startActivity(intent);
-            });
-        }
-
-        Button pluginInstallBtn = findViewById(R.id.pluginInstallButton);
-        if (pluginInstallBtn != null) {
-            pluginInstallBtn.setOnClickListener(v -> {
-                LogUtils.logUser("Opening Plugin Installation");
-                Intent intent = new Intent(this, com.modloader.plugin.PluginInstallActivity.class);
-                startActivity(intent);
-            });
-        }
-
-        Button pluginConfigBtn = findViewById(R.id.pluginConfigButton);
-        if (pluginConfigBtn != null) {
-            pluginConfigBtn.setOnClickListener(v -> {
-                LogUtils.logUser("Opening Plugin Configuration");
-                Intent intent = new Intent(this, com.modloader.plugin.PluginConfigActivity.class);
-                startActivity(intent);
-            });
-        }
-
+        
         // === TOOLS SECTION ===
+        
         // Log Viewer
         Button logViewerBtn = findViewById(R.id.logViewerButton);
         logViewerBtn.setOnClickListener(v -> {
@@ -1086,7 +966,7 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
             Intent intent = new Intent(this, LogViewerActivity.class);
             startActivity(intent);
         });
-
+        
         // Settings
         Button settingsBtn = findViewById(R.id.settingsButton);
         settingsBtn.setOnClickListener(v -> {
@@ -1094,24 +974,27 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
         });
-
+        
         // Sandbox Mode
         Button sandboxBtn = findViewById(R.id.sandboxButton);
         sandboxBtn.setOnClickListener(v -> {
             LogUtils.logUser("Opening Sandbox Mode");
             Intent intent = new Intent(this, SandboxActivity.class);
             startActivity(intent);
-        });
-
+            
+        });    
+            
         // Diagnostic Tool
         Button diagnosticBtn = findViewById(R.id.diagnosticButton);
         diagnosticBtn.setOnClickListener(v -> {
             LogUtils.logUser("Opening Offline Diagnostic Tool");
             Intent intent = new Intent(this, OfflineDiagnosticActivity.class);
             startActivity(intent);
+   
         });
-
+        
         // === NAVIGATION ===
+        
         // Back to App Selection
         Button backBtn = findViewById(R.id.backButton);
         backBtn.setOnClickListener(v -> {
@@ -1123,10 +1006,10 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
     private void updateLoaderStatus() {
         boolean melonInstalled = MelonLoaderManager.isMelonLoaderInstalled(this);
         boolean lemonInstalled = MelonLoaderManager.isLemonLoaderInstalled(this);
-
+        
         String statusText;
         int statusColor;
-
+        
         if (melonInstalled) {
             statusText = "✅ MelonLoader " + MelonLoaderManager.getInstalledLoaderVersion() + " ready for DLL mods";
             statusColor = Color.parseColor("#4CAF50"); // Green
@@ -1137,16 +1020,17 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
             statusText = "⚠️ No loader installed - Use 'Complete Setup Wizard' to install MelonLoader";
             statusColor = Color.parseColor("#FF9800"); // Orange
         }
-
+        
         loaderStatusText.setText(statusText);
         loaderStatusText.setTextColor(statusColor);
-
+        
         // Update button states based on loader status
         updateButtonStates(melonInstalled || lemonInstalled);
     }
 
     private void updateButtonStates(boolean loaderInstalled) {
         Button dllModManagerBtn = findViewById(R.id.dllModManagerButton);
+        
         if (loaderInstalled) {
             dllModManagerBtn.setText("🔧 Manage DLL Mods");
             dllModManagerBtn.setBackgroundColor(Color.parseColor("#4CAF50"));
@@ -1170,7 +1054,7 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/UniversalActivity.java
+/ModLoader/app/src/main/java/com/modloader/UniversalActivity.java
 
 package com.modloader;
 
@@ -1297,7 +1181,7 @@ public class UniversalActivity extends AppCompatActivity {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/Diagnostic/ApkProcessLogger.java
+/ModLoader/app/src/main/java/com/modloader/Diagnostic/ApkProcessLogger.java
 
 package com.modloader.Diagnostic;
 
@@ -1305,7 +1189,7 @@ public class ApkProcessLogger {
 }
 
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/Diagnostic/DiagnosticManager.java
+/ModLoader/app/src/main/java/com/modloader/Diagnostic/DiagnosticManager.java
 
 package com.modloader.diagnostic;
 
@@ -1533,7 +1417,7 @@ public class DiagnosticManager {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/installer/ModInstaller.java
+/ModLoader/app/src/main/java/com/modloader/installer/ModInstaller.java
 
 // File: ModInstaller.java (FIXED) - Updated to use new directory structure
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/installer/ModInstaller.java
@@ -2008,7 +1892,7 @@ public class ModInstaller {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/LoaderFileManager.java
+/ModLoader/app/src/main/java/com/modloader/loader/LoaderFileManager.java
 
 // File: LoaderFileManager.java (Fixed Component) - Complete Path Management Fix
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/LoaderFileManager.java
@@ -2553,7 +2437,7 @@ public class LoaderFileManager {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/LoaderInstaller.java
+/ModLoader/app/src/main/java/com/modloader/loader/LoaderInstaller.java
 
 // File: LoaderInstaller.java (Complete Fixed Version) - Uses Correct App-Specific Paths
 // Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/app/src/main/java/com/modloader/loader/LoaderInstaller.java
@@ -2989,7 +2873,7 @@ public class LoaderInstaller {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/LoaderValidator.java
+/ModLoader/app/src/main/java/com/modloader/loader/LoaderValidator.java
 
 // File: LoaderValidator.java (Fixed Component) - Complete Path Management Fix
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/LoaderValidator.java
@@ -3391,7 +3275,7 @@ public class LoaderValidator {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/MainLoader.java
+/ModLoader/app/src/main/java/com/modloader/loader/MainLoader.java
 
 package com.loader;
 
@@ -3428,7 +3312,7 @@ public class MainLoader extends Application {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/MelonLoaderManager.java
+/ModLoader/app/src/main/java/com/modloader/loader/MelonLoaderManager.java
 
 // File: MelonLoaderManager.java (Fixed Facade) - Updated with PathManager
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/MelonLoaderManager.java
@@ -3891,7 +3775,7 @@ public class MelonLoaderManager {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/ModBase.java
+/ModLoader/app/src/main/java/com/modloader/loader/ModBase.java
 
 // File: ModBase.java (Interface Class) - Phase 4 Enhanced with DLL Support
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/ModBase.java
@@ -4021,7 +3905,7 @@ public interface ModBase {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/ModConfiguration.java
+/ModLoader/app/src/main/java/com/modloader/loader/ModConfiguration.java
 
 package com.modloader.loader;
 
@@ -4220,7 +4104,7 @@ public class ModConfiguration {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/ModController.java
+/ModLoader/app/src/main/java/com/modloader/loader/ModController.java
 
 // File: ModController.java (Extracted Component) - Handles mod state management
 // Path: /storage/emulated/0/AndroidIDEProjects/main/java/com/modloader/loader/ModController.java
@@ -4530,7 +4414,7 @@ public class ModController {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/ModLoader.java
+/ModLoader/app/src/main/java/com/modloader/loader/ModLoader.java
 
 // File: ModLoader.java (Complete Fixed Component) - Updated Method Calls with Context
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/ModLoader.java
@@ -4944,7 +4828,7 @@ public class ModLoader {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/ModManager.java
+/ModLoader/app/src/main/java/com/modloader/loader/ModManager.java
 
 // File: ModManager.java (Fixed Facade) - Updated with PathManager
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/ModManager.java
@@ -5249,7 +5133,7 @@ public class ModManager {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/ModMetadata.java
+/ModLoader/app/src/main/java/com/modloader/loader/ModMetadata.java
 
 // File: ModMetadata.java (Fixed Class) - Enhanced Null Safety
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/ModMetadata.java
@@ -5478,7 +5362,7 @@ public class ModMetadata {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/ModRepository.java
+/ModLoader/app/src/main/java/com/modloader/loader/ModRepository.java
 
 // File: ModRepository.java (Fixed Component) - Updated Method Calls
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/ModRepository.java
@@ -5681,7 +5565,7 @@ public class ModRepository {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/debugger/ApkProcessTracker.java
+/ModLoader/app/src/main/java/com/modloader/loader/debugger/ApkProcessTracker.java
 
 // File: ApkProcessTracker.java - Real-time APK operation monitoring and debugging
 // Path: app/src/main/java/com/modloader/loader/debug/ApkProcessTracker.java
@@ -6232,7 +6116,7 @@ public class ApkProcessTracker {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/loader/debugger/MelonLoaderDebugger.java
+/ModLoader/app/src/main/java/com/modloader/loader/debugger/MelonLoaderDebugger.java
 
 // File: MelonLoaderDebugger.java - Advanced MelonLoader integration debugging
 // Path: app/src/main/java/com/modloader/loader/debug/MelonLoaderDebugger.java
@@ -7064,7 +6948,7 @@ public class MelonLoaderDebugger {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/logging/ApkProcessLogger.java
+/ModLoader/app/src/main/java/com/modloader/logging/ApkProcessLogger.java
 
 // File: ApkProcessLogger.java - Specialized APK process tracking
 // Path: app/src/main/java/com/modloader/logging/ApkProcessLogger.java
@@ -7388,7 +7272,7 @@ public class ApkProcessLogger {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/logging/BasicLogger.java
+/ModLoader/app/src/main/java/com/modloader/logging/BasicLogger.java
 
 package com.modloader.logging;
 
@@ -7396,7 +7280,7 @@ public class BasicLogger {
 }
 
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/logging/ErrorLogger.java
+/ModLoader/app/src/main/java/com/modloader/logging/ErrorLogger.java
 
 // File: ErrorLogger.java - Specialized error and exception tracking
 // Path: app/src/main/java/com/modloader/logging/ErrorLogger.java
@@ -7959,7 +7843,7 @@ public class ErrorLogger {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/logging/FileLogger.java
+/ModLoader/app/src/main/java/com/modloader/logging/FileLogger.java
 
 // File: FileLogger.java (Complete Fixed Version) - Full logging system with all properties
 // Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/app/src/main/java/com/modloader/logging/FileLogger.java
@@ -8427,7 +8311,7 @@ public class FileLogger {
     }
 }
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/logging/LogExporter.java
+/ModLoader/app/src/main/java/com/modloader/logging/LogExporter.java
 
 package com.modloader.logging;
 
@@ -8435,777 +8319,1116 @@ public class LogExporter {
 }
 
 
-/storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/plugin/Plugin.java
+/ModLoader/app/src/main/java/com/modloader/ui/BaseActivity.java
 
-// File: Plugin.java - Base Plugin Interface
-// Path: /app/src/main/java/com/modloader/plugin/Plugin.java
-package com.modloader.plugin;
+// File: BaseActivity.java (FIXED) - Compatible with PermissionManager
+// Path: /app/src/main/java/com/modloader/ui/BaseActivity.java
+
+package com.modloader.ui;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.modloader.util.LogUtils;
+import com.modloader.util.PermissionManager;
+import com.modloader.util.ShizukuManager;
+import com.modloader.util.RootManager;
 
 /**
- * Base interface that all ModLoader plugins must implement
- * Defines the core lifecycle and functionality requirements for plugins
+ * Base activity that provides common functionality for all activities
+ * including permission management, error handling, and utility methods
  */
-public interface Plugin {
+public abstract class BaseActivity extends AppCompatActivity implements PermissionManager.PermissionCallback {
     
-    /**
-     * Get plugin information
-     * @return PluginInfo object containing metadata about this plugin
-     */
-    PluginInfo getPluginInfo();
+    protected static final String TAG = "BaseActivity";
     
-    /**
-     * Called when the plugin is loaded by the PluginManager
-     * Use this method to initialize your plugin, register hooks, and set up resources
-     * 
-     * @param context PluginContext providing access to ModLoader APIs and utilities
-     */
-    void onLoad(PluginContext context);
+    // Common managers
+    protected PermissionManager permissionManager;
+    protected ShizukuManager shizukuManager;
+    protected RootManager rootManager;
     
-    /**
-     * Called when the plugin is being unloaded
-     * Use this method to clean up resources, save data, and unregister hooks
-     */
-    void onUnload();
+    // Activity state
+    private boolean isResumed = false;
+    private boolean hasInitialized = false;
     
-    /**
-     * Called when the plugin is enabled (after loading or when user enables it)
-     * Use this method to activate plugin functionality
-     */
-    void onEnable();
-    
-    /**
-     * Called when the plugin is disabled (before unloading or when user disables it)
-     * Use this method to deactivate plugin functionality but keep it loaded
-     */
-    void onDisable();
-    
-    /**
-     * Get the current status of the plugin
-     * @return PluginStatus indicating the current state
-     */
-    PluginStatus getStatus();
-    
-    /**
-     * Check if the plugin is currently enabled
-     * @return true if plugin is enabled and functional
-     */
-    boolean isEnabled();
-    
-    /**
-     * Handle configuration changes
-     * Called when plugin configuration is updated
-     * 
-     * @param config Updated configuration data
-     */
-    void onConfigurationChanged(PluginConfig config);
-    
-    /**
-     * Plugin Status enumeration
-     */
-    enum PluginStatus {
-        UNLOADED("Unloaded", "Plugin is not loaded"),
-        LOADING("Loading", "Plugin is being loaded"),
-        LOADED("Loaded", "Plugin is loaded but not enabled"),
-        ENABLED("Enabled", "Plugin is active and functional"),
-        DISABLED("Disabled", "Plugin is loaded but disabled"),
-        ERROR("Error", "Plugin encountered an error"),
-        UNLOADING("Unloading", "Plugin is being unloaded");
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         
-        private final String displayName;
-        private final String description;
+        LogUtils.logDebug(getClass().getSimpleName() + " onCreate started");
         
-        PluginStatus(String displayName, String description) {
-            this.displayName = displayName;
-            this.description = description;
+        try {
+            // Initialize managers
+            initializeManagers();
+            
+            // Setup common UI elements
+            setupCommonUI();
+            
+            // Auto-setup permissions if needed
+            if (shouldAutoSetupPermissions()) {
+                autoSetupPermissions();
+            }
+            
+            hasInitialized = true;
+            LogUtils.logDebug(getClass().getSimpleName() + " onCreate completed");
+            
+        } catch (Exception e) {
+            LogUtils.logError("Error in BaseActivity onCreate: " + e.getMessage());
+            handleStartupError(e);
+        }
+    }
+    
+    /**
+     * Initialize common managers
+     */
+    private void initializeManagers() {
+        try {
+            permissionManager = new PermissionManager(this);
+            permissionManager.setCallback(this);
+            
+            shizukuManager = new ShizukuManager(this);
+            rootManager = new RootManager(this);
+            
+            LogUtils.logDebug("Managers initialized successfully");
+        } catch (Exception e) {
+            LogUtils.logError("Error initializing managers: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Setup common UI elements
+     */
+    private void setupCommonUI() {
+        // Enable up navigation if not main activity
+        if (getSupportActionBar() != null && !isMainActivity()) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+    }
+    
+    /**
+     * Auto-setup permissions if the activity requires them
+     */
+    private void autoSetupPermissions() {
+        if (permissionManager != null && requiresPermissions()) {
+            permissionManager.autoSetupPermissions();
+        }
+    }
+    
+    /**
+     * Check if this activity has all required permissions
+     */
+    protected boolean hasRequiredPermissions() {
+        if (permissionManager != null) {
+            return permissionManager.hasAllRequiredPermissions();
+        }
+        return true; // Assume true if manager not available
+    }
+    
+    /**
+     * Handle startup errors gracefully
+     */
+    private void handleStartupError(Exception e) {
+        LogUtils.logError("Startup error in " + getClass().getSimpleName() + ": " + e.getMessage());
+        
+        new AlertDialog.Builder(this)
+            .setTitle("❌ Startup Error")
+            .setMessage("An error occurred while starting this activity:\n\n" + e.getMessage() + 
+                "\n\nThe app may not function correctly.")
+            .setPositiveButton("Continue", null)
+            .setNegativeButton("Close App", (dialog, which) -> finishAffinity())
+            .show();
+    }
+    
+    // === Permission Management Methods ===
+    
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        
+        LogUtils.logDebug("Permission result in " + getClass().getSimpleName() + 
+            ": requestCode=" + requestCode);
+        
+        if (permissionManager != null) {
+            permissionManager.handlePermissionResult(requestCode, permissions, grantResults);
+        }
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        LogUtils.logDebug("Activity result in " + getClass().getSimpleName() + 
+            ": requestCode=" + requestCode + ", resultCode=" + resultCode);
+        
+        // Handle special permission results
+        if (permissionManager != null) {
+            switch (requestCode) {
+                case PermissionManager.REQUEST_ALL_FILES_ACCESS:
+                case PermissionManager.REQUEST_INSTALL_PERMISSION:
+                    permissionManager.handlePermissionResult(requestCode, null, null);
+                    break;
+            }
         }
         
-        public String getDisplayName() {
-            return displayName;
+        // Let subclasses handle their specific results
+        handleActivityResult(requestCode, resultCode, data);
+    }
+    
+    /**
+     * Subclasses can override this to handle activity results
+     */
+    protected void handleActivityResult(int requestCode, int resultCode, Intent data) {
+        // Default implementation does nothing
+    }
+    
+    // === PermissionManager.PermissionCallback Implementation ===
+    
+    @Override
+    public void onPermissionGranted(String permission) {
+        LogUtils.logUser("✅ Permission granted: " + permission);
+        onPermissionStateChanged();
+    }
+    
+    @Override
+    public void onPermissionDenied(String permission) {
+        LogUtils.logUser("❌ Permission denied: " + permission);
+        handlePermissionDenied(permission);
+        onPermissionStateChanged();
+    }
+    
+    @Override
+    public void onPermissionPermanentlyDenied(String permission) {
+        LogUtils.logUser("⚠️ Permission permanently denied: " + permission);
+        handlePermissionPermanentlyDenied(permission);
+        onPermissionStateChanged();
+    }
+    
+    @Override
+    public void onAllPermissionsGranted() {
+        LogUtils.logUser("✅ All permissions granted!");
+        onPermissionStateChanged();
+        onAllPermissionsReady();
+    }
+    
+    @Override
+    public void onPermissionRequestCompleted(boolean allGranted) {
+        LogUtils.logDebug("Permission request completed: " + allGranted);
+        onPermissionStateChanged();
+    }
+    
+    /**
+     * Called when permission state changes - subclasses can override
+     */
+    protected void onPermissionStateChanged() {
+        // Update UI or refresh content based on new permission state
+        refreshPermissionStatus();
+    }
+    
+    /**
+     * Called when all permissions are ready - subclasses can override
+     */
+    protected void onAllPermissionsReady() {
+        // Subclasses can implement specific behavior when all permissions are granted
+    }
+    
+    /**
+     * Handle permission denial with user-friendly messaging
+     */
+    protected void handlePermissionDenied(String permission) {
+        String message = getPermissionDenialMessage(permission);
+        showToast(message);
+    }
+    
+    /**
+     * Handle permanently denied permissions
+     */
+    protected void handlePermissionPermanentlyDenied(String permission) {
+        new AlertDialog.Builder(this)
+            .setTitle("🔐 Permission Required")
+            .setMessage("The permission for " + permission + " has been permanently denied.\n\n" +
+                "To enable it, please:\n" +
+                "1. Go to App Settings\n" +
+                "2. Find Permissions\n" +
+                "3. Enable the required permission")
+            .setPositiveButton("Open Settings", (dialog, which) -> {
+                if (permissionManager != null) {
+                    permissionManager.openAppSettings();
+                }
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+    
+    /**
+     * Get user-friendly message for permission denial
+     */
+    private String getPermissionDenialMessage(String permission) {
+        switch (permission) {
+            case "MANAGE_EXTERNAL_STORAGE":
+                return "Storage access is required to manage mod files";
+            case "INSTALL_PACKAGES":
+                return "Install permission is required to install modded APKs";
+            default:
+                return "This permission is required for the app to function properly";
+        }
+    }
+    
+    /**
+     * Refresh permission status display
+     */
+    protected void refreshPermissionStatus() {
+        // Subclasses can override to update permission-related UI
+        if (permissionManager != null) {
+            boolean hasAll = permissionManager.hasAllRequiredPermissions();
+            LogUtils.logDebug("Permission status refreshed: " + (hasAll ? "All granted" : "Missing some"));
+        }
+    }
+    
+    // === Utility Methods ===
+    
+    /**
+     * Show permission status dialog
+     */
+    protected void showPermissionStatus() {
+        if (permissionManager != null) {
+            String status = permissionManager.getPermissionStatusText();
+            new AlertDialog.Builder(this)
+                .setTitle("🔐 Permission Status")
+                .setMessage(status)
+                .setPositiveButton("OK", null)
+                .setNeutralButton("Request Missing", (dialog, which) -> {
+                    permissionManager.requestAllPermissions();
+                })
+                .show();
+        }
+    }
+    
+    /**
+     * Show toast message
+     */
+    protected void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+    
+    /**
+     * Show long toast message
+     */
+    protected void showLongToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+    
+    /**
+     * Show error dialog
+     */
+    protected void showError(String title, String message) {
+        new AlertDialog.Builder(this)
+            .setTitle("❌ " + title)
+            .setMessage(message)
+            .setPositiveButton("OK", null)
+            .show();
+    }
+    
+    /**
+     * Show confirmation dialog
+     */
+    protected void showConfirmation(String title, String message, Runnable onConfirm) {
+        new AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("Yes", (dialog, which) -> {
+                if (onConfirm != null) {
+                    onConfirm.run();
+                }
+            })
+            .setNegativeButton("No", null)
+            .show();
+    }
+    
+    // === Navigation Methods ===
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    
+    /**
+     * Safe finish that handles edge cases
+     */
+    protected void safeFinish() {
+        try {
+            if (!isFinishing()) {
+                finish();
+            }
+        } catch (Exception e) {
+            LogUtils.logDebug("Error during safeFinish: " + e.getMessage());
+        }
+    }
+    
+    // === Lifecycle Methods ===
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isResumed = true;
+        
+        // Refresh permission states when returning from other apps
+        if (hasInitialized && permissionManager != null) {
+            permissionManager.refreshPermissionStates();
+            refreshPermissionStatus();
         }
         
-        public String getDescription() {
-            return description;
+        LogUtils.logDebug(getClass().getSimpleName() + " onResume");
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isResumed = false;
+        LogUtils.logDebug(getClass().getSimpleName() + " onPause");
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        
+        // Clean up managers
+        if (permissionManager != null) {
+            permissionManager.cleanup();
+        }
+        if (shizukuManager != null) {
+            shizukuManager.cleanup();
+        }
+        if (rootManager != null) {
+            rootManager.cleanup();
         }
         
+        LogUtils.logDebug(getClass().getSimpleName() + " onDestroy");
+    }
+    
+    // === Abstract/Virtual Methods for Subclasses ===
+    
+    /**
+     * Whether this activity should auto-setup permissions on create
+     */
+    protected boolean shouldAutoSetupPermissions() {
+        return requiresPermissions();
+    }
+    
+    /**
+     * Whether this activity requires permissions to function
+     */
+    protected boolean requiresPermissions() {
+        return true; // Most activities require permissions
+    }
+    
+    /**
+     * Whether this is the main activity (affects navigation setup)
+     */
+    protected boolean isMainActivity() {
+        return false; // Subclasses should override if they are main activities
+    }
+    
+    // === State Query Methods ===
+    
+    protected boolean isActivityResumed() {
+        return isResumed;
+    }
+    
+    protected boolean isActivityInitialized() {
+        return hasInitialized;
+    }
+    
+    /**
+     * Get the permission manager instance
+     */
+    protected PermissionManager getPermissionManager() {
+        return permissionManager;
+    }
+    
+    /**
+     * Get the Shizuku manager instance
+     */
+    protected ShizukuManager getShizukuManager() {
+        return shizukuManager;
+    }
+    
+    /**
+     * Get the root manager instance
+     */
+    protected RootManager getRootManager() {
+        return rootManager;
+    }
+}
+
+/ModLoader/app/src/main/java/com/modloader/ui/DllModActivity.java
+
+// File: DllModActivity.java (Updated Activity) - Uses Controller Pattern
+// Path: /storage/emulated/0/AndroidIDEProjects/main/java/com/modloader/ui/DllModActivity.java
+
+package com.modloader.ui;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.OpenableColumns;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.modloader.R;
+import com.modloader.util.LogUtils;
+
+import java.io.File;
+import java.util.List;
+
+/**
+ * DllModActivity now delegates business logic to DllModController
+ * This keeps the activity focused on UI management while the controller handles the logic
+ */
+public class DllModActivity extends Activity implements DllModController.DllModCallback {
+
+    private static final int REQUEST_SELECT_APK = 1001;
+    private static final int REQUEST_SELECT_DLL = 1002;
+    
+    // UI Components
+    private TextView statusText;
+    private TextView loaderStatusText;
+    private RecyclerView dllModRecyclerView;
+    private Button installLoaderBtn;
+    private Button selectApkBtn;
+    private Button installDllBtn;
+    private Button viewLogsBtn;
+    private Button refreshBtn;
+    private LinearLayout loaderInfoSection;
+    
+    // Controller and Adapter
+    private DllModController controller;
+    private DllModAdapter adapter;
+    private AlertDialog progressDialog;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_dll_mod);
+        
+        setTitle("DLL Mod Manager");
+        
+        // Initialize controller
+        controller = new DllModController(this);
+        controller.setCallback(this);
+        
+        initializeViews();
+        setupUI();
+        
+        // Load initial data
+        controller.loadDllMods();
+        controller.updateLoaderStatus();
+    }
+
+    private void initializeViews() {
+        statusText = findViewById(R.id.statusText);
+        loaderStatusText = findViewById(R.id.loaderStatusText);
+        dllModRecyclerView = findViewById(R.id.dllModRecyclerView);
+        installLoaderBtn = findViewById(R.id.installLoaderBtn);
+        selectApkBtn = findViewById(R.id.selectApkBtn);
+        installDllBtn = findViewById(R.id.installDllBtn);
+        viewLogsBtn = findViewById(R.id.viewLogsBtn);
+        refreshBtn = findViewById(R.id.refreshBtn);
+        loaderInfoSection = findViewById(R.id.loaderInfoSection);
+    }
+
+    private void setupUI() {
+        // Setup RecyclerView
+        dllModRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new DllModAdapter(this, controller);
+        dllModRecyclerView.setAdapter(adapter);
+
+        // Button listeners - delegate to controller
+        installLoaderBtn.setOnClickListener(v -> controller.showLoaderInstallDialog());
+        
+        selectApkBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("application/vnd.android.package-archive");
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            startActivityForResult(intent, REQUEST_SELECT_APK);
+        });
+        
+        installDllBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("*/*"); // Allow all files, we'll filter by extension
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            startActivityForResult(intent, REQUEST_SELECT_DLL);
+        });
+        
+        viewLogsBtn.setOnClickListener(v -> {
+            startActivity(new Intent(this, LogViewerActivity.class));
+        });
+        
+        refreshBtn.setOnClickListener(v -> {
+            controller.refresh();
+            Toast.makeText(this, "Refreshed DLL mod list", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (resultCode != RESULT_OK || data == null || data.getData() == null) {
+            return;
+        }
+        
+        Uri uri = data.getData();
+        
+        switch (requestCode) {
+            case REQUEST_SELECT_APK:
+                controller.handleApkSelection(uri);
+                break;
+                
+            case REQUEST_SELECT_DLL:
+                String filename = getFilenameFromUri(uri);
+                controller.handleDllSelection(uri, filename);
+                break;
+        }
+    }
+
+    private String getFilenameFromUri(Uri uri) {
+        String filename = null;
+        
+        try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (nameIndex >= 0) {
+                    filename = cursor.getString(nameIndex);
+                }
+            }
+        } catch (Exception e) {
+            LogUtils.logDebug("Could not get filename from URI: " + e.getMessage());
+        }
+        
+        return filename;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        controller.refresh();
+    }
+
+    // === DllModController.DllModCallback Implementation ===
+    
+    @Override
+    public void onModsLoaded(List<File> mods) {
+        runOnUiThread(() -> {
+            adapter.updateMods(mods);
+            statusText.setText(controller.getStatusText());
+        });
+    }
+
+    @Override
+    public void onLoaderStatusChanged(boolean installed, String statusText, int textColor) {
+        runOnUiThread(() -> {
+            loaderStatusText.setText(statusText);
+            loaderStatusText.setTextColor(textColor);
+            
+            if (installed) {
+                installLoaderBtn.setText("Reinstall Loader");
+                loaderInfoSection.setVisibility(View.VISIBLE);
+                installDllBtn.setEnabled(true);
+                installDllBtn.setText("Install DLL Mod");
+            } else {
+                installLoaderBtn.setText("Install Loader");
+                loaderInfoSection.setVisibility(View.GONE);
+                installDllBtn.setEnabled(false);
+                installDllBtn.setText("Install Loader First");
+            }
+        });
+    }
+
+    @Override
+    public void onInstallationProgress(String message) {
+        runOnUiThread(() -> {
+            if (progressDialog != null) {
+                progressDialog.dismiss();
+            }
+            
+            if (message.contains("Please select")) {
+                // This is a request for user action, not a progress message
+                return;
+            }
+            
+            progressDialog = new AlertDialog.Builder(this)
+                .setTitle("Installing Loader")
+                .setMessage(message)
+                .setCancelable(false)
+                .show();
+        });
+    }
+
+    @Override
+    public void onInstallationComplete(boolean success, String message) {
+        runOnUiThread(() -> {
+            if (progressDialog != null) {
+                progressDialog.dismiss();
+                progressDialog = null;
+            }
+            
+            if (success) {
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    @Override
+    public void onError(String error) {
+        runOnUiThread(() -> {
+            Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    // === Simple adapter class for DLL mods ===
+    private static class DllModAdapter extends RecyclerView.Adapter<DllModAdapter.ViewHolder> {
+        private final Activity activity;
+        private final DllModController controller;
+        private List<File> mods;
+
+        public DllModAdapter(Activity activity, DllModController controller) {
+            this.activity = activity;
+            this.controller = controller;
+            this.mods = controller.getDllMods();
+        }
+
+        public void updateMods(List<File> newMods) {
+            this.mods = newMods;
+            notifyDataSetChanged();
+        }
+
         @Override
-        public String toString() {
-            return displayName;
+        public ViewHolder onCreateViewHolder(android.view.ViewGroup parent, int viewType) {
+            View view = android.view.LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_mod, parent, false);
+            return new ViewHolder(view);
         }
-    }
-}
 
-/**
- * Abstract base class providing common plugin functionality
- * Plugins can extend this class instead of implementing Plugin interface directly
- */
-abstract class BasePlugin implements Plugin {
-    
-    protected PluginContext pluginContext;
-    protected PluginConfig pluginConfig;
-    protected PluginStatus currentStatus = PluginStatus.UNLOADED;
-    protected boolean enabled = false;
-    
-    @Override
-    public final void onLoad(PluginContext context) {
-        this.pluginContext = context;
-        this.pluginConfig = context.getPluginConfig();
-        this.currentStatus = PluginStatus.LOADING;
-        
-        try {
-            // Call plugin-specific initialization
-            onPluginLoad();
-            
-            this.currentStatus = PluginStatus.LOADED;
-            LogUtils.logDebug("Plugin loaded: " + getPluginInfo().getName());
-            
-        } catch (Exception e) {
-            this.currentStatus = PluginStatus.ERROR;
-            LogUtils.logError("Plugin load error: " + e.getMessage());
-            throw new RuntimeException("Plugin load failed", e);
-        }
-    }
-    
-    @Override
-    public final void onUnload() {
-        this.currentStatus = PluginStatus.UNLOADING;
-        
-        try {
-            // Disable first if enabled
-            if (enabled) {
-                onDisable();
-            }
-            
-            // Call plugin-specific cleanup
-            onPluginUnload();
-            
-            this.currentStatus = PluginStatus.UNLOADED;
-            LogUtils.logDebug("Plugin unloaded: " + getPluginInfo().getName());
-            
-        } catch (Exception e) {
-            this.currentStatus = PluginStatus.ERROR;
-            LogUtils.logError("Plugin unload error: " + e.getMessage());
-        }
-    }
-    
-    @Override
-    public final void onEnable() {
-        if (currentStatus != PluginStatus.LOADED && currentStatus != PluginStatus.DISABLED) {
-            LogUtils.logError("Cannot enable plugin in state: " + currentStatus);
-            return;
-        }
-        
-        try {
-            onPluginEnable();
-            this.enabled = true;
-            this.currentStatus = PluginStatus.ENABLED;
-            LogUtils.logDebug("Plugin enabled: " + getPluginInfo().getName());
-            
-        } catch (Exception e) {
-            this.currentStatus = PluginStatus.ERROR;
-            LogUtils.logError("Plugin enable error: " + e.getMessage());
-        }
-    }
-    
-    @Override
-    public final void onDisable() {
-        if (currentStatus != PluginStatus.ENABLED) {
-            LogUtils.logDebug("Plugin not enabled, cannot disable: " + getPluginInfo().getName());
-            return;
-        }
-        
-        try {
-            onPluginDisable();
-            this.enabled = false;
-            this.currentStatus = PluginStatus.DISABLED;
-            LogUtils.logDebug("Plugin disabled: " + getPluginInfo().getName());
-            
-        } catch (Exception e) {
-            this.currentStatus = PluginStatus.ERROR;
-            LogUtils.logError("Plugin disable error: " + e.getMessage());
-        }
-    }
-    
-    @Override
-    public PluginStatus getStatus() {
-        return currentStatus;
-    }
-    
-    @Override
-    public boolean isEnabled() {
-        return enabled && currentStatus == PluginStatus.ENABLED;
-    }
-    
-    @Override
-    public void onConfigurationChanged(PluginConfig config) {
-        this.pluginConfig = config;
-        
-        try {
-            onPluginConfigurationChanged(config);
-        } catch (Exception e) {
-            LogUtils.logError("Plugin config change error: " + e.getMessage());
-        }
-    }
-    
-    // Abstract methods for plugins to implement
-    
-    /**
-     * Plugin-specific initialization
-     * Called during onLoad() after basic setup is complete
-     */
-    protected abstract void onPluginLoad();
-    
-    /**
-     * Plugin-specific cleanup
-     * Called during onUnload() before final cleanup
-     */
-    protected abstract void onPluginUnload();
-    
-    /**
-     * Plugin-specific enable logic
-     * Called during onEnable() to activate plugin functionality
-     */
-    protected abstract void onPluginEnable();
-    
-    /**
-     * Plugin-specific disable logic
-     * Called during onDisable() to deactivate plugin functionality
-     */
-    protected abstract void onPluginDisable();
-    
-    /**
-     * Handle plugin configuration changes
-     * Called when plugin configuration is updated
-     * 
-     * @param config Updated configuration
-     */
-    protected void onPluginConfigurationChanged(PluginConfig config) {
-        // Default implementation - plugins can override if needed
-        LogUtils.logDebug("Configuration updated for plugin: " + getPluginInfo().getName());
-    }
-    
-    // Utility methods available to all plugins
-    
-    /**
-     * Get plugin context
-     * @return PluginContext for this plugin
-     */
-    protected final PluginContext getContext() {
-        return pluginContext;
-    }
-    
-    /**
-     * Get plugin configuration
-     * @return Current plugin configuration
-     */
-    protected final PluginConfig getConfig() {
-        return pluginConfig;
-    }
-    
-    /**
-     * Log a message with plugin prefix
-     * @param message Message to log
-     */
-    protected final void log(String message) {
-        LogUtils.logDebug("[" + getPluginInfo().getName() + "] " + message);
-    }
-    
-    /**
-     * Log a user message with plugin prefix
-     * @param message Message to log for user
-     */
-    protected final void logUser(String message) {
-        LogUtils.logUser("[" + getPluginInfo().getName() + "] " + message);
-    }
-    
-    /**
-     * Log an error with plugin prefix
-     * @param message Error message to log
-     */
-    protected final void logError(String message) {
-        LogUtils.logError("[" + getPluginInfo().getName() + "] " + message);
-    }
-    
-    /**
-     * Check if another plugin is loaded
-     * @param pluginId ID of the plugin to check
-     * @return true if the specified plugin is loaded
-     */
-    protected final boolean isPluginLoaded(String pluginId) {
-        return pluginContext != null && pluginContext.isPluginLoaded(pluginId);
-    }
-    
-    /**
-     * Get another plugin instance
-     * @param pluginId ID of the plugin to get
-     * @return Plugin instance or null if not loaded
-     */
-    protected final Plugin getOtherPlugin(String pluginId) {
-        return pluginContext != null ? pluginContext.getPlugin(pluginId) : null;
-    }
-    
-    /**
-     * Register a hook into ModLoader functionality
-     * @param hookPoint Hook point identifier
-     * @param hook Hook implementation
-     */
-    protected final void registerHook(String hookPoint, PluginHook hook) {
-        if (pluginContext != null) {
-            pluginContext.registerHook(hookPoint, hook);
-        }
-    }
-    
-    /**
-     * Unregister a hook
-     * @param hookPoint Hook point identifier
-     */
-    protected final void unregisterHook(String hookPoint) {
-        if (pluginContext != null) {
-            pluginContext.unregisterHook(hookPoint);
-        }
-    }
-    
-    /**
-     * Save plugin data
-     * @param key Data key
-     * @param value Data value
-     */
-    protected final void saveData(String key, String value) {
-        if (pluginContext != null) {
-            pluginContext.saveData(key, value);
-        }
-    }
-    
-    /**
-     * Load plugin data
-     * @param key Data key
-     * @param defaultValue Default value if key not found
-     * @return Stored value or default value
-     */
-    protected final String loadData(String key, String defaultValue) {
-        return pluginContext != null ? pluginContext.loadData(key, defaultValue) : defaultValue;
-    }
-    
-    /**
-     * Get plugin data directory
-     * @return File object pointing to plugin's data directory
-     */
-    protected final java.io.File getPluginDataDirectory() {
-        return pluginContext != null ? pluginContext.getPluginDataDirectory() : null;
-    }
-    
-    /**
-     * Check if plugin has required dependencies
-     * @return true if all dependencies are available
-     */
-    protected final boolean checkDependencies() {
-        if (pluginContext == null) return false;
-        
-        for (String dependency : getPluginInfo().getDependencies()) {
-            if (!pluginContext.isPluginLoaded(dependency)) {
-                logError("Missing dependency: " + dependency);
-                return false;
-            }
-        }
-        return true;
-    }
-}
-
-/**
- * Plugin Info class containing metadata about a plugin
- */
-class PluginInfo {
-    private String id;
-    private String name;
-    private String version;
-    private String description;
-    private String author;
-    private PluginType type;
-    private String category;
-    private String filePath;
-    private String mainClass;
-    private String[] dependencies = new String[0];
-    private String[] permissions = new String[0];
-    private long fileSize;
-    private long lastModified;
-    private String packageName;
-    
-    // Plugin Types
-    public enum PluginType {
-        JAVA_PLUGIN("Java Plugin", ".jar"),
-        DEX_PLUGIN("DEX Plugin", ".dex"),
-        CONFIG_PLUGIN("Configuration Plugin", ".plugin"),
-        THEME_PLUGIN("Theme Plugin", ".theme"),
-        UTILITY_PLUGIN("Utility Plugin", ".util");
-        
-        private final String displayName;
-        private final String extension;
-        
-        PluginType(String displayName, String extension) {
-            this.displayName = displayName;
-            this.extension = extension;
-        }
-        
-        public String getDisplayName() { return displayName; }
-        public String getExtension() { return extension; }
-        
         @Override
-        public String toString() { return displayName; }
-    }
-    
-    // Constructors
-    public PluginInfo() {}
-    
-    public PluginInfo(String id, String name, String version) {
-        this.id = id;
-        this.name = name;
-        this.version = version;
-    }
-    
-    // Getters and Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-    
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    
-    public String getVersion() { return version; }
-    public void setVersion(String version) { this.version = version; }
-    
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    
-    public String getAuthor() { return author; }
-    public void setAuthor(String author) { this.author = author; }
-    
-    public PluginType getType() { return type; }
-    public void setType(PluginType type) { this.type = type; }
-    
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
-    
-    public String getFilePath() { return filePath; }
-    public void setFilePath(String filePath) { this.filePath = filePath; }
-    
-    public String getMainClass() { return mainClass; }
-    public void setMainClass(String mainClass) { this.mainClass = mainClass; }
-    
-    public String[] getDependencies() { return dependencies; }
-    public void setDependencies(String[] dependencies) { this.dependencies = dependencies; }
-    
-    public String[] getPermissions() { return permissions; }
-    public void setPermissions(String[] permissions) { this.permissions = permissions; }
-    
-    public long getFileSize() { return fileSize; }
-    public void setFileSize(long fileSize) { this.fileSize = fileSize; }
-    
-    public long getLastModified() { return lastModified; }
-    public void setLastModified(long lastModified) { this.lastModified = lastModified; }
-    
-    public String getPackageName() { return packageName; }
-    public void setPackageName(String packageName) { this.packageName = packageName; }
-    
-    @Override
-    public String toString() {
-        return String.format("PluginInfo[%s v%s by %s]", name, version, author);
-    }
-    
-    public String getDetailedInfo() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("=== Plugin Information ===\n");
-        sb.append("Name: ").append(name).append("\n");
-        sb.append("ID: ").append(id).append("\n");
-        sb.append("Version: ").append(version).append("\n");
-        sb.append("Author: ").append(author).append("\n");
-        sb.append("Type: ").append(type != null ? type.getDisplayName() : "Unknown").append("\n");
-        sb.append("Category: ").append(category).append("\n");
-        sb.append("Description: ").append(description).append("\n");
-        sb.append("Main Class: ").append(mainClass).append("\n");
-        sb.append("File Path: ").append(filePath).append("\n");
-        if (dependencies.length > 0) {
-            sb.append("Dependencies: ").append(String.join(", ", dependencies)).append("\n");
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            File mod = mods.get(position);
+            String name = mod.getName();
+            boolean isEnabled = !name.endsWith(".disabled");
+            
+            holder.modDescription.setText(name);
+            holder.modSwitch.setChecked(isEnabled);
+            
+            holder.modSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                controller.toggleMod(mod, isChecked);
+            });
+            
+            holder.modDeleteButton.setOnClickListener(v -> {
+                controller.deleteMod(mod, () -> {
+                    mods.remove(position);
+                    notifyItemRemoved(position);
+                    notifyItemRangeChanged(position, mods.size());
+                });
+            });
         }
-        if (permissions.length > 0) {
-            sb.append("Permissions: ").append(String.join(", ", permissions)).append("\n");
+
+        @Override
+        public int getItemCount() {
+            return mods.size();
         }
-        return sb.toString();
+
+        static class ViewHolder extends RecyclerView.ViewHolder {
+            TextView modDescription;
+            android.widget.Switch modSwitch;
+            android.widget.ImageButton modDeleteButton;
+
+            ViewHolder(View itemView) {
+                super(itemView);
+                modDescription = itemView.findViewById(R.id.modDescription);
+                modSwitch = itemView.findViewById(R.id.modSwitch);
+                modDeleteButton = itemView.findViewById(R.id.modDeleteButton);
+            }
+        }
     }
 }
 
-/**
- * Abstract base class providing common plugin functionality
- * Plugins can extend this class instead of implementing Plugin interface directly
- */
-abstract class BasePlugin implements Plugin {
+/ModLoader/app/src/main/java/com/modloader/ui/DllModController.java
+
+// File: DllModController.java (Fixed) - Corrected method calls with Context parameter
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/ui/DllModController.java
+
+package com.modloader.ui;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.net.Uri;
+import com.modloader.loader.ModManager;
+import com.modloader.loader.ModBase;
+import com.modloader.loader.MelonLoaderManager;
+import com.modloader.util.LogUtils;
+import com.modloader.util.FileUtils;
+import com.modloader.installer.ModInstaller;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+public class DllModController {
+    private final Activity activity;
+    private List<File> dllMods = new ArrayList<>();
     
-    protected PluginContext pluginContext;
-    protected PluginConfig pluginConfig;
-    protected PluginStatus currentStatus = PluginStatus.UNLOADED;
-    protected boolean enabled = false;
-    
-    @Override
-    public final void onLoad(PluginContext context) {
-        this.pluginContext = context;
-        this.pluginConfig = context.getPluginConfig();
-        this.currentStatus = PluginStatus.LOADING;
-        
-        try {
-            // Call plugin-specific initialization
-            onPluginLoad();
-            
-            this.currentStatus = PluginStatus.LOADED;
-            LogUtils.logDebug("Plugin loaded: " + getPluginInfo().getName());
-            
-        } catch (Exception e) {
-            this.currentStatus = PluginStatus.ERROR;
-            LogUtils.logError("Plugin load error: " + e.getMessage());
-            throw new RuntimeException("Plugin load failed", e);
-        }
+    // Callback interface for UI updates
+    public interface DllModCallback {
+        void onModsLoaded(List<File> mods);
+        void onLoaderStatusChanged(boolean installed, String statusText, int textColor);
+        void onInstallationProgress(String message);
+        void onInstallationComplete(boolean success, String message);
+        void onError(String error);
     }
     
-    @Override
-    public final void onUnload() {
-        this.currentStatus = PluginStatus.UNLOADING;
+    private DllModCallback callback;
+
+    public DllModController(Activity activity) {
+        this.activity = activity;
+    }
+    
+    public void setCallback(DllModCallback callback) {
+        this.callback = callback;
+    }
+
+    public void loadDllMods() {
+        dllMods.clear();
         
-        try {
-            // Disable first if enabled
-            if (enabled) {
-                onDisable();
+        // Get DLL mods from ModManager
+        List<File> allMods = ModManager.getAvailableMods();
+        for (File mod : allMods) {
+            ModBase.ModType type = ModBase.ModType.fromFileName(mod.getName());
+            if (type == ModBase.ModType.DLL || type == ModBase.ModType.HYBRID) {
+                dllMods.add(mod);
             }
-            
-            // Call plugin-specific cleanup
-            onPluginUnload();
-            
-            this.currentStatus = PluginStatus.UNLOADED;
-            LogUtils.logDebug("Plugin unloaded: " + getPluginInfo().getName());
-            
-        } catch (Exception e) {
-            this.currentStatus = PluginStatus.ERROR;
-            LogUtils.logError("Plugin unload error: " + e.getMessage());
+        }
+        
+        LogUtils.logDebug("Loaded " + dllMods.size() + " DLL mods");
+        
+        if (callback != null) {
+            callback.onModsLoaded(dllMods);
         }
     }
-    
-    @Override
-    public final void onEnable() {
-        if (currentStatus != PluginStatus.LOADED && currentStatus != PluginStatus.DISABLED) {
-            LogUtils.logError("Cannot enable plugin in state: " + currentStatus);
+
+    public void updateLoaderStatus() {
+        // FIXED: Pass activity context to MelonLoaderManager methods
+        boolean melonInstalled = MelonLoaderManager.isMelonLoaderInstalled(activity);
+        boolean lemonInstalled = MelonLoaderManager.isLemonLoaderInstalled(activity);
+        
+        if (melonInstalled) {
+            String statusText = "✅ MelonLoader " + MelonLoaderManager.getInstalledLoaderVersion() + " installed";
+            if (callback != null) {
+                callback.onLoaderStatusChanged(true, statusText, 0xFF4CAF50); // Green
+            }
+        } else if (lemonInstalled) {
+            String statusText = "✅ LemonLoader " + MelonLoaderManager.getInstalledLoaderVersion() + " installed";
+            if (callback != null) {
+                callback.onLoaderStatusChanged(true, statusText, 0xFF4CAF50); // Green
+            }
+        } else {
+            String statusText = "❌ No loader installed - DLL mods will not work";
+            if (callback != null) {
+                callback.onLoaderStatusChanged(false, statusText, 0xFFF44336); // Red
+            }
+        }
+    }
+
+    public void showLoaderInstallDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Choose Loader");
+        builder.setMessage("Select which loader to install:\n\n" +
+                          "• MelonLoader: Full-featured, works with most Unity games\n" +
+                          "• LemonLoader: Lightweight, better for older devices\n\n" +
+                          "You will need to select a Terraria APK file after choosing.");
+        
+        builder.setPositiveButton("MelonLoader", (dialog, which) -> {
+            LogUtils.logUser("User selected MelonLoader installation");
+            showApkInstructions("MelonLoader");
+        });
+        
+        builder.setNegativeButton("LemonLoader", (dialog, which) -> {
+            LogUtils.logUser("User selected LemonLoader installation");
+            showApkInstructions("LemonLoader");
+        });
+        
+        builder.setNeutralButton("Cancel", null);
+        builder.show();
+    }
+
+    public void showApkInstructions(String loaderType) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("APK Installation Instructions");
+        builder.setMessage("To install " + loaderType + ":\n\n" +
+                          "1. Select your Terraria APK file\n" +
+                          "2. The loader will be injected into the APK\n" +
+                          "3. Install the modified APK\n" +
+                          "4. Your DLL mods will work in Terraria\n\n" +
+                          "Ready to select APK?");
+        
+        builder.setPositiveButton("Select APK", (dialog, which) -> {
+            // Store the selected loader type for later use
+            activity.getSharedPreferences("dll_mod_prefs", Activity.MODE_PRIVATE)
+                .edit()
+                .putString("selected_loader", loaderType)
+                .apply();
+            
+            // Trigger APK selection in the UI
+            if (callback != null) {
+                callback.onInstallationProgress("Please select Terraria APK file");
+            }
+        });
+        
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+    public void handleApkSelection(Uri apkUri) {
+        LogUtils.logUser("APK selected for loader installation");
+        
+        // Get the selected loader type
+        String selectedLoader = activity.getSharedPreferences("dll_mod_prefs", Activity.MODE_PRIVATE)
+            .getString("selected_loader", "MelonLoader");
+        
+        // Show confirmation dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Confirm Installation");
+        builder.setMessage("Install " + selectedLoader + " into the selected APK?\n\n" +
+                          "This will create a new patched APK file that you can install.");
+        
+        builder.setPositiveButton("Install", (dialog, which) -> {
+            if ("MelonLoader".equals(selectedLoader)) {
+                installLoaderIntoApk(apkUri, MelonLoaderManager.LoaderType.MELONLOADER_NET8);
+            } else {
+                installLoaderIntoApk(apkUri, MelonLoaderManager.LoaderType.MELONLOADER_NET35);
+            }
+        });
+        
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+    public void handleDllSelection(Uri dllUri, String filename) {
+        LogUtils.logUser("DLL file selected for installation");
+        
+        if (filename == null) {
+            filename = "mod_" + System.currentTimeMillis() + ".dll";
+        }
+        
+        if (!filename.toLowerCase().endsWith(".dll")) {
+            if (callback != null) {
+                callback.onError("Please select a .dll file");
+            }
             return;
         }
         
-        try {
-            onPluginEnable();
-            this.enabled = true;
-            this.currentStatus = PluginStatus.ENABLED;
-            LogUtils.logDebug("Plugin enabled: " + getPluginInfo().getName());
-            
-        } catch (Exception e) {
-            this.currentStatus = PluginStatus.ERROR;
-            LogUtils.logError("Plugin enable error: " + e.getMessage());
-        }
-    }
-    
-    @Override
-    public final void onDisable() {
-        if (currentStatus != PluginStatus.ENABLED) {
-            LogUtils.logDebug("Plugin not enabled, cannot disable: " + getPluginInfo().getName());
+        // FIXED: Pass activity context to MelonLoaderManager methods
+        if (!MelonLoaderManager.isMelonLoaderInstalled(activity) && !MelonLoaderManager.isLemonLoaderInstalled(activity)) {
+            showLoaderRequiredDialog();
             return;
         }
         
-        try {
-            onPluginDisable();
-            this.enabled = false;
-            this.currentStatus = PluginStatus.DISABLED;
-            LogUtils.logDebug("Plugin disabled: " + getPluginInfo().getName());
-            
-        } catch (Exception e) {
-            this.currentStatus = PluginStatus.ERROR;
-            LogUtils.logError("Plugin disable error: " + e.getMessage());
-        }
-    }
-    
-    @Override
-    public PluginStatus getStatus() {
-        return currentStatus;
-    }
-    
-    @Override
-    public boolean isEnabled() {
-        return enabled && currentStatus == PluginStatus.ENABLED;
-    }
-    
-    @Override
-    public void onConfigurationChanged(PluginConfig config) {
-        this.pluginConfig = config;
+        // Install DLL mod
+        boolean success = ModInstaller.installMod(activity, dllUri, filename);
         
-        try {
-            onPluginConfigurationChanged(config);
-        } catch (Exception e) {
-            LogUtils.logError("Plugin config change error: " + e.getMessage());
-        }
-    }
-    
-    // Abstract methods for plugins to implement
-    
-    /**
-     * Plugin-specific initialization
-     * Called during onLoad() after basic setup is complete
-     */
-    protected abstract void onPluginLoad();
-    
-    /**
-     * Plugin-specific cleanup
-     * Called during onUnload() before final cleanup
-     */
-    protected abstract void onPluginUnload();
-    
-    /**
-     * Plugin-specific enable logic
-     * Called during onEnable() to activate plugin functionality
-     */
-    protected abstract void onPluginEnable();
-    
-    /**
-     * Plugin-specific disable logic
-     * Called during onDisable() to deactivate plugin functionality
-     */
-    protected abstract void onPluginDisable();
-    
-    /**
-     * Handle plugin configuration changes
-     * Called when plugin configuration is updated
-     * 
-     * @param config Updated configuration
-     */
-    protected void onPluginConfigurationChanged(PluginConfig config) {
-        // Default implementation - plugins can override if needed
-        LogUtils.logDebug("Configuration updated for plugin: " + getPluginInfo().getName());
-    }
-    
-    // Utility methods available to all plugins
-    
-    /**
-     * Get plugin context
-     * @return PluginContext for this plugin
-     */
-    protected final PluginContext getContext() {
-        return pluginContext;
-    }
-    
-    /**
-     * Get plugin configuration
-     * @return Current plugin configuration
-     */
-    protected final PluginConfig getConfig() {
-        return pluginConfig;
-    }
-    
-    /**
-     * Log a message with plugin prefix
-     * @param message Message to log
-     */
-    protected final void log(String message) {
-        LogUtils.logDebug("[" + getPluginInfo().getName() + "] " + message);
-    }
-    
-    /**
-     * Log a user message with plugin prefix
-     * @param message Message to log for user
-     */
-    protected final void logUser(String message) {
-        LogUtils.logUser("[" + getPluginInfo().getName() + "] " + message);
-    }
-    
-    /**
-     * Log an error with plugin prefix
-     * @param message Error message to log
-     */
-    protected final void logError(String message) {
-        LogUtils.logError("[" + getPluginInfo().getName() + "] " + message);
-    }
-    
-    /**
-     * Check if another plugin is loaded
-     * @param pluginId ID of the plugin to check
-     * @return true if the specified plugin is loaded
-     */
-    protected final boolean isPluginLoaded(String pluginId) {
-        return pluginContext != null && pluginContext.isPluginLoaded(pluginId);
-    }
-    
-    /**
-     * Get another plugin instance
-     * @param pluginId ID of the plugin to get
-     * @return Plugin instance or null if not loaded
-     */
-    protected final Plugin getOtherPlugin(String pluginId) {
-        return pluginContext != null ? pluginContext.getPlugin(pluginId) : null;
-    }
-    
-    /**
-     * Register a hook into ModLoader functionality
-     * @param hookPoint Hook point identifier
-     * @param hook Hook implementation
-     */
-    protected final void registerHook(String hookPoint, PluginHook hook) {
-        if (pluginContext != null) {
-            pluginContext.registerHook(hookPoint, hook);
-        }
-    }
-    
-    /**
-     * Unregister a hook
-     * @param hookPoint Hook point identifier
-     */
-    protected final void unregisterHook(String hookPoint) {
-        if (pluginContext != null) {
-            pluginContext.unregisterHook(hookPoint);
-        }
-    }
-    
-    /**
-     * Save plugin data
-     * @param key Data key
-     * @param value Data value
-     */
-    protected final void saveData(String key, String value) {
-        if (pluginContext != null) {
-            pluginContext.saveData(key, value);
-        }
-    }
-    
-    /**
-     * Load plugin data
-     * @param key Data key
-     * @param defaultValue Default value if key not found
-     * @return Stored value or default value
-     */
-    protected final String loadData(String key, String defaultValue) {
-        return pluginContext != null ? pluginContext.loadData(key, defaultValue) : defaultValue;
-    }
-    
-    /**
-     * Get plugin data directory
-     * @return File object pointing to plugin's data directory
-     */
-    protected final java.io.File getPluginDataDirectory() {
-        return pluginContext != null ? pluginContext.getPluginDataDirectory() : null;
-    }
-    
-    /**
-     * Check if plugin has required dependencies
-     * @return true if all dependencies are available
-     */
-    protected final boolean checkDependencies() {
-        if (pluginContext == null) return false;
-        
-        for (String dependency : getPluginInfo().getDependencies()) {
-            if (!pluginContext.isPluginLoaded(dependency)) {
-                logError("Missing dependency: " + dependency);
-                return false;
+        if (success) {
+            if (callback != null) {
+                callback.onInstallationComplete(true, "DLL mod installed successfully");
+            }
+            loadDllMods(); // Refresh list
+        } else {
+            if (callback != null) {
+                callback.onInstallationComplete(false, "Failed to install DLL mod");
             }
         }
-        return true;
+    }
+
+    public void showLoaderRequiredDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Loader Required");
+        builder.setMessage("DLL mods require MelonLoader or LemonLoader to be installed first.\n\n" +
+                          "Would you like to install a loader now?");
+        
+        builder.setPositiveButton("Install Loader", (dialog, which) -> {
+            showLoaderInstallDialog();
+        });
+        
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+    public void installLoaderIntoApk(Uri apkUri, MelonLoaderManager.LoaderType loaderType) {
+        LogUtils.logUser("Installing " + loaderType.getDisplayName() + " into APK");
+        
+        if (callback != null) {
+            callback.onInstallationProgress("Installing " + loaderType.getDisplayName() + " into APK...\nThis may take a few minutes.");
+        }
+        
+        // Run installation in background thread
+        new Thread(() -> {
+            boolean success = false;
+            File outputApk = null;
+            
+            try {
+                // Create temporary files
+                File tempApk = File.createTempFile("input_", ".apk", activity.getCacheDir());
+                outputApk = new File(activity.getExternalFilesDir(null), "patched_terraria_" + 
+                                        loaderType.name().toLowerCase() + "_" +
+                                        System.currentTimeMillis() + ".apk");
+                
+                // Copy input APK to temp file
+                FileUtils.copyUriToFile(activity, apkUri, tempApk);
+                
+                // Install loader
+                if (loaderType == MelonLoaderManager.LoaderType.MELONLOADER_NET8) {
+                    success = MelonLoaderManager.installMelonLoader(activity, tempApk, outputApk);
+                } else if (loaderType == MelonLoaderManager.LoaderType.MELONLOADER_NET35) {
+                    success = MelonLoaderManager.installLemonLoader(activity, tempApk, outputApk);
+                }
+                
+                // Cleanup temp file
+                tempApk.delete();
+                
+            } catch (Exception e) {
+                LogUtils.logDebug("Loader installation error: " + e.getMessage());
+                success = false;
+            }
+            
+            // Update UI on main thread
+            final boolean finalSuccess = success;
+            final File finalOutputApk = outputApk;
+            
+            activity.runOnUiThread(() -> {
+                if (finalSuccess) {
+                    showInstallationSuccessDialog(finalOutputApk, loaderType);
+                } else {
+                    if (callback != null) {
+                        callback.onInstallationComplete(false, "Loader installation failed");
+                    }
+                    LogUtils.logUser("❌ " + loaderType.getDisplayName() + " installation failed");
+                }
+                
+                updateLoaderStatus();
+            });
+        }).start();
+    }
+
+    public void showInstallationSuccessDialog(File outputApk, MelonLoaderManager.LoaderType loaderType) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Installation Complete");
+        builder.setMessage("✅ " + loaderType.getDisplayName() + " has been installed into the APK!\n\n" +
+                          "Patched APK saved to:\n" + outputApk.getName() + "\n\n" +
+                          "Next steps:\n" +
+                          "1. Install the patched APK\n" +
+                          "2. Install DLL mods\n" +
+                          "3. Launch Terraria");
+        
+        builder.setPositiveButton("Install APK", (dialog, which) -> {
+            installApk(outputApk);
+        });
+        
+        builder.setNegativeButton("Later", null);
+        builder.show();
+        
+        LogUtils.logUser("✅ " + loaderType.getDisplayName() + " installation completed successfully");
+        
+        if (callback != null) {
+            callback.onInstallationComplete(true, loaderType.getDisplayName() + " installation completed successfully");
+        }
+    }
+
+    public void installApk(File apkFile) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(
+                androidx.core.content.FileProvider.getUriForFile(
+                    activity, 
+                    activity.getPackageName() + ".provider", 
+                    apkFile
+                ),
+                "application/vnd.android.package-archive"
+            );
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            activity.startActivity(intent);
+        } catch (Exception e) {
+            if (callback != null) {
+                callback.onError("Cannot install APK: " + e.getMessage());
+            }
+            LogUtils.logDebug("APK installation error: " + e.getMessage());
+        }
+    }
+
+    public void toggleMod(File mod, boolean isChecked) {
+        if (isChecked) {
+            ModManager.enableMod(activity, mod);
+        } else {
+            ModManager.disableMod(activity, mod);
+        }
+    }
+
+    public void deleteMod(File mod, Runnable onSuccess) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Delete Mod");
+        builder.setMessage("Delete " + mod.getName() + "?");
+        builder.setPositiveButton("Delete", (dialog, which) -> {
+            if (ModManager.deleteMod(activity, mod)) {
+                if (onSuccess != null) {
+                    onSuccess.run();
+                }
+                loadDllMods(); // Refresh the list
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+    public List<File> getDllMods() {
+        return new ArrayList<>(dllMods);
+    }
+
+    public String getStatusText() {
+        int enabledCount = 0;
+        for (File mod : dllMods) {
+            if (!mod.getName().endsWith(".disabled")) {
+                enabledCount++;
+            }
+        }
+        
+        return "DLL Mods: " + enabledCount + " enabled, " + 
+               (dllMods.size() - enabledCount) + " disabled, " + 
+               dllMods.size() + " total";
+    }
+
+    public boolean isLoaderInstalled() {
+        // FIXED: Pass activity context to MelonLoaderManager methods
+        return MelonLoaderManager.isMelonLoaderInstalled(activity) || MelonLoaderManager.isLemonLoaderInstalled(activity);
+    }
+
+    public void refresh() {
+        loadDllMods();
+        updateLoaderStatus();
     }
 }
-
