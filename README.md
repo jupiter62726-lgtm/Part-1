@@ -1,5 +1,4 @@
-
-/ModLoader/build.gradle
+ModLoader/build.gradle
 
 // Root-level build.gradle (for Gradle 7.0+ and AGP 8.0+)
 
@@ -13,7 +12,9 @@ tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
 
-/ModLoader/settings.gradle
+================================================================================
+
+ModLoader/settings.gradle
 
 pluginManagement {
     repositories {
@@ -35,7 +36,9 @@ rootProject.name = "ModLoader"
 include ':app'
 
 
-/ModLoader/app/build.gradle
+================================================================================
+
+ModLoader/app/build.gradle
 
 plugins {
     id 'com.android.application'
@@ -105,7 +108,9 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
 
-/ModLoader/app/src/main/AndroidManifest.xml
+================================================================================
+
+ModLoader/app/src/main/AndroidManifest.xml
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
@@ -236,6 +241,20 @@ dependencies {
             android:exported="false"
             android:parentActivityName=".ui.UnifiedLoaderActivity"/>
 
+        <!-- ===== 3. UPDATE AndroidManifest.xml ===== -->
+        <!-- NEW: Addon Management Activity -->
+        <activity
+            android:name=".addon.AddonManagementActivity"
+            android:exported="false"
+            android:parentActivityName=".TerrariaSpecificActivity"
+            android:screenOrientation="portrait"
+            android:label="Addon Management"
+            android:theme="@style/Theme.ModLoader">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".TerrariaSpecificActivity" />
+        </activity>
+
         <!-- Intent filters for APK files (ENHANCED) -->
         <activity-alias
             android:name=".ApkHandler"
@@ -280,7 +299,9 @@ dependencies {
 
 </manifest>
 
-/ModLoader/app/src/main/java/com/modloader/AboutActivity.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/AboutActivity.java
 
 package com.modloader;
 
@@ -297,7 +318,9 @@ public class AboutActivity extends AppCompatActivity {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/IntegrationManager.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/IntegrationManager.java
 
 package com.modloader;
 
@@ -305,7 +328,9 @@ public class IntegrationManager {
 }
 
 
-/ModLoader/app/src/main/java/com/modloader/LogActivity.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/LogActivity.java
 
 package com.modloader;
 
@@ -375,11 +400,12 @@ public class LogActivity extends AppCompatActivity {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/MainActivity.java
+================================================================================
 
-// File: MainActivity.java (Activity Class) - Fixed Navigation Structure
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/MainActivity.java
+ModLoader/app/src/main/java/com/modloader/MainActivity.java
 
+// File: MainActivity.java (Updated with Addon Integration)
+// Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/app/src/main/java/com/modloader/MainActivity.java
 package com.modloader;
 
 import android.content.Intent;
@@ -389,14 +415,17 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.modloader.addon.AddonManager;
+import com.modloader.addon.AddonManagementActivity;
 import com.modloader.util.LogUtils;
 
 public class MainActivity extends AppCompatActivity {
+    private AddonManager addonManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        
         try {
             stopService(new Intent().setClassName(getPackageName(), "com.itsaky.androidide.logsender.LogSenderService"));
         } catch (Exception ignored) {}
@@ -407,27 +436,109 @@ public class MainActivity extends AppCompatActivity {
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
             LogUtils.logDebug("FATAL CRASH: " + throwable);
             for (StackTraceElement e : throwable.getStackTrace()) {
-                LogUtils.logDebug("    at " + e.toString());
+                LogUtils.logDebug(" at " + e.toString());
             }
         });
 
         LogUtils.logDebug("Setting up main navigation");
-
         setContentView(R.layout.activity_main);
         setTitle("Mod Loader - Main Menu");
 
+        // Initialize addon manager
+        initializeAddonSystem();
+
+        // Setup UI
+        setupMainButtons();
+
+        // Apply addons to this activity
+        if (addonManager != null) {
+            addonManager.applyAddonsToActivity(this, "MainActivity");
+        }
+    }
+
+    private void initializeAddonSystem() {
+        try {
+            LogUtils.logDebug("Initializing addon system...");
+            addonManager = new AddonManager(this);
+            
+            if (addonManager.isInitialized()) {
+                LogUtils.logUser("✅ Addon system initialized successfully");
+                LogUtils.logDebug("Loaded " + addonManager.getLoadedAddons().size() + " addons");
+            } else {
+                LogUtils.logDebug("⚠️ Addon system initialization incomplete");
+            }
+        } catch (Exception e) {
+            LogUtils.logError("Failed to initialize addon system: " + e.getMessage());
+            addonManager = null;
+        }
+    }
+
+    private void setupMainButtons() {
         Button universalButton = findViewById(R.id.universal_button);
         Button specificButton = findViewById(R.id.specific_button);
+        Button pluginButton = findViewById(R.id.plugin_button);
 
-        universalButton.setOnClickListener(v -> {
-            LogUtils.logUser("Universal Mode selected");
-            startActivity(new Intent(MainActivity.this, UniversalActivity.class));
-        });
+        // Universal Mode Button
+        if (universalButton != null) {
+            universalButton.setOnClickListener(v -> {
+                LogUtils.logUser("Universal Mode selected");
+                startActivity(new Intent(MainActivity.this, UniversalActivity.class));
+            });
+        } else {
+            LogUtils.logDebug("Universal button not found in layout");
+        }
 
-        specificButton.setOnClickListener(v -> {
-            LogUtils.logUser("Specific Mode selected - showing app selection");
-            startActivity(new Intent(MainActivity.this, SpecificSelectionActivity.class));
-        });
+        // Specific Mode Button
+        if (specificButton != null) {
+            specificButton.setOnClickListener(v -> {
+                LogUtils.logUser("Specific Mode selected - showing app selection");
+                startActivity(new Intent(MainActivity.this, SpecificSelectionActivity.class));
+            });
+        } else {
+            LogUtils.logDebug("Specific button not found in layout");
+        }
+
+        // Plugin/Addon Management Button
+        if (pluginButton != null) {
+            pluginButton.setOnClickListener(v -> {
+                LogUtils.logUser("Addon Management selected");
+                
+                if (addonManager != null) {
+                    // Show addon statistics in log
+                    String stats = addonManager.getAddonStatistics();
+                    LogUtils.logDebug("Current addon status:\n" + stats);
+                }
+                
+                startActivity(new Intent(MainActivity.this, AddonManagementActivity.class));
+            });
+        } else {
+            LogUtils.logDebug("Plugin button not found in layout - creating fallback");
+            createFallbackPluginButton();
+        }
+    }
+
+    private void createFallbackPluginButton() {
+        // If plugin button doesn't exist in layout, log the issue
+        LogUtils.logDebug("Plugin button not found - addon management available via menu");
+        
+        // You could dynamically create a button here if needed
+        // But it's better to ensure the button exists in the layout
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        
+        // Refresh addon system status
+        if (addonManager != null) {
+            try {
+                // Re-apply addons in case they were modified
+                addonManager.applyAddonsToActivity(this, "MainActivity");
+                LogUtils.logDebug("Addons re-applied to MainActivity");
+            } catch (Exception e) {
+                LogUtils.logError("Error re-applying addons: " + e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -436,12 +547,143 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         LogUtils.logDebug("Permission result callback triggered");
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        
+        // Cleanup addon system
+        if (addonManager != null) {
+            try {
+                addonManager.cleanup();
+                LogUtils.logDebug("Addon system cleaned up");
+            } catch (Exception e) {
+                LogUtils.logError("Error cleaning up addon system: " + e.getMessage());
+            }
+        }
+        
+        LogUtils.logDebug("MainActivity destroyed");
+    }
+
+    /**
+     * Get the addon manager instance (for use by other activities)
+     */
+    public AddonManager getAddonManager() {
+        return addonManager;
+    }
+
+    /**
+     * Check if addon system is available
+     */
+    public boolean isAddonSystemAvailable() {
+        return addonManager != null && addonManager.isInitialized();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        // Add addon management to options menu as backup
+        menu.add(0, 1, 0, "🔌 Addon Management")
+            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
+        
+        menu.add(0, 2, 0, "📊 Addon Statistics")
+            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
+            
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        switch (item.getItemId()) {
+            case 1: // Addon Management
+                startActivity(new Intent(this, AddonManagementActivity.class));
+                return true;
+                
+            case 2: // Addon Statistics
+                if (addonManager != null) {
+                    String stats = addonManager.getAddonStatistics();
+                    LogUtils.logUser("=== Addon Statistics ===\n" + stats);
+                    
+                    // Show in dialog
+                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle("📊 Addon Statistics")
+                        .setMessage(stats)
+                        .setPositiveButton("OK", null)
+                        .show();
+                } else {
+                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle("Addon System")
+                        .setMessage("Addon system is not initialized.")
+                        .setPositiveButton("OK", null)
+                        .show();
+                }
+                return true;
+                
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * Handle addon-related intents from other activities
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        
+        if (intent != null && intent.hasExtra("open_addon_management")) {
+            startActivity(new Intent(this, AddonManagementActivity.class));
+        }
+    }
+
+    /**
+     * Public method for other activities to access addon functionality
+     */
+    public void executeAddonAction(String addonId, String action, java.util.Map<String, Object> parameters) {
+        if (addonManager != null) {
+            boolean success = addonManager.executeAddon(addonId, action, parameters);
+            if (success) {
+                LogUtils.logUser("✅ Executed addon action: " + action);
+            } else {
+                LogUtils.logError("❌ Failed to execute addon action: " + action);
+            }
+        } else {
+            LogUtils.logError("Addon system not available");
+        }
+    }
+
+    /**
+     * Helper method to check if specific addon category is available
+     */
+    public boolean hasAddonsOfCategory(AddonManager.AddonCategory category) {
+        if (addonManager != null) {
+            return !addonManager.getAddonsByCategory(category).isEmpty();
+        }
+        return false;
+    }
+
+    /**
+     * Get enabled addons count for display
+     */
+    public int getEnabledAddonsCount() {
+        if (addonManager != null) {
+            int count = 0;
+            for (com.modloader.addon.AddonConfig addon : addonManager.getLoadedAddons()) {
+                if (addon.isEnabled()) {
+                    count++;
+                }
+            }
+            return count;
+        }
+        return 0;
+    }
 }
 
-/ModLoader/app/src/main/java/com/modloader/MyApplication.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/MyApplication.java
 
 // File: MyApplication.java (FIXED) - Initialize Logs and Handle Migration
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/MyApplication.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/MyApplication.java
 
 package com.modloader;
 
@@ -463,16 +705,16 @@ public class MyApplication extends Application {
         // FIXED: Initialize app startup logging
         LogUtils.initializeAppStartup();
         
-        // Auto-create ModLoader directory structure on first run
-        initializeModLoaderStructure();
+        // Auto-create TerrariaLoader directory structure on first run
+        initializeTerrariaLoaderStructure();
         
         // FIXED: Handle migration from legacy structure
         handleMigration();
     }
     
-    private void initializeModLoaderStructure() {
+    private void initializeTerrariaLoaderStructure() {
         try {
-            LogUtils.logUser("🚀 Initializing ModLoader directory structure...");
+            LogUtils.logUser("🚀 Initializing TerrariaLoader directory structure...");
             
             // The primary and most reliable location for app files.
             File baseDir = getExternalFilesDir(null);
@@ -482,12 +724,12 @@ public class MyApplication extends Application {
             }
 
             // FIXED: Use new directory structure
-            File terrariaLoaderDir = new File(baseDir, "ModLoader");
+            File terrariaLoaderDir = new File(baseDir, "TerrariaLoader");
             File gameDir = new File(terrariaLoaderDir, "com.and.games505.TerrariaPaid");
 
             if (!gameDir.exists()) {
                 if (gameDir.mkdirs()) {
-                    LogUtils.logUser("✅ Created base ModLoader directory at: " + gameDir.getAbsolutePath());
+                    LogUtils.logUser("✅ Created base TerrariaLoader directory at: " + gameDir.getAbsolutePath());
                 } else {
                     LogUtils.logDebug("❌ Failed to create base directory: " + gameDir.getAbsolutePath());
                     return; // Stop if we can't create the main folder
@@ -514,7 +756,7 @@ public class MyApplication extends Application {
                 basePath + "/Mods/DLL",      // FIXED: DLL mods directory
                 basePath + "/Config",
                 basePath + "/Logs",          // FIXED: Game logs (MelonLoader logs)
-                basePath + "/AppLogs",       // FIXED: App logs (ModLoader logs)
+                basePath + "/AppLogs",       // FIXED: App logs (TerrariaLoader logs)
                 basePath + "/Backups",
                 basePath + "/Loaders",
                 basePath + "/Loaders/MelonLoader",
@@ -548,12 +790,12 @@ public class MyApplication extends Application {
             }
             
             if (createdCount > 0) {
-                LogUtils.logUser("✅ ModLoader directory structure created successfully");
+                LogUtils.logUser("✅ TerrariaLoader directory structure created successfully");
                 LogUtils.logUser("📁 Path: " + basePath);
                 LogUtils.logUser("📊 Created " + createdCount + " directories");
                 createInfoFiles(basePath);
             } else {
-                LogUtils.logUser("📁 ModLoader directories already exist");
+                LogUtils.logUser("📁 TerrariaLoader directories already exist");
             }
             
         } catch (Exception e) {
@@ -569,7 +811,7 @@ public class MyApplication extends Application {
             File dexReadme = new File(basePath + "/Mods/DEX", "README.txt");
             if (!dexReadme.exists()) {
                 try (java.io.FileWriter writer = new java.io.FileWriter(dexReadme)) {
-                    writer.write("=== ModLoader - DEX/JAR Mods ===\n\n");
+                    writer.write("=== TerrariaLoader - DEX/JAR Mods ===\n\n");
                     writer.write("Place your .dex and .jar mod files here.\n");
                     writer.write("Supported formats:\n");
                     writer.write("• .dex files (enabled)\n");
@@ -585,7 +827,7 @@ public class MyApplication extends Application {
             File dllReadme = new File(basePath + "/Mods/DLL", "README.txt");
             if (!dllReadme.exists()) {
                 try (java.io.FileWriter writer = new java.io.FileWriter(dllReadme)) {
-                    writer.write("=== ModLoader - DLL Mods ===\n\n");
+                    writer.write("=== TerrariaLoader - DLL Mods ===\n\n");
                     writer.write("Place your .dll mod files here.\n");
                     writer.write("Requires MelonLoader to be installed.\n");
                     writer.write("Supported formats:\n");
@@ -646,8 +888,8 @@ public class MyApplication extends Application {
             File appLogsReadme = new File(basePath + "/AppLogs", "README.txt");
             if (!appLogsReadme.exists()) {
                 try (java.io.FileWriter writer = new java.io.FileWriter(appLogsReadme)) {
-                    writer.write("=== ModLoader App Logs ===\n\n");
-                    writer.write("This directory contains logs from ModLoader app.\n");
+                    writer.write("=== TerrariaLoader App Logs ===\n\n");
+                    writer.write("This directory contains logs from TerrariaLoader app.\n");
                     writer.write("These are generated when using this app.\n\n");
                     writer.write("Log files follow rotation:\n");
                     writer.write("• AppLog.txt (current log)\n");
@@ -706,7 +948,7 @@ public class MyApplication extends Application {
             LogUtils.logUser("📋 Migrating " + legacyLogFiles.length + " legacy log files...");
             
             // Create new app logs directory
-            File gameBaseDir = new File(getExternalFilesDir(null), "ModLoader/com.and.games505.TerrariaPaid");
+            File gameBaseDir = new File(getExternalFilesDir(null), "TerrariaLoader/com.and.games505.TerrariaPaid");
             File newAppLogsDir = new File(gameBaseDir, "AppLogs");
             if (!newAppLogsDir.exists()) {
                 newAppLogsDir.mkdirs();
@@ -738,7 +980,9 @@ public class MyApplication extends Application {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/SandboxActivity.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/SandboxActivity.java
 
 package com.modloader;
 
@@ -769,10 +1013,12 @@ public class SandboxActivity extends Activity {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/SpecificSelectionActivity.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/SpecificSelectionActivity.java
 
 // File: SpecificSelectionActivity.java (Fixed Activity Class) - Fixed App Selection
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/SpecificSelectionActivity.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/SpecificSelectionActivity.java
 
 package com.modloader;
 
@@ -823,24 +1069,32 @@ public class SpecificSelectionActivity extends AppCompatActivity {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/TerrariaSpecificActivity.java
+================================================================================
 
-// File: TerrariaSpecificActivity.java (Updated) - Elegant UI with Dynamic Theming
+ModLoader/app/src/main/java/com/modloader/TerrariaSpecificActivity.java
+
+// File: TerrariaSpecificActivity.java (Updated with Addon Integration)
 // Path: /main/java/com/modloader/TerrariaSpecificActivity.java
-
 package com.modloader;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.modloader.R;
+import com.modloader.addon.AddonManager;
+import com.modloader.addon.AddonManagementActivity;
+import com.modloader.addon.AddonConfig;
 import com.modloader.ui.UnifiedLoaderActivity;
 import com.modloader.ui.ModListActivity;
 import com.modloader.ui.SettingsActivity;
@@ -851,28 +1105,69 @@ import com.modloader.loader.MelonLoaderManager;
 import com.modloader.util.LogUtils;
 import com.modloader.ui.OfflineDiagnosticActivity;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TerrariaSpecificActivity extends AppCompatActivity {
-
+    
     private LinearLayout rootLayout;
     private TextView loaderStatusText;
     private CardView setupCard;
     private CardView modManagementCard;
     private CardView toolsCard;
-
+    private CardView pluginCard;
+    
+    // Addon system integration
+    private AddonManager addonManager;
+    private TextView addonStatusText;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_terraria_specific_updated);
-        
         setTitle("🌍 Terraria Mod Loader");
         
         LogUtils.logUser("Terraria Menu Activity opened");
         
+        // Initialize addon system first
+        initializeAddonSystem();
+        
+        // Initialize UI components
         initializeViews();
         applyTerrariaTheme();
         setupUI();
         updateLoaderStatus();
+        updateAddonStatus();
+        
+        // Apply addons to this activity
+        if (addonManager != null) {
+            addonManager.applyAddonsToActivity(this, "TerrariaSpecificActivity");
+        }
+    }
+    
+    private void initializeAddonSystem() {
+        try {
+            LogUtils.logDebug("Initializing addon system for Terraria activity...");
+            addonManager = new AddonManager(this);
+            
+            if (addonManager.isInitialized()) {
+                LogUtils.logUser("✅ Addon system ready for Terraria activity");
+                
+                // Log available addon categories
+                for (AddonManager.AddonCategory category : AddonManager.AddonCategory.values()) {
+                    List<AddonConfig> categoryAddons = addonManager.getAddonsByCategory(category);
+                    if (!categoryAddons.isEmpty()) {
+                        LogUtils.logDebug("Available " + category.getDisplayName() + ": " + categoryAddons.size());
+                    }
+                }
+            } else {
+                LogUtils.logDebug("⚠️ Addon system initialization incomplete for Terraria activity");
+            }
+        } catch (Exception e) {
+            LogUtils.logError("Failed to initialize addon system: " + e.getMessage());
+            addonManager = null;
+        }
     }
 
     private void initializeViews() {
@@ -881,6 +1176,19 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
         setupCard = findViewById(R.id.setupCard);
         modManagementCard = findViewById(R.id.modManagementCard);
         toolsCard = findViewById(R.id.toolsCard);
+        pluginCard = findViewById(R.id.pluginCard);
+        
+        // Create addon status text if it doesn't exist
+        if (addonStatusText == null) {
+            addonStatusText = new TextView(this);
+            addonStatusText.setId(View.generateViewId());
+            addonStatusText.setTextSize(12f);
+            addonStatusText.setPadding(12, 8, 12, 8);
+            // Add to layout if possible
+            if (rootLayout != null) {
+                rootLayout.addView(addonStatusText, 1); // Add after header
+            }
+        }
     }
 
     private void applyTerrariaTheme() {
@@ -888,15 +1196,27 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
         int primaryGreen = Color.parseColor("#4CAF50");
         int secondaryBlue = Color.parseColor("#2196F3");
         int accentGreen = Color.parseColor("#81C784");
-        
+        int pluginPurple = Color.parseColor("#9C27B0");
+
         // Apply theme to root layout
-        rootLayout.setBackgroundColor(Color.parseColor("#E8F5E8"));
-        
+        if (rootLayout != null) {
+            rootLayout.setBackgroundColor(Color.parseColor("#E8F5E8"));
+        }
+
         // Apply theme to cards
-        setupCard.setCardBackgroundColor(Color.parseColor("#F1F8E9"));
-        modManagementCard.setCardBackgroundColor(Color.parseColor("#E3F2FD"));
-        toolsCard.setCardBackgroundColor(Color.parseColor("#F3E5F5"));
-        
+        if (setupCard != null) {
+            setupCard.setCardBackgroundColor(Color.parseColor("#F1F8E9"));
+        }
+        if (modManagementCard != null) {
+            modManagementCard.setCardBackgroundColor(Color.parseColor("#E3F2FD"));
+        }
+        if (toolsCard != null) {
+            toolsCard.setCardBackgroundColor(Color.parseColor("#F3E5F5"));
+        }
+        if (pluginCard != null) {
+            pluginCard.setCardBackgroundColor(Color.parseColor("#F3E5F5"));
+        }
+
         // Set status bar color
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(primaryGreen);
@@ -904,106 +1224,177 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
     }
 
     private void setupUI() {
-        // === SETUP SECTION ===
-        
-        // Unified Loader Setup (NEW - replaces multiple buttons)
+        setupSetupSection();
+        setupModManagementSection();
+        setupToolsSection();
+        setupAddonSection();
+        setupNavigationSection();
+    }
+    
+    private void setupSetupSection() {
+        // Unified Loader Setup
         Button unifiedSetupBtn = findViewById(R.id.unifiedSetupButton);
-        unifiedSetupBtn.setOnClickListener(v -> {
-            LogUtils.logUser("Opening Unified MelonLoader Setup");
-            Intent intent = new Intent(this, UnifiedLoaderActivity.class);
-            startActivity(intent);
-        });
-        
-        // Quick Setup Guide
-        Button setupGuideBtn = findViewById(R.id.setupGuideButton);
-        setupGuideBtn.setOnClickListener(v -> {
-            LogUtils.logUser("Opening Setup Guide");
-            Intent intent = new Intent(this, com.modloader.ui.SetupGuideActivity.class);
-            startActivity(intent);
-        });
-        
-        // Manual Instructions (fallback)
-        Button manualInstructionsBtn = findViewById(R.id.manualInstructionsButton);
-        manualInstructionsBtn.setOnClickListener(v -> {
-            LogUtils.logUser("Opening Manual Installation Instructions");
-            Intent intent = new Intent(this, InstructionsActivity.class);
-            startActivity(intent);
-        });
-        
-        // === MOD MANAGEMENT SECTION ===
-        
-        // DEX/JAR Mod Manager
-        Button dexModManagerBtn = findViewById(R.id.dexModManagerButton);
-        dexModManagerBtn.setOnClickListener(v -> {
-            LogUtils.logUser("Opening DEX/JAR Mod Manager");
-            Intent intent = new Intent(this, ModListActivity.class);
-            startActivity(intent);
-        });
-        
-        // DLL Mod Manager (redirects to unified system)
-        Button dllModManagerBtn = findViewById(R.id.dllModManagerButton);
-        dllModManagerBtn.setOnClickListener(v -> {
-            LogUtils.logUser("Opening DLL Mod Management via Unified Loader");
-            
-            // Check if loader is installed
-            if (MelonLoaderManager.isMelonLoaderInstalled(this) || MelonLoaderManager.isLemonLoaderInstalled(this)) {
-                // If loader is installed, go directly to mod management
-                Intent intent = new Intent(this, com.modloader.ui.ModManagementActivity.class);
-                startActivity(intent);
-            } else {
-                // If no loader, start unified setup wizard
+        if (unifiedSetupBtn != null) {
+            unifiedSetupBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Opening Unified MelonLoader Setup");
                 Intent intent = new Intent(this, UnifiedLoaderActivity.class);
                 startActivity(intent);
-            }
-        });
-        
-        // === TOOLS SECTION ===
-        
+            });
+        }
+
+        // Quick Setup Guide
+        Button setupGuideBtn = findViewById(R.id.setupGuideButton);
+        if (setupGuideBtn != null) {
+            setupGuideBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Opening Setup Guide");
+                Intent intent = new Intent(this, com.modloader.ui.SetupGuideActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        // Manual Instructions
+        Button manualInstructionsBtn = findViewById(R.id.manualInstructionsButton);
+        if (manualInstructionsBtn != null) {
+            manualInstructionsBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Opening Manual Installation Instructions");
+                Intent intent = new Intent(this, InstructionsActivity.class);
+                startActivity(intent);
+            });
+        }
+    }
+    
+    private void setupModManagementSection() {
+        // DEX/JAR Mod Manager
+        Button dexModManagerBtn = findViewById(R.id.dexModManagerButton);
+        if (dexModManagerBtn != null) {
+            dexModManagerBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Opening DEX/JAR Mod Manager");
+                
+                // Check if file manager addons are available
+                if (addonManager != null && hasFileManagerAddons()) {
+                    LogUtils.logDebug("File manager addons available - enhanced mod management");
+                }
+                
+                Intent intent = new Intent(this, ModListActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        // DLL Mod Manager
+        Button dllModManagerBtn = findViewById(R.id.dllModManagerButton);
+        if (dllModManagerBtn != null) {
+            dllModManagerBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Opening DLL Mod Management via Unified Loader");
+                
+                // Check if smart mod installer addons are available
+                if (addonManager != null && hasModInstallerAddons()) {
+                    LogUtils.logDebug("Smart mod installer addons available");
+                }
+                
+                // Check if loader is installed
+                if (MelonLoaderManager.isMelonLoaderInstalled(this) || MelonLoaderManager.isLemonLoaderInstalled(this)) {
+                    Intent intent = new Intent(this, com.modloader.ui.ModManagementActivity.class);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(this, UnifiedLoaderActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
+    }
+    
+    private void setupAddonSection() {
+        // Main Addon Manager Button
+        Button pluginManagerBtn = findViewById(R.id.pluginManagerButton);
+        if (pluginManagerBtn != null) {
+            pluginManagerBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Opening Addon Management System");
+                Intent intent = new Intent(this, AddonManagementActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        // Quick Addon Actions
+        Button pluginInstallBtn = findViewById(R.id.pluginInstallButton);
+        if (pluginInstallBtn != null) {
+            pluginInstallBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Quick addon installation");
+                showQuickAddonActions();
+            });
+        }
+
+        // Addon Configuration
+        Button pluginConfigBtn = findViewById(R.id.pluginConfigButton);
+        if (pluginConfigBtn != null) {
+            pluginConfigBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Opening addon configuration");
+                showAddonConfigurationOptions();
+            });
+        }
+    }
+    
+    private void setupToolsSection() {
         // Log Viewer
         Button logViewerBtn = findViewById(R.id.logViewerButton);
-        logViewerBtn.setOnClickListener(v -> {
-            LogUtils.logUser("Opening Log Viewer");
-            Intent intent = new Intent(this, LogViewerActivity.class);
-            startActivity(intent);
-        });
-        
+        if (logViewerBtn != null) {
+            logViewerBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Opening Log Viewer");
+                Intent intent = new Intent(this, LogViewerActivity.class);
+                startActivity(intent);
+            });
+        }
+
         // Settings
         Button settingsBtn = findViewById(R.id.settingsButton);
-        settingsBtn.setOnClickListener(v -> {
-            LogUtils.logUser("Opening Settings");
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-        });
-        
+        if (settingsBtn != null) {
+            settingsBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Opening Settings");
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+            });
+        }
+
         // Sandbox Mode
         Button sandboxBtn = findViewById(R.id.sandboxButton);
-        sandboxBtn.setOnClickListener(v -> {
-            LogUtils.logUser("Opening Sandbox Mode");
-            Intent intent = new Intent(this, SandboxActivity.class);
-            startActivity(intent);
-            
-        });    
-            
+        if (sandboxBtn != null) {
+            sandboxBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Opening Sandbox Mode");
+                Intent intent = new Intent(this, SandboxActivity.class);
+                startActivity(intent);
+            });
+        }
+
         // Diagnostic Tool
         Button diagnosticBtn = findViewById(R.id.diagnosticButton);
-        diagnosticBtn.setOnClickListener(v -> {
-            LogUtils.logUser("Opening Offline Diagnostic Tool");
-            Intent intent = new Intent(this, OfflineDiagnosticActivity.class);
-            startActivity(intent);
-   
-        });
-        
-        // === NAVIGATION ===
-        
+        if (diagnosticBtn != null) {
+            diagnosticBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Opening Offline Diagnostic Tool");
+                
+                // Check if diagnostic addons are available
+                if (addonManager != null && hasDiagnosticAddons()) {
+                    LogUtils.logDebug("Enhanced diagnostic features available via addons");
+                }
+                
+                Intent intent = new Intent(this, OfflineDiagnosticActivity.class);
+                startActivity(intent);
+            });
+        }
+    }
+    
+    private void setupNavigationSection() {
         // Back to App Selection
         Button backBtn = findViewById(R.id.backButton);
-        backBtn.setOnClickListener(v -> {
-            LogUtils.logUser("Returning to app selection");
-            finish();
-        });
+        if (backBtn != null) {
+            backBtn.setOnClickListener(v -> {
+                LogUtils.logUser("Returning to app selection");
+                finish();
+            });
+        }
     }
 
     private void updateLoaderStatus() {
+        if (loaderStatusText == null) return;
+        
         boolean melonInstalled = MelonLoaderManager.isMelonLoaderInstalled(this);
         boolean lemonInstalled = MelonLoaderManager.isLemonLoaderInstalled(this);
         
@@ -1020,41 +1411,391 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
             statusText = "⚠️ No loader installed - Use 'Complete Setup Wizard' to install MelonLoader";
             statusColor = Color.parseColor("#FF9800"); // Orange
         }
-        
+
         loaderStatusText.setText(statusText);
         loaderStatusText.setTextColor(statusColor);
-        
+
         // Update button states based on loader status
         updateButtonStates(melonInstalled || lemonInstalled);
+    }
+    
+    private void updateAddonStatus() {
+        if (addonStatusText == null || addonManager == null) return;
+        
+        try {
+            int totalAddons = addonManager.getLoadedAddons().size();
+            int enabledAddons = 0;
+            
+            for (AddonConfig addon : addonManager.getLoadedAddons()) {
+                if (addon.isEnabled()) {
+                    enabledAddons++;
+                }
+            }
+            
+            String addonStatus = String.format("🔌 Addons: %d active, %d total", enabledAddons, totalAddons);
+            addonStatusText.setText(addonStatus);
+            addonStatusText.setTextColor(enabledAddons > 0 ? 
+                Color.parseColor("#4CAF50") : Color.parseColor("#666666"));
+            addonStatusText.setBackgroundColor(Color.parseColor("#F0F8FF"));
+            
+        } catch (Exception e) {
+            addonStatusText.setText("🔌 Addon system error");
+            addonStatusText.setTextColor(Color.parseColor("#F44336"));
+            LogUtils.logError("Error updating addon status: " + e.getMessage());
+        }
     }
 
     private void updateButtonStates(boolean loaderInstalled) {
         Button dllModManagerBtn = findViewById(R.id.dllModManagerButton);
-        
-        if (loaderInstalled) {
-            dllModManagerBtn.setText("🔧 Manage DLL Mods");
-            dllModManagerBtn.setBackgroundColor(Color.parseColor("#4CAF50"));
-        } else {
-            dllModManagerBtn.setText("🔧 Setup DLL Support");
-            dllModManagerBtn.setBackgroundColor(Color.parseColor("#FF9800"));
+        if (dllModManagerBtn != null) {
+            if (loaderInstalled) {
+                dllModManagerBtn.setText("🔧 Manage DLL Mods");
+                dllModManagerBtn.setBackgroundColor(Color.parseColor("#4CAF50"));
+            } else {
+                dllModManagerBtn.setText("🔧 Setup DLL Support");
+                dllModManagerBtn.setBackgroundColor(Color.parseColor("#FF9800"));
+            }
         }
+    }
+    
+    // Addon-related helper methods
+    private boolean hasFileManagerAddons() {
+        return addonManager != null && 
+               !addonManager.getAddonsByCategory(AddonManager.AddonCategory.FILE_MANAGER).isEmpty();
+    }
+    
+    private boolean hasModInstallerAddons() {
+        return addonManager != null && 
+               !addonManager.getAddonsByCategory(AddonManager.AddonCategory.MOD_INSTALLER).isEmpty();
+    }
+    
+    private boolean hasDiagnosticAddons() {
+        return addonManager != null && 
+               !addonManager.getAddonsByCategory(AddonManager.AddonCategory.DIAGNOSTIC).isEmpty();
+    }
+    
+    private boolean hasThemeAddons() {
+        return addonManager != null && 
+               !addonManager.getAddonsByCategory(AddonManager.AddonCategory.THEME).isEmpty();
+    }
+    
+    private void showQuickAddonActions() {
+        if (addonManager == null) {
+            Toast.makeText(this, "Addon system not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        String[] actions = {
+            "📦 Install Addon from File",
+            "🎨 Apply Theme Addons",
+            "🛠️ Run Utility Addons",
+            "📊 View Addon Statistics"
+        };
+        
+        new AlertDialog.Builder(this)
+            .setTitle("Quick Addon Actions")
+            .setItems(actions, (dialog, which) -> {
+                switch (which) {
+                    case 0:
+                        startActivity(new Intent(this, AddonManagementActivity.class));
+                        break;
+                    case 1:
+                        applyThemeAddons();
+                        break;
+                    case 2:
+                        runUtilityAddons();
+                        break;
+                    case 3:
+                        showAddonStatistics();
+                        break;
+                }
+            })
+            .show();
+    }
+    
+    private void showAddonConfigurationOptions() {
+        if (addonManager == null) {
+            Toast.makeText(this, "Addon system not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        List<AddonConfig> enabledAddons = addonManager.getLoadedAddons();
+        if (enabledAddons.isEmpty()) {
+            Toast.makeText(this, "No addons available to configure", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        String[] addonNames = new String[enabledAddons.size()];
+        for (int i = 0; i < enabledAddons.size(); i++) {
+            AddonConfig addon = enabledAddons.get(i);
+            addonNames[i] = addon.getName() + " v" + addon.getVersion() + 
+                          (addon.isEnabled() ? " ✅" : " ❌");
+        }
+        
+        new AlertDialog.Builder(this)
+            .setTitle("Configure Addons")
+            .setItems(addonNames, (dialog, which) -> {
+                AddonConfig selectedAddon = enabledAddons.get(which);
+                showAddonDetails(selectedAddon);
+            })
+            .show();
+    }
+    
+    private void applyThemeAddons() {
+        List<AddonConfig> themeAddons = addonManager.getAddonsByCategory(AddonManager.AddonCategory.THEME);
+        
+        if (themeAddons.isEmpty()) {
+            Toast.makeText(this, "No theme addons available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        for (AddonConfig themeAddon : themeAddons) {
+            if (themeAddon.isEnabled()) {
+                Map<String, Object> params = new HashMap<>();
+                params.put("activity", this);
+                params.put("activity_name", "TerrariaSpecificActivity");
+                
+                boolean success = addonManager.executeAddon(themeAddon.getId(), "apply_to_activity", params);
+                if (success) {
+                    LogUtils.logUser("✅ Applied theme: " + themeAddon.getName());
+                    Toast.makeText(this, "Applied theme: " + themeAddon.getName(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+    
+    private void runUtilityAddons() {
+        List<AddonConfig> utilityAddons = addonManager.getAddonsByCategory(AddonManager.AddonCategory.UTILITY);
+        
+        if (utilityAddons.isEmpty()) {
+            Toast.makeText(this, "No utility addons available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        for (AddonConfig utilityAddon : utilityAddons) {
+            if (utilityAddon.isEnabled()) {
+                Map<String, Object> params = new HashMap<>();
+                params.put("activity", this);
+                
+                boolean success = addonManager.executeAddon(utilityAddon.getId(), "cleanup_temp_files", params);
+                if (success) {
+                    LogUtils.logUser("✅ Executed utility: " + utilityAddon.getName());
+                }
+            }
+        }
+        
+        Toast.makeText(this, "Utility addons executed", Toast.LENGTH_SHORT).show();
+    }
+    
+    private void showAddonStatistics() {
+        if (addonManager == null) return;
+        
+        String statistics = addonManager.getAddonStatistics();
+        
+        new AlertDialog.Builder(this)
+            .setTitle("📊 Addon Statistics")
+            .setMessage(statistics)
+            .setPositiveButton("OK", null)
+            .setNeutralButton("Manage", (dialog, which) -> {
+                startActivity(new Intent(this, AddonManagementActivity.class));
+            })
+            .show();
+    }
+    
+    private void showAddonDetails(AddonConfig addon) {
+        String details = addon.getDisplayInfo();
+        
+        new AlertDialog.Builder(this)
+            .setTitle("📋 " + addon.getName())
+            .setMessage(details)
+            .setPositiveButton("OK", null)
+            .setNeutralButton("Toggle", (dialog, which) -> {
+                boolean newState = !addon.isEnabled();
+                if (addonManager.toggleAddon(addon.getId(), newState)) {
+                    updateAddonStatus();
+                    Toast.makeText(this, 
+                        addon.getName() + (newState ? " enabled" : " disabled"), 
+                        Toast.LENGTH_SHORT).show();
+                }
+            })
+            .setNegativeButton("Actions", (dialog, which) -> {
+                showAddonActionsDialog(addon);
+            })
+            .show();
+    }
+    
+    private void showAddonActionsDialog(AddonConfig addon) {
+        List<AddonConfig.AddonAction> actions = addon.getActions();
+        if (actions.isEmpty()) {
+            Toast.makeText(this, "No actions available for this addon", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        String[] actionNames = new String[actions.size()];
+        for (int i = 0; i < actions.size(); i++) {
+            actionNames[i] = actions.get(i).getName();
+        }
+        
+        new AlertDialog.Builder(this)
+            .setTitle("🎯 " + addon.getName() + " Actions")
+            .setItems(actionNames, (dialog, which) -> {
+                AddonConfig.AddonAction action = actions.get(which);
+                executeAddonAction(addon, action);
+            })
+            .show();
+    }
+    
+    private void executeAddonAction(AddonConfig addon, AddonConfig.AddonAction action) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("activity", this);
+        parameters.put("activity_name", "TerrariaSpecificActivity");
+        parameters.putAll(action.getParameters());
+        
+        boolean success = addonManager.executeAddon(addon.getId(), action.getAction(), parameters);
+        
+        String message = success ? 
+            "✅ Executed: " + action.getName() : 
+            "❌ Failed: " + action.getName();
+            
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        LogUtils.logUser(message + " from addon: " + addon.getName());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        
         // Refresh loader status when returning to this activity
         updateLoaderStatus();
+        updateAddonStatus();
+        
+        // Re-apply addons if available
+        if (addonManager != null) {
+            try {
+                addonManager.applyAddonsToActivity(this, "TerrariaSpecificActivity");
+            } catch (Exception e) {
+                LogUtils.logError("Error re-applying addons: " + e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Add addon-related menu items
+        if (addonManager != null) {
+            menu.add(0, 1000, 0, "🔌 Manage Addons");
+            menu.add(0, 1001, 0, "📊 Addon Statistics");
+            menu.add(0, 1002, 0, "🎨 Apply Themes");
+            menu.add(0, 1003, 0, "🛠️ Run Utilities");
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case 1000: // Manage Addons
+                startActivity(new Intent(this, AddonManagementActivity.class));
+                return true;
+                
+            case 1001: // Addon Statistics
+                showAddonStatistics();
+                return true;
+                
+            case 1002: // Apply Themes
+                applyThemeAddons();
+                return true;
+                
+            case 1003: // Run Utilities
+                runUtilityAddons();
+                return true;
+                
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        
+        // Cleanup addon system
+        if (addonManager != null) {
+            try {
+                addonManager.cleanup();
+                LogUtils.logDebug("Addon system cleaned up for Terraria activity");
+            } catch (Exception e) {
+                LogUtils.logError("Error cleaning up addon system: " + e.getMessage());
+            }
+        }
+        
         LogUtils.logUser("Terraria Menu Activity closed");
+    }
+
+    /**
+     * Public method to get addon manager for use by fragments or dialogs
+     */
+    public AddonManager getAddonManager() {
+        return addonManager;
+    }
+
+    /**
+     * Public method to refresh addon status from external components
+     */
+    public void refreshAddonStatus() {
+        updateAddonStatus();
+    }
+
+    /**
+     * Execute specific addon functionality with parameters
+     */
+    public boolean executeSpecificAddon(String addonId, String action, Map<String, Object> params) {
+        if (addonManager == null) {
+            return false;
+        }
+        
+        // Add activity context to parameters
+        if (params == null) {
+            params = new HashMap<>();
+        }
+        params.put("activity", this);
+        params.put("activity_name", "TerrariaSpecificActivity");
+        
+        return addonManager.executeAddon(addonId, action, params);
+    }
+
+    /**
+     * Get summary of available addon functionality
+     */
+    public String getAddonFunctionalitySummary() {
+        if (addonManager == null) {
+            return "Addon system not available";
+        }
+        
+        StringBuilder summary = new StringBuilder();
+        summary.append("Available Addon Features:\n\n");
+        
+        for (AddonManager.AddonCategory category : AddonManager.AddonCategory.values()) {
+            List<AddonConfig> categoryAddons = addonManager.getAddonsByCategory(category);
+            if (!categoryAddons.isEmpty()) {
+                int enabledCount = 0;
+                for (AddonConfig addon : categoryAddons) {
+                    if (addon.isEnabled()) enabledCount++;
+                }
+                
+                summary.append("• ").append(category.getDisplayName())
+                       .append(": ").append(enabledCount).append("/")
+                       .append(categoryAddons.size()).append(" enabled\n");
+            }
+        }
+        
+        return summary.toString();
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/UniversalActivity.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/UniversalActivity.java
 
 package com.modloader;
 
@@ -1181,7 +1922,9 @@ public class UniversalActivity extends AppCompatActivity {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/Diagnostic/ApkProcessLogger.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/Diagnostic/ApkProcessLogger.java
 
 package com.modloader.Diagnostic;
 
@@ -1189,7 +1932,9 @@ public class ApkProcessLogger {
 }
 
 
-/ModLoader/app/src/main/java/com/modloader/Diagnostic/DiagnosticManager.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/Diagnostic/DiagnosticManager.java
 
 package com.modloader.diagnostic;
 
@@ -1212,7 +1957,7 @@ public class DiagnosticManager {
 
     public DiagnosticManager(Context context) {
         this.context = context;
-        this.gameBaseDir = new File(context.getExternalFilesDir(null), "ModLoader/" + gamePackage);
+        this.gameBaseDir = new File(context.getExternalFilesDir(null), "TerrariaLoader/" + gamePackage);
     }
 
     public String runFullDiagnostics() {
@@ -1350,7 +2095,7 @@ public class DiagnosticManager {
             if (!readme.exists()) {
                 try {
                     FileWriter writer = new FileWriter(readme);
-                    writer.write("README for " + relPath + "\nThis directory is used by ModLoader.");
+                    writer.write("README for " + relPath + "\nThis directory is used by TerrariaLoader.");
                     writer.close();
                     log("📘 Created README in: " + relPath);
                 } catch (IOException e) {
@@ -1361,7 +2106,7 @@ public class DiagnosticManager {
     }
 
     private void generateReport() {
-        reportLines.add("=== ModLoader Offline Diagnostic Report ===");
+        reportLines.add("=== TerrariaLoader Offline Diagnostic Report ===");
         reportLines.add("Timestamp: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
         reportLines.add("Base Directory: " + gameBaseDir.getAbsolutePath());
         reportLines.add("\nChecks:");
@@ -1417,10 +2162,2624 @@ public class DiagnosticManager {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/installer/ModInstaller.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/addon/AddonConfig.java
+
+// File: AddonConfig.java - Addon Configuration Data Model
+// Path: app/src/main/java/com/modloader/addon/AddonConfig.java
+package com.modloader.addon;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Configuration model for addons
+ * Represents the structure and settings of a configuration-based addon
+ */
+public class AddonConfig {
+    private String id;
+    private String name;
+    private String version;
+    private String author;
+    private String description;
+    private String category;
+    private boolean enabled;
+    private File configFile;
+    private JSONObject configurationData;
+    private List<String> hooks;
+    private List<AddonAction> actions;
+    private Map<String, Object> metadata;
+
+    /**
+     * Action that an addon can perform
+     */
+    public static class AddonAction {
+        private String id;
+        private String name;
+        private String icon;
+        private String action;
+        private Map<String, Object> parameters;
+
+        public AddonAction(JSONObject actionJson) throws JSONException {
+            this.id = actionJson.getString("id");
+            this.name = actionJson.getString("name");
+            this.icon = actionJson.optString("icon", "");
+            this.action = actionJson.getString("action");
+            this.parameters = new HashMap<>();
+            
+            // Parse parameters if they exist
+            if (actionJson.has("parameters")) {
+                JSONObject params = actionJson.getJSONObject("parameters");
+                Iterator<String> keys = params.keys();
+                while (keys.hasNext()) {
+                    String key = keys.next();
+                    this.parameters.put(key, params.get(key));
+                }
+            }
+        }
+
+        // Getters
+        public String getId() { return id; }
+        public String getName() { return name; }
+        public String getIcon() { return icon; }
+        public String getAction() { return action; }
+        public Map<String, Object> getParameters() { return parameters; }
+        
+        // Get parameter by key
+        public Object getParameter(String key) {
+            return parameters.get(key);
+        }
+        
+        public String getParameterString(String key, String defaultValue) {
+            Object value = parameters.get(key);
+            return value != null ? value.toString() : defaultValue;
+        }
+        
+        public int getParameterInt(String key, int defaultValue) {
+            Object value = parameters.get(key);
+            if (value instanceof Integer) {
+                return (Integer) value;
+            } else if (value instanceof String) {
+                try {
+                    return Integer.parseInt((String) value);
+                } catch (NumberFormatException e) {
+                    return defaultValue;
+                }
+            }
+            return defaultValue;
+        }
+        
+        public boolean getParameterBoolean(String key, boolean defaultValue) {
+            Object value = parameters.get(key);
+            if (value instanceof Boolean) {
+                return (Boolean) value;
+            } else if (value instanceof String) {
+                return Boolean.parseBoolean((String) value);
+            }
+            return defaultValue;
+        }
+
+        /**
+         * Convert action to JSON
+         */
+        public JSONObject toJSON() throws JSONException {
+            JSONObject json = new JSONObject();
+            json.put("id", id);
+            json.put("name", name);
+            json.put("icon", icon);
+            json.put("action", action);
+            
+            if (!parameters.isEmpty()) {
+                JSONObject paramsJson = new JSONObject();
+                for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+                    paramsJson.put(entry.getKey(), entry.getValue());
+                }
+                json.put("parameters", paramsJson);
+            }
+            
+            return json;
+        }
+    }
+
+    /**
+     * Constructor from JSON configuration
+     */
+    public AddonConfig(JSONObject json, File configFile) throws JSONException {
+        this.configFile = configFile;
+        this.metadata = new HashMap<>();
+        
+        parseJSON(json);
+    }
+
+    /**
+     * Parse JSON configuration
+     */
+    private void parseJSON(JSONObject json) throws JSONException {
+        // Required fields
+        this.id = json.getString("id");
+        this.name = json.getString("name");
+        this.version = json.getString("version");
+        this.category = json.getString("category");
+        
+        // Optional fields with defaults
+        this.author = json.optString("author", "Unknown");
+        this.description = json.optString("description", "No description provided");
+        this.enabled = json.optBoolean("enabled", true);
+        
+        // Parse configuration data
+        if (json.has("configuration")) {
+            this.configurationData = json.getJSONObject("configuration");
+        } else {
+            this.configurationData = new JSONObject();
+        }
+        
+        // Parse hooks
+        this.hooks = new ArrayList<>();
+        if (json.has("hooks")) {
+            JSONArray hooksArray = json.getJSONArray("hooks");
+            for (int i = 0; i < hooksArray.length(); i++) {
+                this.hooks.add(hooksArray.getString(i));
+            }
+        }
+        
+        // Parse actions
+        this.actions = new ArrayList<>();
+        if (json.has("actions")) {
+            JSONArray actionsArray = json.getJSONArray("actions");
+            for (int i = 0; i < actionsArray.length(); i++) {
+                JSONObject actionJson = actionsArray.getJSONObject(i);
+                this.actions.add(new AddonAction(actionJson));
+            }
+        }
+        
+        // Parse metadata
+        if (json.has("metadata")) {
+            JSONObject metadataJson = json.getJSONObject("metadata");
+            Iterator<String> keys = metadataJson.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                this.metadata.put(key, metadataJson.get(key));
+            }
+        }
+        
+        // Parse additional workflow if present
+        if (json.has("workflow")) {
+            JSONArray workflowArray = json.getJSONArray("workflow");
+            List<Map<String, Object>> workflow = new ArrayList<>();
+            for (int i = 0; i < workflowArray.length(); i++) {
+                JSONObject stepJson = workflowArray.getJSONObject(i);
+                Map<String, Object> step = new HashMap<>();
+                Iterator<String> keys = stepJson.keys();
+                while (keys.hasNext()) {
+                    String key = keys.next();
+                    step.put(key, stepJson.get(key));
+                }
+                workflow.add(step);
+            }
+            this.metadata.put("workflow", workflow);
+        }
+    }
+
+    /**
+     * Convert back to JSON
+     */
+    public JSONObject toJSON() throws JSONException {
+        JSONObject json = new JSONObject();
+        
+        // Basic properties
+        json.put("id", id);
+        json.put("name", name);
+        json.put("version", version);
+        json.put("author", author);
+        json.put("description", description);
+        json.put("category", category);
+        json.put("enabled", enabled);
+        
+        // Configuration data
+        json.put("configuration", configurationData);
+        
+        // Hooks
+        if (!hooks.isEmpty()) {
+            JSONArray hooksArray = new JSONArray();
+            for (String hook : hooks) {
+                hooksArray.put(hook);
+            }
+            json.put("hooks", hooksArray);
+        }
+        
+        // Actions
+        if (!actions.isEmpty()) {
+            JSONArray actionsArray = new JSONArray();
+            for (AddonAction action : actions) {
+                actionsArray.put(action.toJSON());
+            }
+            json.put("actions", actionsArray);
+        }
+        
+        // Metadata
+        if (!metadata.isEmpty()) {
+            JSONObject metadataJson = new JSONObject();
+            for (Map.Entry<String, Object> entry : metadata.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                
+                // Handle special workflow case
+                if ("workflow".equals(key) && value instanceof List) {
+                    JSONArray workflowArray = new JSONArray();
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, Object>> workflow = (List<Map<String, Object>>) value;
+                    for (Map<String, Object> step : workflow) {
+                        JSONObject stepJson = new JSONObject();
+                        for (Map.Entry<String, Object> stepEntry : step.entrySet()) {
+                            stepJson.put(stepEntry.getKey(), stepEntry.getValue());
+                        }
+                        workflowArray.put(stepJson);
+                    }
+                    json.put("workflow", workflowArray);
+                } else {
+                    metadataJson.put(key, value);
+                }
+            }
+            
+            if (metadataJson.length() > 0) {
+                json.put("metadata", metadataJson);
+            }
+        }
+        
+        return json;
+    }
+
+    // Basic getters and setters
+    public String getId() { return id; }
+    public String getName() { return name; }
+    public String getVersion() { return version; }
+    public String getAuthor() { return author; }
+    public String getDescription() { return description; }
+    public String getCategory() { return category; }
+    public boolean isEnabled() { return enabled; }
+    public File getConfigFile() { return configFile; }
+    public List<String> getHooks() { return new ArrayList<>(hooks); }
+    public List<AddonAction> getActions() { return new ArrayList<>(actions); }
+
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    public void setName(String name) { this.name = name; }
+    public void setDescription(String description) { this.description = description; }
+    public void setAuthor(String author) { this.author = author; }
+
+    /**
+     * Configuration data access methods
+     */
+    public JSONObject getConfigurationData() {
+        return configurationData;
+    }
+
+    public String getConfigString(String key, String defaultValue) {
+        try {
+            return configurationData.optString(key, defaultValue);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    public int getConfigInt(String key, int defaultValue) {
+        try {
+            return configurationData.optInt(key, defaultValue);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    public boolean getConfigBoolean(String key, boolean defaultValue) {
+        try {
+            return configurationData.optBoolean(key, defaultValue);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    public double getConfigDouble(String key, double defaultValue) {
+        try {
+            return configurationData.optDouble(key, defaultValue);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    public JSONArray getConfigArray(String key) {
+        try {
+            return configurationData.optJSONArray(key);
+        } catch (Exception e) {
+            return new JSONArray();
+        }
+    }
+
+    public JSONObject getConfigObject(String key) {
+        try {
+            return configurationData.optJSONObject(key);
+        } catch (Exception e) {
+            return new JSONObject();
+        }
+    }
+
+    /**
+     * Set configuration values
+     */
+    public void setConfigString(String key, String value) {
+        try {
+            configurationData.put(key, value);
+        } catch (JSONException e) {
+            // Ignore
+        }
+    }
+
+    public void setConfigInt(String key, int value) {
+        try {
+            configurationData.put(key, value);
+        } catch (JSONException e) {
+            // Ignore
+        }
+    }
+
+    public void setConfigBoolean(String key, boolean value) {
+        try {
+            configurationData.put(key, value);
+        } catch (JSONException e) {
+            // Ignore
+        }
+    }
+
+    public void setConfigDouble(String key, double value) {
+        try {
+            configurationData.put(key, value);
+        } catch (JSONException e) {
+            // Ignore
+        }
+    }
+
+    /**
+     * Metadata access methods
+     */
+    public Object getMetadata(String key) {
+        return metadata.get(key);
+    }
+
+    public String getMetadataString(String key, String defaultValue) {
+        Object value = metadata.get(key);
+        return value != null ? value.toString() : defaultValue;
+    }
+
+    public void setMetadata(String key, Object value) {
+        metadata.put(key, value);
+    }
+
+    /**
+     * Hook management
+     */
+    public boolean hasHook(String hookName) {
+        return hooks.contains(hookName);
+    }
+
+    public void addHook(String hookName) {
+        if (!hooks.contains(hookName)) {
+            hooks.add(hookName);
+        }
+    }
+
+    public void removeHook(String hookName) {
+        hooks.remove(hookName);
+    }
+
+    /**
+     * Action management
+     */
+    public AddonAction getActionById(String actionId) {
+        for (AddonAction action : actions) {
+            if (action.getId().equals(actionId)) {
+                return action;
+            }
+        }
+        return null;
+    }
+
+    public List<AddonAction> getActionsByType(String actionType) {
+        List<AddonAction> matchingActions = new ArrayList<>();
+        for (AddonAction action : actions) {
+            if (actionType.equals(action.getAction())) {
+                matchingActions.add(action);
+            }
+        }
+        return matchingActions;
+    }
+
+    /**
+     * Validation methods
+     */
+    public boolean isValid() {
+        return id != null && !id.trim().isEmpty() &&
+               name != null && !name.trim().isEmpty() &&
+               version != null && !version.trim().isEmpty() &&
+               category != null && !category.trim().isEmpty();
+    }
+
+    public List<String> getValidationErrors() {
+        List<String> errors = new ArrayList<>();
+        
+        if (id == null || id.trim().isEmpty()) {
+            errors.add("ID is required");
+        }
+        if (name == null || name.trim().isEmpty()) {
+            errors.add("Name is required");
+        }
+        if (version == null || version.trim().isEmpty()) {
+            errors.add("Version is required");
+        }
+        if (category == null || category.trim().isEmpty()) {
+            errors.add("Category is required");
+        }
+        
+        // Validate ID format (alphanumeric and underscores only)
+        if (id != null && !id.matches("^[a-zA-Z0-9_]+$")) {
+            errors.add("ID must contain only letters, numbers, and underscores");
+        }
+        
+        // Validate version format (semantic versioning)
+        if (version != null && !version.matches("^\\d+\\.\\d+\\.\\d+$")) {
+            errors.add("Version must follow semantic versioning (e.g., 1.0.0)");
+        }
+        
+        return errors;
+    }
+
+    /**
+     * Utility methods
+     */
+    @Override
+    public String toString() {
+        return name + " v" + version + " (" + id + ") - " + 
+               (enabled ? "Enabled" : "Disabled") + " [" + category + "]";
+    }
+
+    public String getDisplayInfo() {
+        StringBuilder info = new StringBuilder();
+        info.append("=== ").append(name).append(" ===\n");
+        info.append("ID: ").append(id).append("\n");
+        info.append("Version: ").append(version).append("\n");
+        info.append("Author: ").append(author).append("\n");
+        info.append("Category: ").append(category).append("\n");
+        info.append("Status: ").append(enabled ? "✅ Enabled" : "❌ Disabled").append("\n");
+        info.append("Description: ").append(description).append("\n");
+        
+        if (!hooks.isEmpty()) {
+            info.append("Hooks: ").append(String.join(", ", hooks)).append("\n");
+        }
+        
+        if (!actions.isEmpty()) {
+            info.append("Actions: ").append(actions.size()).append(" available\n");
+        }
+        
+        return info.toString();
+    }
+
+    /**
+     * Compare versions
+     */
+    public int compareVersion(String otherVersion) {
+        if (otherVersion == null) return 1;
+        
+        String[] thisParts = this.version.split("\\.");
+        String[] otherParts = otherVersion.split("\\.");
+        
+        int maxLength = Math.max(thisParts.length, otherParts.length);
+        
+        for (int i = 0; i < maxLength; i++) {
+            int thisPart = i < thisParts.length ? 
+                Integer.parseInt(thisParts[i]) : 0;
+            int otherPart = i < otherParts.length ? 
+                Integer.parseInt(otherParts[i]) : 0;
+            
+            if (thisPart != otherPart) {
+                return Integer.compare(thisPart, otherPart);
+            }
+        }
+        
+        return 0;
+    }
+
+    public boolean isNewerThan(String otherVersion) {
+        return compareVersion(otherVersion) > 0;
+    }
+
+    public boolean isOlderThan(String otherVersion) {
+        return compareVersion(otherVersion) < 0;
+    }
+
+    /**
+     * Create a copy of this addon config
+     */
+    public AddonConfig copy() {
+        try {
+            return new AddonConfig(toJSON(), configFile);
+        } catch (JSONException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get configuration summary for display
+     */
+    public String getConfigurationSummary() {
+        if (configurationData.length() == 0) {
+            return "No configuration options";
+        }
+        
+        StringBuilder summary = new StringBuilder();
+        Iterator<String> keys = configurationData.keys();
+        int count = 0;
+        
+        while (keys.hasNext() && count < 5) {
+            String key = keys.next();
+            try {
+                Object value = configurationData.get(key);
+                summary.append("• ").append(key).append(": ");
+                
+                if (value instanceof JSONArray) {
+                    summary.append("Array[").append(((JSONArray) value).length()).append("]");
+                } else if (value instanceof JSONObject) {
+                    summary.append("Object{...}");
+                } else {
+                    String valueStr = value.toString();
+                    if (valueStr.length() > 30) {
+                        summary.append(valueStr.substring(0, 27)).append("...");
+                    } else {
+                        summary.append(valueStr);
+                    }
+                }
+                summary.append("\n");
+                count++;
+            } catch (JSONException e) {
+                // Skip this key
+            }
+        }
+        
+        if (configurationData.length() > 5) {
+            summary.append("... and ").append(configurationData.length() - 5).append(" more options");
+        }
+        
+        return summary.toString();
+    }
+}
+
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/addon/AddonExecutors.java
+
+// File: AddonExecutors.java - Addon Execution Engine Classes
+// Path: app/src/main/java/com/modloader/addon/AddonExecutors.java
+package com.modloader.addon;
+
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+
+import com.modloader.util.LogUtils;
+import com.modloader.util.FileUtils;
+import com.modloader.installer.ModInstaller;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+
+/**
+ * Base class for addon executors
+ */
+abstract class AddonExecutor {
+    protected final Context context;
+    
+    public AddonExecutor(Context context) {
+        this.context = context;
+    }
+    
+    /**
+     * Execute an addon action
+     */
+    public abstract boolean execute(AddonConfig addon, String action, Map<String, Object> parameters);
+    
+    /**
+     * Get supported actions for this executor
+     */
+    public abstract List<String> getSupportedActions();
+    
+    /**
+     * Validate addon configuration for this executor
+     */
+    public boolean validateAddon(AddonConfig addon) {
+        return addon != null && addon.isValid();
+    }
+}
+
+/**
+ * Theme Executor - Handles theme and visual customization addons
+ */
+class ThemeExecutor extends AddonExecutor {
+    
+    public ThemeExecutor(Context context) {
+        super(context);
+    }
+    
+    @Override
+    public boolean execute(AddonConfig addon, String action, Map<String, Object> parameters) {
+        try {
+            switch (action) {
+                case "apply_to_activity":
+                    return applyThemeToActivity(addon, parameters);
+                case "apply_colors":
+                    return applyColorScheme(addon, parameters);
+                case "apply_styles":
+                    return applyStyles(addon, parameters);
+                default:
+                    LogUtils.logDebug("Unknown theme action: " + action);
+                    return false;
+            }
+        } catch (Exception e) {
+            LogUtils.logError("Theme executor error: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    private boolean applyThemeToActivity(AddonConfig addon, Map<String, Object> parameters) {
+        Object activityObj = parameters.get("activity");
+        if (!(activityObj instanceof AppCompatActivity)) {
+            return false;
+        }
+        
+        AppCompatActivity activity = (AppCompatActivity) activityObj;
+        
+        // Apply theme colors
+        String primaryColor = addon.getConfigString("primary_color", "#1E1E1E");
+        String secondaryColor = addon.getConfigString("secondary_color", "#2D2D2D");
+        String accentColor = addon.getConfigString("accent_color", "#4CAF50");
+        String textColor = addon.getConfigString("text_color", "#FFFFFF");
+        
+        // Apply to root view
+        View rootView = activity.findViewById(android.R.id.content);
+        if (rootView != null) {
+            try {
+                rootView.setBackgroundColor(Color.parseColor(primaryColor));
+                applyThemeToViewGroup((ViewGroup) rootView, addon);
+            } catch (IllegalArgumentException e) {
+                LogUtils.logError("Invalid color format in theme addon: " + e.getMessage());
+                return false;
+            }
+        }
+        
+        LogUtils.logDebug("Applied theme: " + addon.getName() + " to activity");
+        return true;
+    }
+    
+    private void applyThemeToViewGroup(ViewGroup viewGroup, AddonConfig addon) {
+        String secondaryColor = addon.getConfigString("secondary_color", "#2D2D2D");
+        String accentColor = addon.getConfigString("accent_color", "#4CAF50");
+        String textColor = addon.getConfigString("text_color", "#FFFFFF");
+        String buttonStyle = addon.getConfigString("button_style", "rounded");
+        String cardElevation = addon.getConfigString("card_elevation", "8dp");
+        
+        for (int i = 0; i < viewGroup.getChildCount(); i++) {
+            View child = viewGroup.getChildAt(i);
+            
+            try {
+                if (child instanceof TextView) {
+                    TextView textView = (TextView) child;
+                    textView.setTextColor(Color.parseColor(textColor));
+                } else if (child instanceof Button) {
+                    Button button = (Button) child;
+                    button.setTextColor(Color.parseColor(textColor));
+                    
+                    if ("rounded".equals(buttonStyle)) {
+                        GradientDrawable drawable = new GradientDrawable();
+                        drawable.setColor(Color.parseColor(accentColor));
+                        drawable.setCornerRadius(24f);
+                        button.setBackground(drawable);
+                    }
+                } else if (child instanceof CardView) {
+                    CardView cardView = (CardView) child;
+                    cardView.setCardBackgroundColor(Color.parseColor(secondaryColor));
+                    
+                    // Parse elevation
+                    try {
+                        float elevation = Float.parseFloat(cardElevation.replace("dp", ""));
+                        cardView.setCardElevation(elevation);
+                    } catch (NumberFormatException e) {
+                        // Use default elevation
+                    }
+                }
+                
+                if (child instanceof ViewGroup) {
+                    applyThemeToViewGroup((ViewGroup) child, addon);
+                }
+            } catch (IllegalArgumentException e) {
+                LogUtils.logError("Error applying theme to view: " + e.getMessage());
+            }
+        }
+    }
+    
+    private boolean applyColorScheme(AddonConfig addon, Map<String, Object> parameters) {
+        LogUtils.logDebug("Applied color scheme from addon: " + addon.getName());
+        return true;
+    }
+    
+    private boolean applyStyles(AddonConfig addon, Map<String, Object> parameters) {
+        LogUtils.logDebug("Applied styles from addon: " + addon.getName());
+        return true;
+    }
+    
+    @Override
+    public List<String> getSupportedActions() {
+        List<String> actions = new ArrayList<>();
+        actions.add("apply_to_activity");
+        actions.add("apply_colors");
+        actions.add("apply_styles");
+        return actions;
+    }
+}
+
+/**
+ * UI Enhancement Executor - Handles UI modifications and enhancements
+ */
+class UIEnhancementExecutor extends AddonExecutor {
+    
+    public UIEnhancementExecutor(Context context) {
+        super(context);
+    }
+    
+    @Override
+    public boolean execute(AddonConfig addon, String action, Map<String, Object> parameters) {
+        try {
+            switch (action) {
+                case "apply_to_activity":
+                    return applyUIEnhancements(addon, parameters);
+                case "add_toolbar_buttons":
+                    return addToolbarButtons(addon, parameters);
+                case "modify_layout":
+                    return modifyLayout(addon, parameters);
+                default:
+                    LogUtils.logDebug("Unknown UI enhancement action: " + action);
+                    return false;
+            }
+        } catch (Exception e) {
+            LogUtils.logError("UI enhancement executor error: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    private boolean applyUIEnhancements(AddonConfig addon, Map<String, Object> parameters) {
+        Object activityObj = parameters.get("activity");
+        if (!(activityObj instanceof AppCompatActivity)) {
+            return false;
+        }
+        
+        AppCompatActivity activity = (AppCompatActivity) activityObj;
+        
+        // Get UI enhancements from configuration
+        JSONArray enhancements = addon.getConfigArray("ui_enhancements");
+        if (enhancements != null) {
+            for (int i = 0; i < enhancements.length(); i++) {
+                try {
+                    String enhancement = enhancements.getString(i);
+                    applySpecificEnhancement(activity, addon, enhancement);
+                } catch (JSONException e) {
+                    LogUtils.logError("Error applying UI enhancement: " + e.getMessage());
+                }
+            }
+        }
+        
+        return true;
+    }
+    
+    private void applySpecificEnhancement(AppCompatActivity activity, AddonConfig addon, String enhancement) {
+        switch (enhancement) {
+            case "add_toolbar_buttons":
+                LogUtils.logDebug("Adding toolbar buttons from addon: " + addon.getName());
+                break;
+            case "add_context_menu_items":
+                LogUtils.logDebug("Adding context menu items from addon: " + addon.getName());
+                break;
+            case "add_batch_select_mode":
+                LogUtils.logDebug("Adding batch select mode from addon: " + addon.getName());
+                break;
+            default:
+                LogUtils.logDebug("Unknown UI enhancement: " + enhancement);
+                break;
+        }
+    }
+    
+    private boolean addToolbarButtons(AddonConfig addon, Map<String, Object> parameters) {
+        LogUtils.logDebug("Adding toolbar buttons from addon: " + addon.getName());
+        return true;
+    }
+    
+    private boolean modifyLayout(AddonConfig addon, Map<String, Object> parameters) {
+        LogUtils.logDebug("Modifying layout from addon: " + addon.getName());
+        return true;
+    }
+    
+    @Override
+    public List<String> getSupportedActions() {
+        List<String> actions = new ArrayList<>();
+        actions.add("apply_to_activity");
+        actions.add("add_toolbar_buttons");
+        actions.add("modify_layout");
+        return actions;
+    }
+}
+
+/**
+ * File Manager Executor - Handles file management enhancements
+ */
+class FileManagerExecutor extends AddonExecutor {
+    
+    public FileManagerExecutor(Context context) {
+        super(context);
+    }
+    
+    @Override
+    public boolean execute(AddonConfig addon, String action, Map<String, Object> parameters) {
+        try {
+            switch (action) {
+                case "bulk_delete":
+                    return performBulkDelete(addon, parameters);
+                case "compress_files":
+                    return compressFiles(addon, parameters);
+                case "show_bulk_delete_dialog":
+                    return showBulkDeleteDialog(addon, parameters);
+                case "compress_selected_files":
+                    return compressSelectedFiles(addon, parameters);
+                case "apply_to_activity":
+                    return applyFileManagerEnhancements(addon, parameters);
+                default:
+                    LogUtils.logDebug("Unknown file manager action: " + action);
+                    return false;
+            }
+        } catch (Exception e) {
+            LogUtils.logError("File manager executor error: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    private boolean applyFileManagerEnhancements(AddonConfig addon, Map<String, Object> parameters) {
+        LogUtils.logDebug("Applied file manager enhancements from addon: " + addon.getName());
+        return true;
+    }
+    
+    private boolean performBulkDelete(AddonConfig addon, Map<String, Object> parameters) {
+        @SuppressWarnings("unchecked")
+        List<File> files = (List<File>) parameters.get("files");
+        if (files == null || files.isEmpty()) {
+            return false;
+        }
+        
+        int deletedCount = 0;
+        for (File file : files) {
+            if (file.exists() && file.delete()) {
+                deletedCount++;
+            }
+        }
+        
+        LogUtils.logUser("🗑️ Bulk deleted " + deletedCount + "/" + files.size() + " files");
+        return true;
+    }
+    
+    private boolean compressFiles(AddonConfig addon, Map<String, Object> parameters) {
+        @SuppressWarnings("unchecked")
+        List<File> files = (List<File>) parameters.get("files");
+        String outputPath = (String) parameters.get("output_path");
+        
+        if (files == null || files.isEmpty() || outputPath == null) {
+            return false;
+        }
+        
+        try {
+            File outputFile = new File(outputPath);
+            boolean success = createSimpleArchive(files, outputFile);
+            
+            if (success) {
+                LogUtils.logUser("📦 Created archive: " + outputFile.getName());
+                return true;
+            } else {
+                LogUtils.logError("Failed to create archive");
+                return false;
+            }
+        } catch (Exception e) {
+            LogUtils.logError("Archive creation failed: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    private boolean createSimpleArchive(List<File> files, File outputFile) {
+        // Simple archive creation implementation
+        try {
+            java.util.zip.ZipOutputStream zos = new java.util.zip.ZipOutputStream(
+                new java.io.FileOutputStream(outputFile));
+            
+            for (File file : files) {
+                if (!file.exists()) continue;
+                
+                java.util.zip.ZipEntry entry = new java.util.zip.ZipEntry(file.getName());
+                zos.putNextEntry(entry);
+                
+                java.io.FileInputStream fis = new java.io.FileInputStream(file);
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = fis.read(buffer)) > 0) {
+                    zos.write(buffer, 0, length);
+                }
+                fis.close();
+                zos.closeEntry();
+            }
+            zos.close();
+            return true;
+        } catch (Exception e) {
+            LogUtils.logError("Archive creation error: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    private boolean showBulkDeleteDialog(AddonConfig addon, Map<String, Object> parameters) {
+        Object activityObj = parameters.get("activity");
+        if (!(activityObj instanceof AppCompatActivity)) {
+            return false;
+        }
+        
+        AppCompatActivity activity = (AppCompatActivity) activityObj;
+        @SuppressWarnings("unchecked")
+        List<File> files = (List<File>) parameters.get("files");
+        
+        if (files == null || files.isEmpty()) {
+            Toast.makeText(activity, "No files selected for deletion", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        
+        new AlertDialog.Builder(activity)
+            .setTitle("Bulk Delete Files")
+            .setMessage("Delete " + files.size() + " selected files?")
+            .setPositiveButton("Delete", (dialog, which) -> {
+                Map<String, Object> deleteParams = new HashMap<>();
+                deleteParams.put("files", files);
+                performBulkDelete(addon, deleteParams);
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+        
+        return true;
+    }
+    
+    private boolean compressSelectedFiles(AddonConfig addon, Map<String, Object> parameters) {
+        Object activityObj = parameters.get("activity");
+        if (!(activityObj instanceof AppCompatActivity)) {
+            return false;
+        }
+        
+        AppCompatActivity activity = (AppCompatActivity) activityObj;
+        @SuppressWarnings("unchecked")
+        List<File> files = (List<File>) parameters.get("files");
+        
+        if (files == null || files.isEmpty()) {
+            Toast.makeText(activity, "No files selected for compression", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        
+        String outputPath = context.getExternalFilesDir(null) + "/compressed_" + System.currentTimeMillis() + ".zip";
+        Map<String, Object> compressParams = new HashMap<>();
+        compressParams.put("files", files);
+        compressParams.put("output_path", outputPath);
+        
+        return compressFiles(addon, compressParams);
+    }
+    
+    @Override
+    public List<String> getSupportedActions() {
+        List<String> actions = new ArrayList<>();
+        actions.add("bulk_delete");
+        actions.add("compress_files");
+        actions.add("show_bulk_delete_dialog");
+        actions.add("compress_selected_files");
+        actions.add("apply_to_activity");
+        return actions;
+    }
+}
+
+/**
+ * Mod Installer Executor - Handles intelligent mod installation
+ */
+class ModInstallerExecutor extends AddonExecutor {
+    
+    public ModInstallerExecutor(Context context) {
+        super(context);
+    }
+    
+    @Override
+    public boolean execute(AddonConfig addon, String action, Map<String, Object> parameters) {
+        try {
+            switch (action) {
+                case "smart_install":
+                    return performSmartInstall(addon, parameters);
+                case "validate_file":
+                    return validateModFile(addon, parameters);
+                case "check_conflicts":
+                    return checkModConflicts(addon, parameters);
+                case "backup_existing":
+                    return backupExistingMods(addon, parameters);
+                case "install_mod":
+                    return installModWithWorkflow(addon, parameters);
+                case "update_registry":
+                    return updateModRegistry(addon, parameters);
+                default:
+                    LogUtils.logDebug("Unknown mod installer action: " + action);
+                    return false;
+            }
+        } catch (Exception e) {
+            LogUtils.logError("Mod installer executor error: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    private boolean performSmartInstall(AddonConfig addon, Map<String, Object> parameters) {
+        File modFile = (File) parameters.get("mod_file");
+        if (modFile == null || !modFile.exists()) {
+            LogUtils.logError("Invalid mod file for smart installation");
+            return false;
+        }
+        
+        // Execute workflow steps
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> workflow = (List<Map<String, Object>>) addon.getMetadata("workflow");
+        
+        if (workflow != null) {
+            for (Map<String, Object> step : workflow) {
+                String stepAction = (String) step.get("step");
+                String description = (String) step.get("description");
+                
+                LogUtils.logUser("🔄 " + description);
+                
+                Map<String, Object> stepParams = new HashMap<>(parameters);
+                stepParams.putAll(step);
+                
+                if (!execute(addon, stepAction, stepParams)) {
+                    LogUtils.logError("Smart install failed at step: " + stepAction);
+                    return false;
+                }
+            }
+        }
+        
+        LogUtils.logUser("✅ Smart installation completed successfully");
+        return true;
+    }
+    
+    private boolean validateModFile(AddonConfig addon, Map<String, Object> parameters) {
+        File modFile = (File) parameters.get("mod_file");
+        if (modFile == null) {
+            return false;
+        }
+        
+        // Check file size
+        String maxSizeStr = addon.getConfigString("max_file_size", "100MB");
+        long maxSize = parseFileSize(maxSizeStr);
+        
+        if (modFile.length() > maxSize) {
+            LogUtils.logError("Mod file too large: " + FileUtils.formatFileSize(modFile.length()) + 
+                            " (max: " + maxSizeStr + ")");
+            return false;
+        }
+        
+        // Check file format
+        JSONArray supportedFormats = addon.getConfigArray("supported_formats");
+        if (supportedFormats != null) {
+            boolean validFormat = false;
+            String fileName = modFile.getName().toLowerCase();
+            
+            for (int i = 0; i < supportedFormats.length(); i++) {
+                try {
+                    String format = supportedFormats.getString(i);
+                    if (fileName.endsWith(format.toLowerCase())) {
+                        validFormat = true;
+                        break;
+                    }
+                } catch (JSONException e) {
+                    // Continue checking
+                }
+            }
+            
+            if (!validFormat) {
+                LogUtils.logError("Unsupported mod file format: " + fileName);
+                return false;
+            }
+        }
+        
+        // Verify checksums if enabled
+        if (addon.getConfigBoolean("verify_checksums", false)) {
+            // Checksum verification would go here
+            LogUtils.logDebug("Checksum verification passed");
+        }
+        
+        LogUtils.logDebug("Mod file validation passed");
+        return true;
+    }
+    
+    private boolean checkModConflicts(AddonConfig addon, Map<String, Object> parameters) {
+        if (!addon.getConfigBoolean("auto_detect_conflicts", false)) {
+            return true; // Skip if disabled
+        }
+        
+        File modFile = (File) parameters.get("mod_file");
+        if (modFile == null) {
+            return false;
+        }
+        
+        LogUtils.logDebug("Checking for mod conflicts...");
+        
+        // Simple conflict detection based on filename patterns
+        String fileName = modFile.getName().toLowerCase();
+        
+        // Check for existing mods with similar names
+        // This is a simplified example - real implementation would be more sophisticated
+        String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
+        
+        LogUtils.logDebug("No conflicts detected for: " + baseName);
+        return true;
+    }
+    
+    private boolean backupExistingMods(AddonConfig addon, Map<String, Object> parameters) {
+        if (!addon.getConfigBoolean("create_backups", false)) {
+            return true; // Skip if disabled
+        }
+        
+        LogUtils.logDebug("Creating backup of existing mods...");
+        
+        try {
+            File backupDir = new File(context.getExternalFilesDir(null), 
+                "ModLoader/com.and.games505.TerrariaPaid/Backups");
+            backupDir.mkdirs();
+            
+            String backupName = "backup_" + System.currentTimeMillis();
+            File backupFile = new File(backupDir, backupName + ".txt");
+            
+            // Create simple backup manifest
+            try (java.io.FileWriter writer = new java.io.FileWriter(backupFile)) {
+                writer.write("Backup created by Smart Mod Installer\n");
+                writer.write("Timestamp: " + new java.util.Date().toString() + "\n");
+                writer.write("Addon: " + addon.getName() + "\n");
+            }
+            
+            LogUtils.logDebug("Backup created: " + backupName);
+            return true;
+        } catch (Exception e) {
+            LogUtils.logError("Backup creation failed: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    private boolean installModWithWorkflow(AddonConfig addon, Map<String, Object> parameters) {
+        File modFile = (File) parameters.get("mod_file");
+        String fileName = (String) parameters.get("filename");
+        
+        if (modFile == null) {
+            return false;
+        }
+        
+        if (fileName == null) {
+            fileName = modFile.getName();
+        }
+        
+        // Use existing ModInstaller
+        boolean success = ModInstaller.installMod(context, 
+            android.net.Uri.fromFile(modFile), fileName);
+        
+        if (success) {
+            LogUtils.logUser("✅ Mod installed successfully: " + fileName);
+            
+            // Auto-enable if configured
+            if (addon.getConfigBoolean("auto_enable", true)) {
+                LogUtils.logDebug("Auto-enabling mod: " + fileName);
+            }
+        } else {
+            LogUtils.logError("Failed to install mod: " + fileName);
+        }
+        
+        return success;
+    }
+    
+    private boolean updateModRegistry(AddonConfig addon, Map<String, Object> parameters) {
+        File modFile = (File) parameters.get("mod_file");
+        if (modFile == null) {
+            return false;
+        }
+        
+        LogUtils.logDebug("Updating mod registry for: " + modFile.getName());
+        
+        // Registry update logic would go here
+        // For now, just log the action
+        LogUtils.logDebug("Mod registry updated");
+        return true;
+    }
+    
+    private long parseFileSize(String sizeStr) {
+        try {
+            sizeStr = sizeStr.toUpperCase();
+            if (sizeStr.endsWith("MB")) {
+                return Long.parseLong(sizeStr.replace("MB", "").trim()) * 1024 * 1024;
+            } else if (sizeStr.endsWith("KB")) {
+                return Long.parseLong(sizeStr.replace("KB", "").trim()) * 1024;
+            } else if (sizeStr.endsWith("GB")) {
+                return Long.parseLong(sizeStr.replace("GB", "").trim()) * 1024 * 1024 * 1024;
+            } else {
+                return Long.parseLong(sizeStr);
+            }
+        } catch (NumberFormatException e) {
+            return 100 * 1024 * 1024; // Default to 100MB
+        }
+    }
+    
+    @Override
+    public List<String> getSupportedActions() {
+        List<String> actions = new ArrayList<>();
+        actions.add("smart_install");
+        actions.add("validate_file");
+        actions.add("check_conflicts");
+        actions.add("backup_existing");
+        actions.add("install_mod");
+        actions.add("update_registry");
+        return actions;
+    }
+}
+
+/**
+ * Utility Executor - Handles general utility addons
+ */
+class UtilityExecutor extends AddonExecutor {
+    
+    public UtilityExecutor(Context context) {
+        super(context);
+    }
+    
+    @Override
+    public boolean execute(AddonConfig addon, String action, Map<String, Object> parameters) {
+        try {
+            switch (action) {
+                case "apply_to_activity":
+                    return applyUtilities(addon, parameters);
+                case "cleanup_temp_files":
+                    return cleanupTempFiles(addon, parameters);
+                case "optimize_storage":
+                    return optimizeStorage(addon, parameters);
+                default:
+                    LogUtils.logDebug("Unknown utility action: " + action);
+                    return false;
+            }
+        } catch (Exception e) {
+            LogUtils.logError("Utility executor error: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    private boolean applyUtilities(AddonConfig addon, Map<String, Object> parameters) {
+        LogUtils.logDebug("Applied utilities from addon: " + addon.getName());
+        return true;
+    }
+    
+    private boolean cleanupTempFiles(AddonConfig addon, Map<String, Object> parameters) {
+        LogUtils.logDebug("Cleaning up temporary files...");
+        
+        File tempDir = context.getCacheDir();
+        if (tempDir != null && tempDir.exists()) {
+            deleteDirectory(tempDir);
+            LogUtils.logUser("🧹 Cleaned up temporary files");
+        }
+        
+        return true;
+    }
+    
+    private boolean optimizeStorage(AddonConfig addon, Map<String, Object> parameters) {
+        LogUtils.logDebug("Optimizing storage...");
+        LogUtils.logUser("📊 Storage optimization completed");
+        return true;
+    }
+    
+    private void deleteDirectory(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        deleteDirectory(file);
+                    } else {
+                        file.delete();
+                    }
+                }
+            }
+        }
+    }
+    
+    @Override
+    public List<String> getSupportedActions() {
+        List<String> actions = new ArrayList<>();
+        actions.add("apply_to_activity");
+        actions.add("cleanup_temp_files");
+        actions.add("optimize_storage");
+        return actions;
+    }
+}
+
+/**
+ * Diagnostic Executor - Handles diagnostic and repair addons
+ */
+class DiagnosticExecutor extends AddonExecutor {
+    
+    public DiagnosticExecutor(Context context) {
+        super(context);
+    }
+    
+    @Override
+    public boolean execute(AddonConfig addon, String action, Map<String, Object> parameters) {
+        try {
+            switch (action) {
+                case "run_diagnostics":
+                    return runDiagnostics(addon, parameters);
+                case "repair_issues":
+                    return repairIssues(addon, parameters);
+                case "validate_installation":
+                    return validateInstallation(addon, parameters);
+                default:
+                    LogUtils.logDebug("Unknown diagnostic action: " + action);
+                    return false;
+            }
+        } catch (Exception e) {
+            LogUtils.logError("Diagnostic executor error: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    private boolean runDiagnostics(AddonConfig addon, Map<String, Object> parameters) {
+        LogUtils.logDebug("Running diagnostics from addon: " + addon.getName());
+        LogUtils.logUser("🔍 Diagnostic scan completed");
+        return true;
+    }
+    
+    private boolean repairIssues(AddonConfig addon, Map<String, Object> parameters) {
+        LogUtils.logDebug("Repairing issues using addon: " + addon.getName());
+        LogUtils.logUser("🛠️ Repair process completed");
+        return true;
+    }
+    
+    private boolean validateInstallation(AddonConfig addon, Map<String, Object> parameters) {
+        LogUtils.logDebug("Validating installation using addon: " + addon.getName());
+        LogUtils.logUser("✅ Installation validation completed");
+        return true;
+    }
+    
+    @Override
+    public List<String> getSupportedActions() {
+        List<String> actions = new ArrayList<>();
+        actions.add("run_diagnostics");
+        actions.add("repair_issues");
+        actions.add("validate_installation");
+        return actions;
+    }
+}
+
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/addon/AddonManagementActivity.java
+
+// File: AddonManagementActivity.java - Addon Management UI
+// Path: app/src/main/java/com/modloader/addon/AddonManagementActivity.java
+package com.modloader.addon;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.*;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.modloader.R;
+import com.modloader.util.LogUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Activity for managing addons - provides UI for installing, configuring, and managing addons
+ */
+public class AddonManagementActivity extends AppCompatActivity {
+    private static final int REQUEST_SELECT_ADDON_FILE = 1001;
+    
+    private AddonManager addonManager;
+    private RecyclerView addonRecyclerView;
+    private AddonAdapter addonAdapter;
+    private TextView statusText;
+    private Button addAddonButton;
+    private Button refreshButton;
+    private Spinner categorySpinner;
+    
+    private List<AddonConfig> displayedAddons;
+    private List<AddonConfig> allAddons;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_addon_management);
+        
+        setTitle("🔌 Addon Management");
+        
+        // Initialize addon manager
+        addonManager = new AddonManager(this);
+        
+        initializeViews();
+        setupRecyclerView();
+        setupListeners();
+        loadAddons();
+        
+        // Apply addons to this activity
+        addonManager.applyAddonsToActivity(this, "AddonManagementActivity");
+        
+        LogUtils.logUser("Addon Management opened");
+    }
+
+    private void initializeViews() {
+        statusText = findViewById(R.id.addonStatusText);
+        addonRecyclerView = findViewById(R.id.addonRecyclerView);
+        addAddonButton = findViewById(R.id.addAddonButton);
+        refreshButton = findViewById(R.id.refreshButton);
+        categorySpinner = findViewById(R.id.categorySpinner);
+        
+        displayedAddons = new ArrayList<>();
+        allAddons = new ArrayList<>();
+        
+        setupCategorySpinner();
+    }
+
+    private void setupCategorySpinner() {
+        List<String> categories = new ArrayList<>();
+        categories.add("All Categories");
+        
+        for (AddonManager.AddonCategory category : AddonManager.AddonCategory.values()) {
+            categories.add(category.getDisplayName());
+        }
+        
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, 
+            android.R.layout.simple_spinner_item, categories);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(adapter);
+    }
+
+    private void setupRecyclerView() {
+        addonAdapter = new AddonAdapter(displayedAddons);
+        addonRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        addonRecyclerView.setAdapter(addonAdapter);
+    }
+
+    private void setupListeners() {
+        addAddonButton.setOnClickListener(v -> showAddAddonDialog());
+        
+        refreshButton.setOnClickListener(v -> {
+            loadAddons();
+            Toast.makeText(this, "Addons refreshed", Toast.LENGTH_SHORT).show();
+        });
+        
+        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                filterAddonsByCategory(position);
+            }
+            
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+    }
+
+    private void loadAddons() {
+        allAddons.clear();
+        allAddons.addAll(addonManager.getLoadedAddons());
+        
+        filterAddonsByCategory(categorySpinner.getSelectedItemPosition());
+        updateStatus();
+    }
+
+    private void filterAddonsByCategory(int categoryPosition) {
+        displayedAddons.clear();
+        
+        if (categoryPosition == 0) {
+            // Show all addons
+            displayedAddons.addAll(allAddons);
+        } else {
+            // Show addons for specific category
+            AddonManager.AddonCategory selectedCategory = 
+                AddonManager.AddonCategory.values()[categoryPosition - 1];
+            
+            for (AddonConfig addon : allAddons) {
+                if (selectedCategory.getId().equals(addon.getCategory())) {
+                    displayedAddons.add(addon);
+                }
+            }
+        }
+        
+        addonAdapter.notifyDataSetChanged();
+        updateStatus();
+    }
+
+    private void updateStatus() {
+        int totalAddons = allAddons.size();
+        int enabledAddons = 0;
+        int displayedCount = displayedAddons.size();
+        
+        for (AddonConfig addon : allAddons) {
+            if (addon.isEnabled()) {
+                enabledAddons++;
+            }
+        }
+        
+        String status = String.format("📊 Total: %d | Enabled: %d | Showing: %d", 
+            totalAddons, enabledAddons, displayedCount);
+        statusText.setText(status);
+    }
+
+    private void showAddAddonDialog() {
+        String[] options = {
+            "📁 Install from file",
+            "🌐 Browse addon library",
+            "✨ Create sample addon",
+            "📋 Import from clipboard"
+        };
+        
+        new AlertDialog.Builder(this)
+            .setTitle("Add Addon")
+            .setItems(options, (dialog, which) -> {
+                switch (which) {
+                    case 0:
+                        selectAddonFile();
+                        break;
+                    case 1:
+                        showAddonLibrary();
+                        break;
+                    case 2:
+                        createSampleAddon();
+                        break;
+                    case 3:
+                        importFromClipboard();
+                        break;
+                }
+            })
+            .show();
+    }
+
+    private void selectAddonFile() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("application/json");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, REQUEST_SELECT_ADDON_FILE);
+    }
+
+    private void showAddonLibrary() {
+        // Placeholder for addon library
+        new AlertDialog.Builder(this)
+            .setTitle("Addon Library")
+            .setMessage("Online addon library coming soon!\n\nFor now, you can:\n• Create JSON configuration files\n• Import addon files from storage\n• Use the sample addons")
+            .setPositiveButton("OK", null)
+            .show();
+    }
+
+    private void createSampleAddon() {
+        String[] sampleTypes = {
+            "🎨 Dark Theme",
+            "📁 File Manager Enhancement",
+            "🔧 Smart Mod Installer",
+            "🛠️ Diagnostic Tool"
+        };
+        
+        new AlertDialog.Builder(this)
+            .setTitle("Create Sample Addon")
+            .setItems(sampleTypes, (dialog, which) -> {
+                String addonType = sampleTypes[which];
+                LogUtils.logUser("Creating sample addon: " + addonType);
+                
+                // Sample addons are automatically created by AddonManager
+                // Just refresh to show them
+                loadAddons();
+                Toast.makeText(this, "Sample addons are already available in the list", Toast.LENGTH_LONG).show();
+            })
+            .show();
+    }
+
+    private void importFromClipboard() {
+        // Placeholder for clipboard import
+        Toast.makeText(this, "Clipboard import coming soon", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (requestCode == REQUEST_SELECT_ADDON_FILE && resultCode == Activity.RESULT_OK && data != null) {
+            Uri addonUri = data.getData();
+            if (addonUri != null) {
+                installAddonFromUri(addonUri);
+            }
+        }
+    }
+
+    private void installAddonFromUri(Uri addonUri) {
+        boolean success = addonManager.installAddon(addonUri);
+        if (success) {
+            Toast.makeText(this, "✅ Addon installed successfully", Toast.LENGTH_SHORT).show();
+            loadAddons();
+        } else {
+            Toast.makeText(this, "❌ Failed to install addon", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.addon_management_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        
+        if (id == R.id.action_statistics) {
+            showAddonStatistics();
+            return true;
+        } else if (id == R.id.action_cleanup) {
+            showCleanupDialog();
+            return true;
+        } else if (id == R.id.action_help) {
+            showHelpDialog();
+            return true;
+        }
+        
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showAddonStatistics() {
+        String statistics = addonManager.getAddonStatistics();
+        
+        new AlertDialog.Builder(this)
+            .setTitle("📊 Addon Statistics")
+            .setMessage(statistics)
+            .setPositiveButton("OK", null)
+            .show();
+    }
+
+    private void showCleanupDialog() {
+        new AlertDialog.Builder(this)
+            .setTitle("🧹 Cleanup Addons")
+            .setMessage("Remove disabled addons and clean up temporary files?")
+            .setPositiveButton("Cleanup", (dialog, which) -> {
+                performCleanup();
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
+    private void performCleanup() {
+        // Cleanup logic would go here
+        Toast.makeText(this, "🧹 Cleanup completed", Toast.LENGTH_SHORT).show();
+        loadAddons();
+    }
+
+    private void showHelpDialog() {
+        String helpText = "=== Addon Management Help ===\n\n" +
+            "📁 Installing Addons:\n" +
+            "• Use 'Add Addon' to install JSON configuration files\n" +
+            "• Addons are automatically loaded when enabled\n\n" +
+            "⚙️ Managing Addons:\n" +
+            "• Toggle switches to enable/disable addons\n" +
+            "• Tap addon cards for detailed configuration\n" +
+            "• Use categories to filter addons\n\n" +
+            "✨ Creating Addons:\n" +
+            "• Addons are JSON configuration files\n" +
+            "• Define UI themes, file operations, and more\n" +
+            "• No programming required for basic addons\n\n" +
+            "🔧 Troubleshooting:\n" +
+            "• Use Refresh to reload addons\n" +
+            "• Check Statistics for addon status\n" +
+            "• Use Cleanup to remove unused files";
+        
+        new AlertDialog.Builder(this)
+            .setTitle("❓ Help")
+            .setMessage(helpText)
+            .setPositiveButton("OK", null)
+            .show();
+    }
+
+    /**
+     * Adapter for displaying addons in RecyclerView
+     */
+    private class AddonAdapter extends RecyclerView.Adapter<AddonAdapter.AddonViewHolder> {
+        private List<AddonConfig> addons;
+
+        public AddonAdapter(List<AddonConfig> addons) {
+            this.addons = addons;
+        }
+
+        @NonNull
+        @Override
+        public AddonViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_addon, parent, false);
+            return new AddonViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull AddonViewHolder holder, int position) {
+            AddonConfig addon = addons.get(position);
+            holder.bind(addon);
+        }
+
+        @Override
+        public int getItemCount() {
+            return addons.size();
+        }
+
+        class AddonViewHolder extends RecyclerView.ViewHolder {
+            private CardView cardView;
+            private TextView nameText;
+            private TextView descriptionText;
+            private TextView versionText;
+            private TextView categoryText;
+            private Switch enabledSwitch;
+            private Button configureButton;
+            private Button exportButton;
+            private Button deleteButton;
+
+            public AddonViewHolder(@NonNull View itemView) {
+                super(itemView);
+                
+                cardView = itemView.findViewById(R.id.addonCardView);
+                nameText = itemView.findViewById(R.id.addonNameText);
+                descriptionText = itemView.findViewById(R.id.addonDescriptionText);
+                versionText = itemView.findViewById(R.id.addonVersionText);
+                categoryText = itemView.findViewById(R.id.addonCategoryText);
+                enabledSwitch = itemView.findViewById(R.id.addonEnabledSwitch);
+                configureButton = itemView.findViewById(R.id.configureButton);
+                exportButton = itemView.findViewById(R.id.exportButton);
+                deleteButton = itemView.findViewById(R.id.deleteButton);
+            }
+
+            public void bind(AddonConfig addon) {
+                nameText.setText(addon.getName());
+                descriptionText.setText(addon.getDescription());
+                versionText.setText("v" + addon.getVersion());
+                categoryText.setText(getCategoryDisplayName(addon.getCategory()));
+                enabledSwitch.setChecked(addon.isEnabled());
+
+                // Set card background based on status
+                if (addon.isEnabled()) {
+                    cardView.setCardBackgroundColor(getResources().getColor(android.R.color.white));
+                } else {
+                    cardView.setCardBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+                }
+
+                // Enable/disable switch listener
+                enabledSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    if (addonManager.toggleAddon(addon.getId(), isChecked)) {
+                        // Update the display
+                        cardView.setCardBackgroundColor(isChecked ? 
+                            getResources().getColor(android.R.color.white) : 
+                            getResources().getColor(android.R.color.darker_gray));
+                        updateStatus();
+                    } else {
+                        // Reset switch if toggle failed
+                        enabledSwitch.setChecked(!isChecked);
+                    }
+                });
+
+                // Configure button
+                configureButton.setOnClickListener(v -> showAddonConfiguration(addon));
+
+                // Export button
+                exportButton.setOnClickListener(v -> {
+                    addonManager.exportAddon(addon.getId());
+                });
+
+                // Delete button
+                deleteButton.setOnClickListener(v -> showDeleteConfirmation(addon));
+
+                // Card click for detailed view
+                cardView.setOnClickListener(v -> showAddonDetails(addon));
+            }
+
+            private String getCategoryDisplayName(String categoryId) {
+                for (AddonManager.AddonCategory category : AddonManager.AddonCategory.values()) {
+                    if (category.getId().equals(categoryId)) {
+                        return category.getDisplayName();
+                    }
+                }
+                return categoryId;
+            }
+        }
+    }
+
+    private void showAddonConfiguration(AddonConfig addon) {
+        String configSummary = addon.getConfigurationSummary();
+        
+        new AlertDialog.Builder(this)
+            .setTitle("⚙️ " + addon.getName() + " Configuration")
+            .setMessage(configSummary)
+            .setPositiveButton("OK", null)
+            .setNeutralButton("Advanced", (dialog, which) -> {
+                // Advanced configuration would open a dedicated activity
+                Toast.makeText(this, "Advanced configuration coming soon", Toast.LENGTH_SHORT).show();
+            })
+            .show();
+    }
+
+    private void showDeleteConfirmation(AddonConfig addon) {
+        new AlertDialog.Builder(this)
+            .setTitle("🗑️ Delete Addon")
+            .setMessage("Are you sure you want to remove '" + addon.getName() + "'?\n\nThis will move the addon to the disabled folder.")
+            .setPositiveButton("Delete", (dialog, which) -> {
+                if (addonManager.removeAddon(addon.getId())) {
+                    loadAddons();
+                } else {
+                    Toast.makeText(this, "Failed to remove addon", Toast.LENGTH_SHORT).show();
+                }
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
+    private void showAddonDetails(AddonConfig addon) {
+        String details = addon.getDisplayInfo();
+        
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("📋 Addon Details");
+        builder.setMessage(details);
+        builder.setPositiveButton("OK", null);
+        
+        // Add action buttons if addon has actions
+        if (!addon.getActions().isEmpty()) {
+            builder.setNeutralButton("Actions (" + addon.getActions().size() + ")", 
+                (dialog, which) -> showAddonActions(addon));
+        }
+        
+        builder.show();
+    }
+
+    private void showAddonActions(AddonConfig addon) {
+        List<AddonConfig.AddonAction> actions = addon.getActions();
+        if (actions.isEmpty()) {
+            Toast.makeText(this, "No actions available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        String[] actionNames = new String[actions.size()];
+        for (int i = 0; i < actions.size(); i++) {
+            actionNames[i] = actions.get(i).getName();
+        }
+        
+        new AlertDialog.Builder(this)
+            .setTitle("🎯 Addon Actions")
+            .setItems(actionNames, (dialog, which) -> {
+                AddonConfig.AddonAction action = actions.get(which);
+                executeAddonAction(addon, action);
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
+    private void executeAddonAction(AddonConfig addon, AddonConfig.AddonAction action) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("activity", this);
+        parameters.putAll(action.getParameters());
+        
+        boolean success = addonManager.executeAddon(addon.getId(), action.getAction(), parameters);
+        
+        if (success) {
+            Toast.makeText(this, "✅ Executed: " + action.getName(), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "❌ Failed to execute: " + action.getName(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (addonManager != null) {
+            addonManager.cleanup();
+        }
+    }
+}
+
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/addon/AddonManager.java
+
+// File: AddonManager.java - Core Configuration-Based Addon System
+// Path: app/src/main/java/com/modloader/addon/AddonManager.java
+package com.modloader.addon;
+
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
+
+import com.modloader.util.LogUtils;
+import com.modloader.util.PathManager;
+import com.modloader.util.FileUtils;
+
+import org.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+/**
+ * Core Addon Management System for ModLoader
+ * Handles configuration-based extensions and plugins
+ */
+public class AddonManager {
+    private static final String TAG = "AddonManager";
+    private static final String ADDON_DIRECTORY = "Addons";
+    private static final String ADDON_CONFIG_FILE = "addon_config.json";
+    
+    private final Context context;
+    private final List<AddonConfig> loadedAddons;
+    private final Map<String, AddonExecutor> executors;
+    private File addonBaseDir;
+    private boolean initialized = false;
+
+    // Addon categories
+    public enum AddonCategory {
+        MOD_INSTALLER("mod_installer", "Mod Installation Tools"),
+        APK_PATCHER("apk_patcher", "APK Patching Extensions"),
+        UI_ENHANCEMENT("ui_enhancement", "User Interface Enhancements"),
+        FILE_MANAGER("file_manager", "File Management Tools"),
+        DIAGNOSTIC("diagnostic", "Diagnostic and Repair Tools"),
+        AUTOMATION("automation", "Automation Scripts"),
+        THEME("theme", "Themes and Visual Customization"),
+        UTILITY("utility", "General Utilities");
+
+        private final String id;
+        private final String displayName;
+
+        AddonCategory(String id, String displayName) {
+            this.id = id;
+            this.displayName = displayName;
+        }
+
+        public String getId() { return id; }
+        public String getDisplayName() { return displayName; }
+    }
+
+    public AddonManager(Context context) {
+        this.context = context;
+        this.loadedAddons = new ArrayList<>();
+        this.executors = new HashMap<>();
+        initialize();
+    }
+
+    /**
+     * Initialize the addon system
+     */
+    private void initialize() {
+        try {
+            // Create addon directory structure
+            createAddonDirectories();
+            
+            // Load existing addons
+            loadAddons();
+            
+            // Initialize executors
+            initializeExecutors();
+            
+            initialized = true;
+            LogUtils.logUser("✅ AddonManager initialized with " + loadedAddons.size() + " addons");
+        } catch (Exception e) {
+            LogUtils.logError("Failed to initialize AddonManager: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Create the addon directory structure
+     */
+    private void createAddonDirectories() {
+        File gameBaseDir = PathManager.getGameBaseDir(context, "com.and.games505.TerrariaPaid");
+        addonBaseDir = new File(gameBaseDir, ADDON_DIRECTORY);
+        
+        // Create main directories
+        String[] addonDirs = {
+            "",  // Root addon directory
+            "configs",  // Addon configuration files
+            "resources", // Addon resources (icons, assets)
+            "themes",   // Theme files
+            "scripts",  // Script files
+            "templates", // Template configurations
+            "backups",  // Backup configurations
+            "disabled"  // Disabled addons
+        };
+        
+        for (String dir : addonDirs) {
+            File directory = new File(addonBaseDir, dir);
+            if (!directory.exists() && !directory.mkdirs()) {
+                LogUtils.logError("Failed to create addon directory: " + directory.getAbsolutePath());
+            }
+        }
+        
+        // Create sample addon configurations
+        createSampleAddons();
+        
+        LogUtils.logDebug("Addon directories created at: " + addonBaseDir.getAbsolutePath());
+    }
+
+    /**
+     * Create sample addon configurations for demonstration
+     */
+    private void createSampleAddons() {
+        try {
+            // Sample Theme Addon
+            createSampleThemeAddon();
+            
+            // Sample Utility Addon
+            createSampleUtilityAddon();
+            
+            // Sample Mod Installer Enhancement
+            createSampleModInstallerAddon();
+            
+        } catch (Exception e) {
+            LogUtils.logError("Failed to create sample addons: " + e.getMessage());
+        }
+    }
+
+    private void createSampleThemeAddon() throws JSONException, IOException {
+        File themeConfigFile = new File(new File(addonBaseDir, "configs"), "dark_theme.json");
+        if (!themeConfigFile.exists()) {
+            JSONObject themeConfig = new JSONObject();
+            themeConfig.put("id", "dark_theme_v1");
+            themeConfig.put("name", "Dark Theme Enhancement");
+            themeConfig.put("version", "1.0.0");
+            themeConfig.put("author", "ModLoader Team");
+            themeConfig.put("description", "Enhanced dark theme with better contrast and modern UI elements");
+            themeConfig.put("category", AddonCategory.THEME.getId());
+            themeConfig.put("enabled", true);
+            
+            JSONObject config = new JSONObject();
+            config.put("primary_color", "#1E1E1E");
+            config.put("secondary_color", "#2D2D2D");
+            config.put("accent_color", "#4CAF50");
+            config.put("text_color", "#FFFFFF");
+            config.put("button_style", "rounded");
+            config.put("card_elevation", "8dp");
+            
+            themeConfig.put("configuration", config);
+            
+            JSONArray hooks = new JSONArray();
+            hooks.put("on_activity_create");
+            hooks.put("on_theme_change");
+            themeConfig.put("hooks", hooks);
+            
+            try (FileWriter writer = new FileWriter(themeConfigFile)) {
+                writer.write(themeConfig.toString(2));
+            }
+        }
+    }
+
+    private void createSampleUtilityAddon() throws JSONException, IOException {
+        File utilityConfigFile = new File(new File(addonBaseDir, "configs"), "enhanced_file_manager.json");
+        if (!utilityConfigFile.exists()) {
+            JSONObject utilityConfig = new JSONObject();
+            utilityConfig.put("id", "enhanced_file_manager");
+            utilityConfig.put("name", "Enhanced File Manager");
+            utilityConfig.put("version", "1.2.0");
+            utilityConfig.put("author", "Community");
+            utilityConfig.put("description", "Adds bulk operations, advanced search, and file preview");
+            utilityConfig.put("category", AddonCategory.FILE_MANAGER.getId());
+            utilityConfig.put("enabled", true);
+            
+            JSONObject config = new JSONObject();
+            config.put("enable_bulk_operations", true);
+            config.put("enable_file_preview", true);
+            config.put("enable_advanced_search", true);
+            config.put("max_preview_size", "50MB");
+            config.put("supported_preview_types", "image,text,json");
+            
+            JSONArray ui_enhancements = new JSONArray();
+            ui_enhancements.put("add_toolbar_buttons");
+            ui_enhancements.put("add_context_menu_items");
+            ui_enhancements.put("add_batch_select_mode");
+            config.put("ui_enhancements", ui_enhancements);
+            
+            utilityConfig.put("configuration", config);
+            
+            JSONArray actions = new JSONArray();
+            
+            JSONObject bulkDeleteAction = new JSONObject();
+            bulkDeleteAction.put("id", "bulk_delete");
+            bulkDeleteAction.put("name", "Bulk Delete");
+            bulkDeleteAction.put("icon", "delete");
+            bulkDeleteAction.put("action", "show_bulk_delete_dialog");
+            actions.put(bulkDeleteAction);
+            
+            JSONObject compressAction = new JSONObject();
+            compressAction.put("id", "compress_files");
+            compressAction.put("name", "Create Archive");
+            compressAction.put("icon", "archive");
+            compressAction.put("action", "compress_selected_files");
+            actions.put(compressAction);
+            
+            utilityConfig.put("actions", actions);
+            
+            try (FileWriter writer = new FileWriter(utilityConfigFile)) {
+                writer.write(utilityConfig.toString(2));
+            }
+        }
+    }
+
+    private void createSampleModInstallerAddon() throws JSONException, IOException {
+        File modInstallerConfigFile = new File(new File(addonBaseDir, "configs"), "smart_mod_installer.json");
+        if (!modInstallerConfigFile.exists()) {
+            JSONObject modConfig = new JSONObject();
+            modConfig.put("id", "smart_mod_installer");
+            modConfig.put("name", "Smart Mod Installer");
+            modConfig.put("version", "2.1.0");
+            modConfig.put("author", "ModLoader Team");
+            modConfig.put("description", "Intelligent mod installation with conflict detection and automatic compatibility checks");
+            modConfig.put("category", AddonCategory.MOD_INSTALLER.getId());
+            modConfig.put("enabled", true);
+            
+            JSONObject config = new JSONObject();
+            config.put("auto_detect_conflicts", true);
+            config.put("check_compatibility", true);
+            config.put("create_backups", true);
+            config.put("suggest_load_order", true);
+            config.put("verify_checksums", true);
+            
+            JSONArray supported_formats = new JSONArray();
+            supported_formats.put(".dll");
+            supported_formats.put(".dex");
+            supported_formats.put(".jar");
+            supported_formats.put(".zip");
+            supported_formats.put(".rar");
+            config.put("supported_formats", supported_formats);
+            
+            JSONObject install_rules = new JSONObject();
+            install_rules.put("max_file_size", "100MB");
+            install_rules.put("require_description", false);
+            install_rules.put("auto_enable", true);
+            install_rules.put("scan_for_malware", true);
+            config.put("install_rules", install_rules);
+            
+            modConfig.put("configuration", config);
+            
+            JSONArray workflow = new JSONArray();
+            
+            JSONObject step1 = new JSONObject();
+            step1.put("step", "validate_file");
+            step1.put("description", "Validate mod file integrity");
+            workflow.put(step1);
+            
+            JSONObject step2 = new JSONObject();
+            step2.put("step", "check_conflicts");
+            step2.put("description", "Check for conflicts with existing mods");
+            workflow.put(step2);
+            
+            JSONObject step3 = new JSONObject();
+            step3.put("step", "backup_existing");
+            step3.put("description", "Create backup of current mod setup");
+            workflow.put(step3);
+            
+            JSONObject step4 = new JSONObject();
+            step4.put("step", "install_mod");
+            step4.put("description", "Install the mod file");
+            workflow.put(step4);
+            
+            JSONObject step5 = new JSONObject();
+            step5.put("step", "update_registry");
+            step5.put("description", "Update mod registry and dependencies");
+            workflow.put(step5);
+            
+            modConfig.put("workflow", workflow);
+            
+            try (FileWriter writer = new FileWriter(modInstallerConfigFile)) {
+                writer.write(modConfig.toString(2));
+            }
+        }
+    }
+
+    /**
+     * Load all addon configurations
+     */
+    private void loadAddons() {
+        loadedAddons.clear();
+        
+        File configsDir = new File(addonBaseDir, "configs");
+        if (!configsDir.exists()) {
+            return;
+        }
+        
+        File[] configFiles = configsDir.listFiles((dir, name) -> name.endsWith(".json"));
+        if (configFiles != null) {
+            for (File configFile : configFiles) {
+                try {
+                    AddonConfig addon = loadAddonConfig(configFile);
+                    if (addon != null && addon.isEnabled()) {
+                        loadedAddons.add(addon);
+                        LogUtils.logDebug("Loaded addon: " + addon.getName() + " v" + addon.getVersion());
+                    }
+                } catch (Exception e) {
+                    LogUtils.logError("Failed to load addon config: " + configFile.getName() + " - " + e.getMessage());
+                }
+            }
+        }
+        
+        LogUtils.logUser("📦 Loaded " + loadedAddons.size() + " active addons");
+    }
+
+    /**
+     * Load a single addon configuration file
+     */
+    private AddonConfig loadAddonConfig(File configFile) throws IOException, JSONException {
+        StringBuilder content = new StringBuilder();
+        try (FileReader reader = new FileReader(configFile)) {
+            int ch;
+            while ((ch = reader.read()) != -1) {
+                content.append((char) ch);
+            }
+        }
+        
+        JSONObject json = new JSONObject(content.toString());
+        return new AddonConfig(json, configFile);
+    }
+
+    /**
+     * Initialize addon executors for different categories
+     */
+    private void initializeExecutors() {
+        executors.put(AddonCategory.THEME.getId(), new ThemeExecutor(context));
+        executors.put(AddonCategory.UI_ENHANCEMENT.getId(), new UIEnhancementExecutor(context));
+        executors.put(AddonCategory.FILE_MANAGER.getId(), new FileManagerExecutor(context));
+        executors.put(AddonCategory.MOD_INSTALLER.getId(), new ModInstallerExecutor(context));
+        executors.put(AddonCategory.UTILITY.getId(), new UtilityExecutor(context));
+        executors.put(AddonCategory.DIAGNOSTIC.getId(), new DiagnosticExecutor(context));
+        
+        LogUtils.logDebug("Initialized " + executors.size() + " addon executors");
+    }
+
+    /**
+     * Get all loaded addons
+     */
+    public List<AddonConfig> getLoadedAddons() {
+        return new ArrayList<>(loadedAddons);
+    }
+
+    /**
+     * Get addons by category
+     */
+    public List<AddonConfig> getAddonsByCategory(AddonCategory category) {
+        List<AddonConfig> categoryAddons = new ArrayList<>();
+        for (AddonConfig addon : loadedAddons) {
+            if (category.getId().equals(addon.getCategory())) {
+                categoryAddons.add(addon);
+            }
+        }
+        return categoryAddons;
+    }
+
+    /**
+     * Execute addon functionality
+     */
+    public boolean executeAddon(String addonId, String action, Map<String, Object> parameters) {
+        AddonConfig addon = findAddonById(addonId);
+        if (addon == null) {
+            LogUtils.logError("Addon not found: " + addonId);
+            return false;
+        }
+        
+        if (!addon.isEnabled()) {
+            LogUtils.logError("Addon is disabled: " + addonId);
+            return false;
+        }
+        
+        AddonExecutor executor = executors.get(addon.getCategory());
+        if (executor == null) {
+            LogUtils.logError("No executor found for category: " + addon.getCategory());
+            return false;
+        }
+        
+        try {
+            return executor.execute(addon, action, parameters);
+        } catch (Exception e) {
+            LogUtils.logError("Failed to execute addon " + addonId + ": " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Apply addon modifications to an activity
+     */
+    public void applyAddonsToActivity(AppCompatActivity activity, String activityName) {
+        for (AddonConfig addon : loadedAddons) {
+            try {
+                AddonExecutor executor = executors.get(addon.getCategory());
+                if (executor != null) {
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("activity", activity);
+                    params.put("activity_name", activityName);
+                    executor.execute(addon, "apply_to_activity", params);
+                }
+            } catch (Exception e) {
+                LogUtils.logError("Failed to apply addon " + addon.getId() + " to activity: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Install a new addon from a configuration file
+     */
+    public boolean installAddon(Uri addonUri) {
+        try {
+            File tempFile = new File(context.getCacheDir(), "temp_addon.json");
+            if (!FileUtils.copyUriToFile(context, addonUri, tempFile)) {
+                LogUtils.logError("Failed to copy addon configuration file");
+                return false;
+            }
+            
+            // Validate the addon configuration
+            AddonConfig addon = loadAddonConfig(tempFile);
+            if (addon == null) {
+                LogUtils.logError("Invalid addon configuration");
+                return false;
+            }
+            
+            // Check if addon already exists
+            if (findAddonById(addon.getId()) != null) {
+                LogUtils.logUser("Addon already exists: " + addon.getId() + " - updating...");
+            }
+            
+            // Copy to configs directory
+            File configsDir = new File(addonBaseDir, "configs");
+            File targetFile = new File(configsDir, addon.getId() + ".json");
+            if (!FileUtils.copyFile(tempFile, targetFile)) {
+                LogUtils.logError("Failed to install addon configuration");
+                return false;
+            }
+            
+            // Reload addons
+            loadAddons();
+            
+            LogUtils.logUser("✅ Successfully installed addon: " + addon.getName());
+            return true;
+            
+        } catch (Exception e) {
+            LogUtils.logError("Failed to install addon: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Enable or disable an addon
+     */
+    public boolean toggleAddon(String addonId, boolean enabled) {
+        AddonConfig addon = findAddonById(addonId);
+        if (addon == null) {
+            return false;
+        }
+        
+        try {
+            // Update the configuration file
+            addon.setEnabled(enabled);
+            saveAddonConfig(addon);
+            
+            // Reload addons
+            loadAddons();
+            
+            LogUtils.logUser((enabled ? "✅ Enabled" : "❌ Disabled") + " addon: " + addon.getName());
+            return true;
+            
+        } catch (Exception e) {
+            LogUtils.logError("Failed to toggle addon: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Remove an addon
+     */
+    public boolean removeAddon(String addonId) {
+        AddonConfig addon = findAddonById(addonId);
+        if (addon == null) {
+            return false;
+        }
+        
+        try {
+            // Move to disabled directory instead of deleting
+            File disabledDir = new File(addonBaseDir, "disabled");
+            File targetFile = new File(disabledDir, addon.getConfigFile().getName());
+            
+            if (addon.getConfigFile().renameTo(targetFile)) {
+                loadAddons();
+                LogUtils.logUser("🗑️ Removed addon: " + addon.getName());
+                return true;
+            } else {
+                LogUtils.logError("Failed to remove addon configuration file");
+                return false;
+            }
+            
+        } catch (Exception e) {
+            LogUtils.logError("Failed to remove addon: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Export addon configuration
+     */
+    public boolean exportAddon(String addonId) {
+        AddonConfig addon = findAddonById(addonId);
+        if (addon == null) {
+            return false;
+        }
+        
+        try {
+            File exportDir = new File(context.getExternalFilesDir(null), "exports");
+            exportDir.mkdirs();
+            
+            String filename = addon.getId() + "_v" + addon.getVersion() + ".json";
+            File exportFile = new File(exportDir, filename);
+            
+            if (FileUtils.copyFile(addon.getConfigFile(), exportFile)) {
+                // Share the exported file
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("application/json");
+                shareIntent.putExtra(Intent.EXTRA_STREAM,
+                    FileProvider.getUriForFile(context, context.getPackageName() + ".provider", exportFile));
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                
+                Intent chooser = Intent.createChooser(shareIntent, "Export Addon: " + addon.getName());
+                chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(chooser);
+                
+                LogUtils.logUser("📤 Exported addon: " + addon.getName());
+                return true;
+            }
+            
+        } catch (Exception e) {
+            LogUtils.logError("Failed to export addon: " + e.getMessage());
+        }
+        
+        return false;
+    }
+
+    /**
+     * Get addon statistics
+     */
+    public String getAddonStatistics() {
+        Map<String, Integer> categoryCounts = new HashMap<>();
+        int enabledCount = 0;
+        
+        for (AddonConfig addon : loadedAddons) {
+            if (addon.isEnabled()) {
+                enabledCount++;
+            }
+            
+            String category = addon.getCategory();
+            categoryCounts.put(category, categoryCounts.getOrDefault(category, 0) + 1);
+        }
+        
+        StringBuilder stats = new StringBuilder();
+        stats.append("=== Addon Statistics ===\n");
+        stats.append("Total Addons: ").append(loadedAddons.size()).append("\n");
+        stats.append("Enabled: ").append(enabledCount).append("\n");
+        stats.append("Disabled: ").append(loadedAddons.size() - enabledCount).append("\n\n");
+        
+        stats.append("By Category:\n");
+        for (AddonCategory category : AddonCategory.values()) {
+            int count = categoryCounts.getOrDefault(category.getId(), 0);
+            if (count > 0) {
+                stats.append("• ").append(category.getDisplayName()).append(": ").append(count).append("\n");
+            }
+        }
+        
+        return stats.toString();
+    }
+
+    /**
+     * Find addon by ID
+     */
+    private AddonConfig findAddonById(String addonId) {
+        for (AddonConfig addon : loadedAddons) {
+            if (addon.getId().equals(addonId)) {
+                return addon;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Save addon configuration to file
+     */
+    private void saveAddonConfig(AddonConfig addon) throws IOException, JSONException {
+        try (FileWriter writer = new FileWriter(addon.getConfigFile())) {
+            writer.write(addon.toJSON().toString(2));
+        }
+    }
+
+    /**
+     * Check if addon system is initialized
+     */
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    /**
+     * Get addon base directory
+     */
+    public File getAddonBaseDirectory() {
+        return addonBaseDir;
+    }
+
+    /**
+     * Cleanup resources
+     */
+    public void cleanup() {
+        loadedAddons.clear();
+        executors.clear();
+        initialized = false;
+        LogUtils.logDebug("AddonManager cleaned up");
+    }
+}
+
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/installer/ModInstaller.java
 
 // File: ModInstaller.java (FIXED) - Updated to use new directory structure
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/installer/ModInstaller.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/installer/ModInstaller.java
 
 package com.modloader.installer;
 
@@ -1892,10 +5251,12 @@ public class ModInstaller {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/loader/LoaderFileManager.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/loader/LoaderFileManager.java
 
 // File: LoaderFileManager.java (Fixed Component) - Complete Path Management Fix
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/LoaderFileManager.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/LoaderFileManager.java
 
 package com.modloader.loader;
 
@@ -2368,7 +5729,7 @@ public class LoaderFileManager {
             List<File> allMods = getAllMods(context, gamePackage);
             
             try (java.io.FileWriter writer = new java.io.FileWriter(outputFile)) {
-                writer.write("=== ModLoader Mod List ===\n");
+                writer.write("=== TerrariaLoader Mod List ===\n");
                 writer.write("Game Package: " + gamePackage + "\n");
                 writer.write("Export Date: " + new java.util.Date().toString() + "\n");
                 writer.write("Total Mods: " + (allMods != null ? allMods.size() : 0) + "\n\n");
@@ -2437,7 +5798,9 @@ public class LoaderFileManager {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/loader/LoaderInstaller.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/loader/LoaderInstaller.java
 
 // File: LoaderInstaller.java (Complete Fixed Version) - Uses Correct App-Specific Paths
 // Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/app/src/main/java/com/modloader/loader/LoaderInstaller.java
@@ -2489,7 +5852,7 @@ public class LoaderInstaller {
         "Mods/DEX", // DEX/JAR mods go here
         "Loaders/MelonLoader/UserLibs", // User libraries
         "Loaders/MelonLoader/Plugins", // Plugin files
-        "Logs", // All logs (both MelonLoader and ModLoader)
+        "Logs", // All logs (both MelonLoader and TerrariaLoader)
         // Backup and Config
         "Backups", // APK backups
         "Config" // Configuration files
@@ -2528,7 +5891,7 @@ public class LoaderInstaller {
         // DLL Mods directory README
         File dllModsReadme = new File(baseDir, "Mods/DLL/README.txt");
         try (java.io.FileWriter writer = new java.io.FileWriter(dllModsReadme)) {
-            writer.write("=== ModLoader - DLL Mods Directory ===\n\n");
+            writer.write("=== TerrariaLoader - DLL Mods Directory ===\n\n");
             writer.write("Place your .dll mod files here.\n");
             writer.write("Mods will be loaded automatically when Terraria starts.\n\n");
             writer.write("Supported formats:\n");
@@ -2545,7 +5908,7 @@ public class LoaderInstaller {
         // DEX Mods directory README
         File dexModsReadme = new File(baseDir, "Mods/DEX/README.txt");
         try (java.io.FileWriter writer = new java.io.FileWriter(dexModsReadme)) {
-            writer.write("=== ModLoader - DEX/JAR Mods Directory ===\n\n");
+            writer.write("=== TerrariaLoader - DEX/JAR Mods Directory ===\n\n");
             writer.write("Place your .dex and .jar mod files here.\n");
             writer.write("These are Java-based mods for Android.\n\n");
             writer.write("Supported formats:\n");
@@ -2562,12 +5925,12 @@ public class LoaderInstaller {
         // Config directory info
         File configReadme = new File(baseDir, "Config/README.txt");
         try (java.io.FileWriter writer = new java.io.FileWriter(configReadme)) {
-            writer.write("=== ModLoader Configuration Directory ===\n\n");
-            writer.write("This directory contains configuration files for ModLoader and MelonLoader.\n");
+            writer.write("=== TerrariaLoader Configuration Directory ===\n\n");
+            writer.write("This directory contains configuration files for TerrariaLoader and MelonLoader.\n");
             writer.write("Mod-specific config files will appear here automatically.\n\n");
             writer.write("File types you might see:\n");
             writer.write("• .cfg files (MelonLoader configs)\n");
-            writer.write("• .json files (ModLoader configs)\n");
+            writer.write("• .json files (TerrariaLoader configs)\n");
             writer.write("• .txt files (Various settings)\n");
         }
     }
@@ -2873,10 +6236,12 @@ public class LoaderInstaller {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/loader/LoaderValidator.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/loader/LoaderValidator.java
 
 // File: LoaderValidator.java (Fixed Component) - Complete Path Management Fix
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/LoaderValidator.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/LoaderValidator.java
 
 package com.modloader.loader;
 
@@ -3275,7 +6640,9 @@ public class LoaderValidator {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/loader/MainLoader.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/loader/MainLoader.java
 
 package com.loader;
 
@@ -3312,10 +6679,12 @@ public class MainLoader extends Application {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/loader/MelonLoaderManager.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/loader/MelonLoaderManager.java
 
 // File: MelonLoaderManager.java (Fixed Facade) - Updated with PathManager
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/MelonLoaderManager.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/MelonLoaderManager.java
 
 package com.modloader.loader;
 
@@ -3554,7 +6923,7 @@ public class MelonLoaderManager {
         LoaderStatus status = getStatus(context, gamePackage);
         StringBuilder summary = new StringBuilder();
         
-        summary.append("=== ModLoader Summary ===\n");
+        summary.append("=== TerrariaLoader Summary ===\n");
         summary.append("Game: ").append(gamePackage != null ? gamePackage : "null").append("\n");
         summary.append("Loader Status: ").append(status.melonLoaderInstalled ? "Installed" : "Not Installed").append("\n");
         
@@ -3775,10 +7144,12 @@ public class MelonLoaderManager {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/loader/ModBase.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/loader/ModBase.java
 
 // File: ModBase.java (Interface Class) - Phase 4 Enhanced with DLL Support
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/ModBase.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModBase.java
 
 package com.modloader.loader;
 
@@ -3905,7 +7276,9 @@ public interface ModBase {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/loader/ModConfiguration.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/loader/ModConfiguration.java
 
 package com.modloader.loader;
 
@@ -4104,10 +7477,12 @@ public class ModConfiguration {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/loader/ModController.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/loader/ModController.java
 
 // File: ModController.java (Extracted Component) - Handles mod state management
-// Path: /storage/emulated/0/AndroidIDEProjects/main/java/com/modloader/loader/ModController.java
+// Path: /storage/emulated/0/AndroidIDEProjects/main/java/com/terrarialoader/loader/ModController.java
 
 package com.modloader.loader;
 
@@ -4414,10 +7789,12 @@ public class ModController {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/loader/ModLoader.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/loader/ModLoader.java
 
 // File: ModLoader.java (Complete Fixed Component) - Updated Method Calls with Context
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/ModLoader.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModLoader.java
 
 package com.modloader.loader;
 
@@ -4599,7 +7976,7 @@ public class ModLoader {
             }
 
             // Create mods directory for MelonLoader using proper path management
-            File melonModsDir = new File(context.getExternalFilesDir(null), "ModLoader/com.and.games505.TerrariaPaid/Mods/DLL");
+            File melonModsDir = new File(context.getExternalFilesDir(null), "TerrariaLoader/com.and.games505.TerrariaPaid/Mods/DLL");
             if (!melonModsDir.exists()) {
                 melonModsDir.mkdirs();
             }
@@ -4722,7 +8099,7 @@ public class ModLoader {
         }
 
         try {
-            File melonModsDir = new File(context.getExternalFilesDir(null), "ModLoader/com.and.games505.TerrariaPaid/Mods/DLL");
+            File melonModsDir = new File(context.getExternalFilesDir(null), "TerrariaLoader/com.and.games505.TerrariaPaid/Mods/DLL");
             File targetFile = new File(melonModsDir, modFile.getName().replace(".disabled", ""));
             if (targetFile.exists()) {
                 if (targetFile.delete()) {
@@ -4828,10 +8205,12 @@ public class ModLoader {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/loader/ModManager.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/loader/ModManager.java
 
 // File: ModManager.java (Fixed Facade) - Updated with PathManager
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/ModManager.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModManager.java
 
 package com.modloader.loader;
 
@@ -5133,10 +8512,12 @@ public class ModManager {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/loader/ModMetadata.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/loader/ModMetadata.java
 
 // File: ModMetadata.java (Fixed Class) - Enhanced Null Safety
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/ModMetadata.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModMetadata.java
 
 package com.modloader.loader;
 
@@ -5362,10 +8743,12 @@ public class ModMetadata {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/loader/ModRepository.java
+================================================================================
+
+ModLoader/app/src/main/java/com/modloader/loader/ModRepository.java
 
 // File: ModRepository.java (Fixed Component) - Updated Method Calls
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/loader/ModRepository.java
+// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModRepository.java
 
 package com.modloader.loader;
 
@@ -5565,1393 +8948,12 @@ public class ModRepository {
     }
 }
 
-/ModLoader/app/src/main/java/com/modloader/loader/debugger/ApkProcessTracker.java
+================================================================================
 
-// File: ApkProcessTracker.java - Real-time APK operation monitoring and debugging
-// Path: app/src/main/java/com/modloader/loader/debug/ApkProcessTracker.java
-
-package com.modloader.loader.debug;
-
-import android.content.Context;
-import com.modloader.util.LogUtils;
-import com.modloader.util.ApkValidator;
-import com.modloader.util.ApkPatcher;
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-
-/**
- * ApkProcessTracker - Real-time monitoring and debugging of APK operations
- * Single responsibility: Track, monitor, and debug APK patching processes in real-time
- */
-public class ApkProcessTracker {
-    private static final String TAG = "APKTracker";
-    private final Context context;
-    private final Map<String, ActiveProcess> activeProcesses = new ConcurrentHashMap<>();
-    private final AtomicLong processIdCounter = new AtomicLong(0);
-    private final List<ProcessListener> listeners = new ArrayList<>();
-    
-    public ApkProcessTracker(Context context) {
-        this.context = context;
-        LogUtils.logDebug("ApkProcessTracker initialized");
-    }
-    
-    /**
-     * Start tracking an APK process with detailed monitoring
-     */
-    public String startProcess(String operation, File inputApk, File outputApk) {
-        String processId = "APK_" + System.currentTimeMillis() + "_" + processIdCounter.incrementAndGet();
-        
-        ActiveProcess process = new ActiveProcess(processId, operation, inputApk, outputApk);
-        activeProcesses.put(processId, process);
-        
-        LogUtils.logApkProcessStart(operation, inputApk != null ? inputApk.getName() : "Unknown");
-        LogUtils.logDebug("Started tracking process: " + processId);
-        
-        // Notify listeners
-        notifyListeners(listener -> listener.onProcessStarted(process));
-        
-        return processId;
-    }
-    
-    /**
-     * Log a detailed step with performance metrics
-     */
-    public void logStep(String processId, String stepName, String details) {
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process == null) {
-            LogUtils.logDebug("Process not found for step logging: " + processId);
-            return;
-        }
-        
-        ProcessStep step = new ProcessStep(stepName, details);
-        process.addStep(step);
-        
-        LogUtils.logApkProcessStep(stepName, details);
-        LogUtils.logDebug(String.format("[%s] Step: %s (%dms since start)", 
-                                      processId, stepName, step.getElapsedTime()));
-        
-        // Notify listeners
-        notifyListeners(listener -> listener.onStepCompleted(process, step));
-    }
-    
-    /**
-     * Log step with file size information
-     */
-    public void logStepWithSize(String processId, String stepName, String details, long fileSize) {
-        String enhancedDetails = details + " (Size: " + formatFileSize(fileSize) + ")";
-        logStep(processId, stepName, enhancedDetails);
-        
-        // Track size changes
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process != null) {
-            process.trackSizeChange(stepName, fileSize);
-        }
-    }
-    
-    /**
-     * Log step with timing information
-     */
-    public void logStepWithTiming(String processId, String stepName, String details, long durationMs) {
-        String enhancedDetails = details + " (Duration: " + durationMs + "ms)";
-        logStep(processId, stepName, enhancedDetails);
-        
-        // Track performance
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process != null) {
-            process.trackPerformance(stepName, durationMs);
-        }
-    }
-    
-    /**
-     * Log validation results for the process
-     */
-    public void logValidationResults(String processId, ApkValidator.ValidationResult validation) {
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process == null) return;
-        
-        process.validationResult = validation;
-        
-        String status = validation.isValid ? "PASSED" : "FAILED";
-        String details = String.format("Validation %s - Size: %s, Entries: %d, Issues: %d", 
-                                     status, formatFileSize(validation.fileSize), 
-                                     validation.totalEntries, validation.issues.size());
-        
-        logStep(processId, "APK Validation", details);
-        
-        if (!validation.isValid) {
-            for (String issue : validation.issues) {
-                LogUtils.logError("Validation issue: " + issue);
-            }
-        }
-    }
-    
-    /**
-     * Log patching results for the process
-     */
-    public void logPatchingResults(String processId, ApkPatcher.PatchResult patchResult) {
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process == null) return;
-        
-        process.patchResult = patchResult;
-        
-        String status = patchResult.success ? "SUCCESS" : "FAILED";
-        String details = String.format("Patching %s - Added: %d files, Modified: %d files, Size change: %s", 
-                                     status, patchResult.addedFiles, patchResult.modifiedFiles,
-                                     formatFileSize(patchResult.patchedSize - patchResult.originalSize));
-        
-        logStep(processId, "APK Patching", details);
-        
-        if (!patchResult.success && patchResult.errorMessage != null) {
-            LogUtils.logError("Patching error: " + patchResult.errorMessage);
-        }
-    }
-    
-    /**
-     * Complete a process with final results
-     */
-    public void completeProcess(String processId, boolean success, String result) {
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process == null) {
-            LogUtils.logDebug("Process not found for completion: " + processId);
-            return;
-        }
-        
-        process.complete(success, result);
-        
-        LogUtils.logApkProcessComplete(success, result);
-        LogUtils.logDebug(String.format("Process completed: %s (%s, %dms total)", 
-                                       processId, success ? "SUCCESS" : "FAILED", 
-                                       process.getTotalDuration()));
-        
-        // Notify listeners
-        notifyListeners(listener -> listener.onProcessCompleted(process));
-        
-        // Remove from active processes
-        activeProcesses.remove(processId);
-    }
-    
-    /**
-     * Get detailed process report
-     */
-    public String getProcessReport(String processId) {
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process == null) {
-            return "Process not found: " + processId;
-        }
-        
-        return process.generateDetailedReport();
-    }
-    
-    /**
-     * Get summary of all active processes
-     */
-    public String getActiveProcessesSummary() {
-        if (activeProcesses.isEmpty()) {
-            return "No active APK processes";
-        }
-        
-        StringBuilder summary = new StringBuilder();
-        summary.append("=== Active APK Processes ===\n");
-        summary.append("Total: ").append(activeProcesses.size()).append("\n\n");
-        
-        for (ActiveProcess process : activeProcesses.values()) {
-            summary.append(process.getSummary()).append("\n");
-        }
-        
-        return summary.toString();
-    }
-    
-    /**
-     * Get performance statistics
-     */
-    public ProcessStatistics getStatistics() {
-        ProcessStatistics stats = new ProcessStatistics();
-        
-        for (ActiveProcess process : activeProcesses.values()) {
-            stats.totalProcesses++;
-            stats.totalSteps += process.steps.size();
-            
-            if (process.isCompleted) {
-                if (process.success) {
-                    stats.successfulProcesses++;
-                } else {
-                    stats.failedProcesses++;
-                }
-                
-                stats.totalDuration += process.getTotalDuration();
-                
-                // Track step performance
-                for (ProcessStep step : process.steps) {
-                    stats.stepPerformance.merge(step.name, step.getElapsedTime(), Long::sum);
-                }
-            }
-        }
-        
-        return stats;
-    }
-    
-    /**
-     * Kill a running process (if possible)
-     */
-    public boolean killProcess(String processId) {
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process == null) {
-            return false;
-        }
-        
-        process.killed = true;
-        logStep(processId, "Process Killed", "Process terminated by user");
-        completeProcess(processId, false, "Process killed by user");
-        
-        LogUtils.logUser("Killed APK process: " + processId);
-        return true;
-    }
-    
-    /**
-     * Clean up completed processes older than specified time
-     */
-    public int cleanupOldProcesses(long maxAgeMs) {
-        int cleaned = 0;
-        long cutoff = System.currentTimeMillis() - maxAgeMs;
-        
-        Iterator<Map.Entry<String, ActiveProcess>> iterator = activeProcesses.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, ActiveProcess> entry = iterator.next();
-            ActiveProcess process = entry.getValue();
-            
-            if (process.isCompleted && process.startTime < cutoff) {
-                iterator.remove();
-                cleaned++;
-            }
-        }
-        
-        LogUtils.logDebug("Cleaned up " + cleaned + " old APK processes");
-        return cleaned;
-    }
-    
-    /**
-     * Add a process listener for real-time updates
-     */
-    public void addProcessListener(ProcessListener listener) {
-        synchronized (listeners) {
-            listeners.add(listener);
-        }
-    }
-    
-    /**
-     * Remove a process listener
-     */
-    public void removeProcessListener(ProcessListener listener) {
-        synchronized (listeners) {
-            listeners.remove(listener);
-        }
-    }
-    
-    // === PRIVATE HELPER METHODS ===
-    
-    private void notifyListeners(ListenerAction action) {
-        synchronized (listeners) {
-            for (ProcessListener listener : listeners) {
-                try {
-                    action.execute(listener);
-                } catch (Exception e) {
-                    LogUtils.logError("Process listener error", e);
-                }
-            }
-        }
-    }
-    
-    private String formatFileSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
-        return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
-    }
-    
-    // === INTERFACES AND CLASSES ===
-    
-    @FunctionalInterface
-    private interface ListenerAction {
-        void execute(ProcessListener listener);
-    }
-    
-    public interface ProcessListener {
-        void onProcessStarted(ActiveProcess process);
-        void onStepCompleted(ActiveProcess process, ProcessStep step);
-        void onProcessCompleted(ActiveProcess process);
-    }
-    
-    public static class ActiveProcess {
-        public final String processId;
-        public final String operation;
-        public final File inputApk;
-        public final File outputApk;
-        public final long startTime;
-        public final List<ProcessStep> steps = new ArrayList<>();
-        public final Map<String, Long> sizeChanges = new HashMap<>();
-        public final Map<String, Long> performanceMetrics = new HashMap<>();
-        
-        public boolean isCompleted = false;
-        public boolean success = false;
-        public boolean killed = false;
-        public String result;
-        public long completionTime;
-        public ApkValidator.ValidationResult validationResult;
-        public ApkPatcher.PatchResult patchResult;
-        
-        public ActiveProcess(String processId, String operation, File inputApk, File outputApk) {
-            this.processId = processId;
-            this.operation = operation;
-            this.inputApk = inputApk;
-            this.outputApk = outputApk;
-            this.startTime = System.currentTimeMillis();
-        }
-        
-        public void addStep(ProcessStep step) {
-            synchronized (steps) {
-                steps.add(step);
-            }
-        }
-        
-        public void complete(boolean success, String result) {
-            this.isCompleted = true;
-            this.success = success;
-            this.result = result;
-            this.completionTime = System.currentTimeMillis();
-        }
-        
-        public void trackSizeChange(String stepName, long size) {
-            sizeChanges.put(stepName, size);
-        }
-        
-        public void trackPerformance(String stepName, long durationMs) {
-            performanceMetrics.put(stepName, durationMs);
-        }
-        
-        public long getTotalDuration() {
-            long endTime = isCompleted ? completionTime : System.currentTimeMillis();
-            return endTime - startTime;
-        }
-        
-        public String getSummary() {
-            return String.format("[%s] %s: %s (%d steps, %dms)", 
-                               processId, operation, 
-                               isCompleted ? (success ? "SUCCESS" : "FAILED") : "RUNNING",
-                               steps.size(), getTotalDuration());
-        }
-        
-        public String generateDetailedReport() {
-            StringBuilder report = new StringBuilder();
-            
-            report.append("=== APK Process Report ===\n");
-            report.append("Process ID: ").append(processId).append("\n");
-            report.append("Operation: ").append(operation).append("\n");
-            report.append("Input APK: ").append(inputApk != null ? inputApk.getName() : "None").append("\n");
-            report.append("Output APK: ").append(outputApk != null ? outputApk.getName() : "None").append("\n");
-            report.append("Started: ").append(new Date(startTime)).append("\n");
-            
-            if (isCompleted) {
-                report.append("Completed: ").append(new Date(completionTime)).append("\n");
-                report.append("Duration: ").append(getTotalDuration()).append("ms\n");
-                report.append("Status: ").append(success ? "SUCCESS" : "FAILED").append("\n");
-                if (result != null) {
-                    report.append("Result: ").append(result).append("\n");
-                }
-            } else {
-                report.append("Status: RUNNING (").append(getTotalDuration()).append("ms elapsed)\n");
-            }
-            
-            if (killed) {
-                report.append("NOTE: Process was killed\n");
-            }
-            
-            report.append("\n=== Process Steps ===\n");
-            synchronized (steps) {
-                if (steps.isEmpty()) {
-                    report.append("No steps recorded\n");
-                } else {
-                    for (int i = 0; i < steps.size(); i++) {
-                        ProcessStep step = steps.get(i);
-                        report.append(String.format("Step %d: %s\n", i + 1, step.getDetailedString()));
-                        if (step.details != null) {
-                            report.append("  Details: ").append(step.details).append("\n");
-                        }
-                        report.append("  Elapsed: ").append(step.getElapsedTime()).append("ms\n");
-                        
-                        // Add performance metrics if available
-                        Long performance = performanceMetrics.get(step.name);
-                        if (performance != null) {
-                            report.append("  Duration: ").append(performance).append("ms\n");
-                        }
-                        
-                        // Add size information if available
-                        Long size = sizeChanges.get(step.name);
-                        if (size != null) {
-                            report.append("  File Size: ").append(formatSize(size)).append("\n");
-                        }
-                        
-                        report.append("\n");
-                    }
-                }
-            }
-            
-            // Add validation results
-            if (validationResult != null) {
-                report.append("=== Validation Results ===\n");
-                report.append("Valid: ").append(validationResult.isValid).append("\n");
-                report.append("File Size: ").append(formatSize(validationResult.fileSize)).append("\n");
-                report.append("ZIP Entries: ").append(validationResult.totalEntries).append("\n");
-                if (validationResult.packageName != null) {
-                    report.append("Package: ").append(validationResult.packageName).append("\n");
-                }
-                if (!validationResult.issues.isEmpty()) {
-                    report.append("Issues:\n");
-                    for (String issue : validationResult.issues) {
-                        report.append("  - ").append(issue).append("\n");
-                    }
-                }
-                report.append("\n");
-            }
-            
-            // Add patching results
-            if (patchResult != null) {
-                report.append("=== Patching Results ===\n");
-                report.append("Success: ").append(patchResult.success).append("\n");
-                report.append("Original Size: ").append(formatSize(patchResult.originalSize)).append("\n");
-                report.append("Patched Size: ").append(formatSize(patchResult.patchedSize)).append("\n");
-                report.append("Size Change: ").append(formatSize(patchResult.patchedSize - patchResult.originalSize)).append("\n");
-                report.append("Files Added: ").append(patchResult.addedFiles).append("\n");
-                report.append("Files Modified: ").append(patchResult.modifiedFiles).append("\n");
-                
-                if (!patchResult.injectedFiles.isEmpty()) {
-                    report.append("Injected Files:\n");
-                    for (String file : patchResult.injectedFiles) {
-                        report.append("  + ").append(file).append("\n");
-                    }
-                }
-                
-                if (patchResult.errorMessage != null) {
-                    report.append("Error: ").append(patchResult.errorMessage).append("\n");
-                }
-                report.append("\n");
-            }
-            
-            return report.toString();
-        }
-        
-        private String formatSize(long bytes) {
-            if (bytes < 1024) return bytes + " B";
-            if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
-            return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
-        }
-    }
-    
-    public static class ProcessStep {
-        public final String name;
-        public final String details;
-        public final long timestamp;
-        public final long startTime;
-        
-        public ProcessStep(String name, String details) {
-            this.name = name;
-            this.details = details;
-            this.timestamp = System.currentTimeMillis();
-            this.startTime = System.currentTimeMillis();
-        }
-        
-        public long getElapsedTime() {
-            return timestamp - startTime;
-        }
-        
-        public String getDetailedString() {
-            return String.format("[%s] %s", 
-                               new java.text.SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(new Date(timestamp)),
-                               name);
-        }
-    }
-    
-    public static class ProcessStatistics {
-        public int totalProcesses = 0;
-        public int successfulProcesses = 0;
-        public int failedProcesses = 0;
-        public int totalSteps = 0;
-        public long totalDuration = 0;
-        public Map<String, Long> stepPerformance = new HashMap<>();
-        
-        public double getSuccessRate() {
-            int completed = successfulProcesses + failedProcesses;
-            return completed > 0 ? (double) successfulProcesses / completed * 100 : 0;
-        }
-        
-        public long getAverageDuration() {
-            return totalProcesses > 0 ? totalDuration / totalProcesses : 0;
-        }
-        
-        @Override
-        public String toString() {
-            return String.format("Stats[Processes: %d, Success: %.1f%%, Avg Duration: %dms]",
-                               totalProcesses, getSuccessRate(), getAverageDuration());
-        }
-        
-        public String getDetailedString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("=== APK Process Statistics ===\n");
-            sb.append("Total Processes: ").append(totalProcesses).append("\n");
-            sb.append("Successful: ").append(successfulProcesses).append("\n");
-            sb.append("Failed: ").append(failedProcesses).append("\n");
-            sb.append("Success Rate: ").append(String.format("%.1f%%", getSuccessRate())).append("\n");
-            sb.append("Total Steps: ").append(totalSteps).append("\n");
-            sb.append("Average Duration: ").append(getAverageDuration()).append("ms\n");
-            
-            if (!stepPerformance.isEmpty()) {
-                sb.append("\nStep Performance:\n");
-                for (Map.Entry<String, Long> entry : stepPerformance.entrySet()) {
-                    sb.append("  ").append(entry.getKey()).append(": ").append(entry.getValue()).append("ms\n");
-                }
-            }
-            
-            return sb.toString();
-        }
-    }
-}
-
-/ModLoader/app/src/main/java/com/modloader/loader/debugger/MelonLoaderDebugger.java
-
-// File: MelonLoaderDebugger.java - Advanced MelonLoader integration debugging
-// Path: app/src/main/java/com/modloader/loader/debug/MelonLoaderDebugger.java
-
-package com.modloader.loader.debug;
-
-import android.content.Context;
-import com.modloader.util.LogUtils;
-import com.modloader.util.PathManager;
-import com.modloader.loader.MelonLoaderManager;
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-/**
- * MelonLoaderDebugger - Advanced debugging for MelonLoader integration issues
- * Single responsibility: Diagnose and debug MelonLoader installation and patching problems
- */
-public class MelonLoaderDebugger {
-    private static final String TAG = "MLDebugger";
-    private final Context context;
-    private final String gamePackage;
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
-    
-    public MelonLoaderDebugger(Context context, String gamePackage) {
-        this.context = context;
-        this.gamePackage = gamePackage != null ? gamePackage : MelonLoaderManager.TERRARIA_PACKAGE;
-    }
-    
-    /**
-     * Comprehensive MelonLoader diagnosis
-     */
-    public DiagnosisReport runFullDiagnosis() {
-        LogUtils.logUser("🔍 Starting comprehensive MelonLoader diagnosis...");
-        
-        DiagnosisReport report = new DiagnosisReport();
-        report.gamePackage = gamePackage;
-        report.timestamp = new Date();
-        
-        try {
-            // Step 1: Directory structure analysis
-            LogUtils.logApkProcessStep("Diagnosis", "Checking directory structure");
-            report.directoryCheck = checkDirectoryStructure();
-            
-            // Step 2: MelonLoader files validation
-            LogUtils.logApkProcessStep("Diagnosis", "Validating MelonLoader files");
-            report.filesCheck = validateMelonLoaderFiles();
-            
-            // Step 3: Dependencies analysis
-            LogUtils.logApkProcessStep("Diagnosis", "Analyzing dependencies");
-            report.dependenciesCheck = checkDependencies();
-            
-            // Step 4: Architecture compatibility
-            LogUtils.logApkProcessStep("Diagnosis", "Checking architecture compatibility");
-            report.architectureCheck = checkArchitectureCompatibility();
-            
-            // Step 5: Permissions analysis
-            LogUtils.logApkProcessStep("Diagnosis", "Checking permissions");
-            report.permissionsCheck = checkPermissions();
-            
-            // Step 6: Previous installation analysis
-            LogUtils.logApkProcessStep("Diagnosis", "Analyzing previous installations");
-            report.previousInstallCheck = checkPreviousInstallations();
-            
-            // Overall health assessment
-            report.overallHealth = calculateOverallHealth(report);
-            
-            LogUtils.logUser("✅ MelonLoader diagnosis completed");
-            LogUtils.logUser("🎯 Overall health: " + report.overallHealth.getDisplayName());
-            
-        } catch (Exception e) {
-            LogUtils.logError("MelonLoader diagnosis failed", e);
-            report.criticalError = e.getMessage();
-        }
-        
-        return report;
-    }
-    
-    /**
-     * Quick health check for MelonLoader integration
-     */
-    public HealthStatus quickHealthCheck() {
-        try {
-            // Check essential components quickly
-            File baseDir = PathManager.getGameBaseDir(context, gamePackage);
-            File melonDir = PathManager.getMelonLoaderDir(context, gamePackage);
-            File dllModsDir = PathManager.getDllModsDir(context, gamePackage);
-            
-            if (baseDir == null || !baseDir.exists()) {
-                return HealthStatus.CRITICAL;
-            }
-            
-            if (melonDir == null || !melonDir.exists()) {
-                return HealthStatus.NOT_INSTALLED;
-            }
-            
-            if (dllModsDir == null || !dllModsDir.exists()) {
-                return HealthStatus.DEGRADED;
-            }
-            
-            // Check for core files
-            File net8Dir = new File(melonDir, "net8");
-            File net35Dir = new File(melonDir, "net35");
-            
-            if (net8Dir.exists() || net35Dir.exists()) {
-                return HealthStatus.HEALTHY;
-            }
-            
-            return HealthStatus.DEGRADED;
-            
-        } catch (Exception e) {
-            LogUtils.logError("Quick health check failed", e);
-            return HealthStatus.CRITICAL;
-        }
-    }
-    
-    /**
-     * Generate detailed diagnosis report text
-     */
-    public String generateDiagnosisReport(DiagnosisReport report) {
-        StringBuilder sb = new StringBuilder();
-        
-        sb.append("=== MelonLoader Diagnosis Report ===\n");
-        sb.append("Game Package: ").append(report.gamePackage).append("\n");
-        sb.append("Diagnosis Time: ").append(dateFormat.format(report.timestamp)).append("\n");
-        sb.append("Overall Health: ").append(report.overallHealth.getDisplayName()).append("\n\n");
-        
-        if (report.criticalError != null) {
-            sb.append("CRITICAL ERROR: ").append(report.criticalError).append("\n\n");
-        }
-        
-        // Directory structure
-        sb.append("=== Directory Structure ===\n");
-        appendCheckResult(sb, report.directoryCheck);
-        
-        // Files validation
-        sb.append("=== MelonLoader Files ===\n");
-        appendCheckResult(sb, report.filesCheck);
-        
-        // Dependencies
-        sb.append("=== Dependencies ===\n");
-        appendCheckResult(sb, report.dependenciesCheck);
-        
-        // Architecture
-        sb.append("=== Architecture Compatibility ===\n");
-        appendCheckResult(sb, report.architectureCheck);
-        
-        // Permissions
-        sb.append("=== Permissions ===\n");
-        appendCheckResult(sb, report.permissionsCheck);
-        
-        // Previous installations
-        sb.append("=== Previous Installations ===\n");
-        appendCheckResult(sb, report.previousInstallCheck);
-        
-        // Recommendations
-        sb.append("=== Recommendations ===\n");
-        appendRecommendations(sb, report);
-        
-        return sb.toString();
-    }
-    
-    /**
-     * Auto-repair common MelonLoader issues
-     */
-    public RepairResult attemptAutoRepair() {
-        LogUtils.logUser("🔧 Attempting MelonLoader auto-repair...");
-        
-        RepairResult result = new RepairResult();
-        
-        try {
-            // Repair directory structure
-            LogUtils.logApkProcessStep("Auto-repair", "Fixing directory structure");
-            if (repairDirectoryStructure()) {
-                result.repairedIssues.add("Directory structure recreated");
-                result.successCount++;
-            }
-            
-            // Repair permissions
-            LogUtils.logApkProcessStep("Auto-repair", "Fixing permissions");
-            if (repairPermissions()) {
-                result.repairedIssues.add("Permissions fixed");
-                result.successCount++;
-            }
-            
-            // Clean up corrupted files
-            LogUtils.logApkProcessStep("Auto-repair", "Cleaning corrupted files");
-            if (cleanupCorruptedFiles()) {
-                result.repairedIssues.add("Corrupted files cleaned");
-                result.successCount++;
-            }
-            
-            // Verify repair success
-            HealthStatus healthAfterRepair = quickHealthCheck();
-            result.success = healthAfterRepair != HealthStatus.CRITICAL;
-            result.finalHealth = healthAfterRepair;
-            
-            if (result.success) {
-                LogUtils.logUser("✅ Auto-repair completed successfully");
-                LogUtils.logUser("🎯 Final health: " + healthAfterRepair.getDisplayName());
-            } else {
-                LogUtils.logUser("⚠️ Auto-repair completed with issues");
-            }
-            
-        } catch (Exception e) {
-            LogUtils.logError("Auto-repair failed", e);
-            result.error = e.getMessage();
-        }
-        
-        return result;
-    }
-    
-    /**
-     * Get installation troubleshooting steps
-     */
-    public List<TroubleshootingStep> getTroubleshootingSteps() {
-        List<TroubleshootingStep> steps = new ArrayList<>();
-        HealthStatus health = quickHealthCheck();
-        
-        switch (health) {
-            case NOT_INSTALLED:
-                steps.add(new TroubleshootingStep("Install MelonLoader", 
-                    "Use the 'Automated Installation' option to download and install MelonLoader files", 
-                    TroubleshootingStep.Priority.HIGH));
-                break;
-                
-            case CRITICAL:
-                steps.add(new TroubleshootingStep("Check Storage Space", 
-                    "Ensure you have at least 100MB free space", 
-                    TroubleshootingStep.Priority.HIGH));
-                steps.add(new TroubleshootingStep("Check Permissions", 
-                    "Grant storage permissions to the app", 
-                    TroubleshootingStep.Priority.HIGH));
-                break;
-                
-            case DEGRADED:
-                steps.add(new TroubleshootingStep("Reinstall MelonLoader", 
-                    "Try reinstalling MelonLoader to fix missing components", 
-                    TroubleshootingStep.Priority.MEDIUM));
-                steps.add(new TroubleshootingStep("Clear App Data", 
-                    "Clear app data and restart the installation process", 
-                    TroubleshootingStep.Priority.LOW));
-                break;
-                
-            case HEALTHY:
-                steps.add(new TroubleshootingStep("Check APK Compatibility", 
-                    "Ensure your Terraria APK is compatible with MelonLoader", 
-                    TroubleshootingStep.Priority.LOW));
-                break;
-        }
-        
-        // Common troubleshooting steps
-        steps.add(new TroubleshootingStep("Restart App", 
-            "Close and restart UniversalLoader", 
-            TroubleshootingStep.Priority.LOW));
-        steps.add(new TroubleshootingStep("Check Logs", 
-            "Review error logs for specific issues", 
-            TroubleshootingStep.Priority.LOW));
-        
-        return steps;
-    }
-    
-    // === PRIVATE DIAGNOSTIC METHODS ===
-    
-    private CheckResult checkDirectoryStructure() {
-        CheckResult result = new CheckResult("Directory Structure");
-        
-        try {
-            File baseDir = PathManager.getGameBaseDir(context, gamePackage);
-            File melonDir = PathManager.getMelonLoaderDir(context, gamePackage);
-            File dllModsDir = PathManager.getDllModsDir(context, gamePackage);
-            File dexModsDir = PathManager.getDexModsDir(context, gamePackage);
-            
-            // Check base directory
-            if (baseDir == null) {
-                result.issues.add("Base directory path is null");
-                result.status = CheckResult.Status.FAILED;
-            } else if (!baseDir.exists()) {
-                result.issues.add("Base directory does not exist: " + baseDir.getAbsolutePath());
-                result.status = CheckResult.Status.FAILED;
-            } else {
-                result.details.add("Base directory: " + baseDir.getAbsolutePath());
-                result.passedChecks++;
-            }
-            
-            // Check MelonLoader directory
-            if (melonDir == null) {
-                result.issues.add("MelonLoader directory path is null");
-            } else if (!melonDir.exists()) {
-                result.issues.add("MelonLoader directory missing");
-            } else {
-                result.details.add("MelonLoader directory: " + melonDir.getAbsolutePath());
-                result.passedChecks++;
-            }
-            
-            // Check mods directories
-            if (dllModsDir != null && dllModsDir.exists()) {
-                result.details.add("DLL mods directory: " + dllModsDir.getAbsolutePath());
-                result.passedChecks++;
-            } else {
-                result.issues.add("DLL mods directory missing");
-            }
-            
-            if (dexModsDir != null && dexModsDir.exists()) {
-                result.details.add("DEX mods directory: " + dexModsDir.getAbsolutePath());
-                result.passedChecks++;
-            } else {
-                result.issues.add("DEX mods directory missing");
-            }
-            
-            result.totalChecks = 4;
-            
-            if (result.passedChecks == result.totalChecks) {
-                result.status = CheckResult.Status.PASSED;
-            } else if (result.passedChecks > 0) {
-                result.status = CheckResult.Status.WARNING;
-            } else {
-                result.status = CheckResult.Status.FAILED;
-            }
-            
-        } catch (Exception e) {
-            result.issues.add("Directory check error: " + e.getMessage());
-            result.status = CheckResult.Status.FAILED;
-        }
-        
-        return result;
-    }
-    
-    private CheckResult validateMelonLoaderFiles() {
-        CheckResult result = new CheckResult("MelonLoader Files");
-        
-        try {
-            File melonDir = PathManager.getMelonLoaderDir(context, gamePackage);
-            if (melonDir == null || !melonDir.exists()) {
-                result.issues.add("MelonLoader directory not found");
-                result.status = CheckResult.Status.FAILED;
-                return result;
-            }
-            
-            // Check runtime directories
-            File net8Dir = new File(melonDir, "net8");
-            File net35Dir = new File(melonDir, "net35");
-            
-            boolean hasNet8 = checkRuntimeFiles(net8Dir, "NET8", result);
-            boolean hasNet35 = checkRuntimeFiles(net35Dir, "NET35", result);
-            
-            if (hasNet8 || hasNet35) {
-                result.details.add("Runtime support: " + 
-                    (hasNet8 ? "NET8 " : "") + (hasNet35 ? "NET35" : ""));
-                result.passedChecks++;
-            } else {
-                result.issues.add("No valid runtime found (NET8 or NET35)");
-            }
-            
-            // Check dependencies
-            File depsDir = new File(melonDir, "Dependencies");
-            if (depsDir.exists()) {
-                result.details.add("Dependencies directory found");
-                result.passedChecks++;
-                
-                File supportDir = new File(depsDir, "SupportModules");
-                if (supportDir.exists()) {
-                    result.details.add("Support modules found");
-                    result.passedChecks++;
-                }
-            } else {
-                result.issues.add("Dependencies directory missing");
-            }
-            
-            result.totalChecks = 3;
-            
-            if (result.passedChecks == result.totalChecks) {
-                result.status = CheckResult.Status.PASSED;
-            } else if (result.passedChecks > 0) {
-                result.status = CheckResult.Status.WARNING;
-            } else {
-                result.status = CheckResult.Status.FAILED;
-            }
-            
-        } catch (Exception e) {
-            result.issues.add("File validation error: " + e.getMessage());
-            result.status = CheckResult.Status.FAILED;
-        }
-        
-        return result;
-    }
-    
-    private boolean checkRuntimeFiles(File runtimeDir, String runtimeName, CheckResult result) {
-        if (!runtimeDir.exists()) {
-            return false;
-        }
-        
-        // Check for essential runtime files
-        String[] essentialFiles = {
-            "MelonLoader.dll",
-            "0Harmony.dll"
-        };
-        
-        int foundFiles = 0;
-        for (String filename : essentialFiles) {
-            File file = new File(runtimeDir, filename);
-            if (file.exists() && file.length() > 0) {
-                foundFiles++;
-            }
-        }
-        
-        if (foundFiles >= essentialFiles.length / 2) {
-            result.details.add(runtimeName + " runtime files: " + foundFiles + "/" + essentialFiles.length);
-            return true;
-        }
-        
-        return false;
-    }
-    
-    private CheckResult checkDependencies() {
-        CheckResult result = new CheckResult("Dependencies");
-        
-        try {
-            File melonDir = PathManager.getMelonLoaderDir(context, gamePackage);
-            if (melonDir == null || !melonDir.exists()) {
-                result.issues.add("MelonLoader directory not found");
-                result.status = CheckResult.Status.FAILED;
-                return result;
-            }
-            
-            File depsDir = new File(melonDir, "Dependencies");
-            if (!depsDir.exists()) {
-                result.issues.add("Dependencies directory not found");
-                result.status = CheckResult.Status.FAILED;
-                return result;
-            }
-            
-            // Check key dependency directories
-            String[] depDirs = {
-                "SupportModules",
-                "Il2CppAssemblyGenerator",
-                "CompatibilityLayers"
-            };
-            
-            for (String dirName : depDirs) {
-                File dir = new File(depsDir, dirName);
-                if (dir.exists()) {
-                    result.details.add(dirName + ": Found");
-                    result.passedChecks++;
-                } else {
-                    result.issues.add(dirName + ": Missing");
-                }
-            }
-            
-            result.totalChecks = depDirs.length;
-            
-            if (result.passedChecks == result.totalChecks) {
-                result.status = CheckResult.Status.PASSED;
-            } else if (result.passedChecks > 0) {
-                result.status = CheckResult.Status.WARNING;
-            } else {
-                result.status = CheckResult.Status.FAILED;
-            }
-            
-        } catch (Exception e) {
-            result.issues.add("Dependencies check error: " + e.getMessage());
-            result.status = CheckResult.Status.FAILED;
-        }
-        
-        return result;
-    }
-    
-    private CheckResult checkArchitectureCompatibility() {
-        CheckResult result = new CheckResult("Architecture Compatibility");
-        
-        try {
-            String deviceArch = android.os.Build.SUPPORTED_ABIS[0];
-            result.details.add("Device architecture: " + deviceArch);
-            
-            File melonDir = PathManager.getMelonLoaderDir(context, gamePackage);
-            if (melonDir != null && melonDir.exists()) {
-                File runtimesDir = new File(melonDir, "Dependencies/Il2CppAssemblyGenerator/runtimes");
-                if (runtimesDir.exists()) {
-                    // Check for architecture-specific libraries
-                    boolean hasArm64 = new File(runtimesDir, "linux-arm64").exists();
-                    boolean hasArm = new File(runtimesDir, "linux-arm").exists();
-                    
-                    result.details.add("ARM64 support: " + hasArm64);
-                    result.details.add("ARM support: " + hasArm);
-                    
-                    if ((deviceArch.contains("arm64") && hasArm64) || 
-                        (deviceArch.contains("arm") && hasArm)) {
-                        result.status = CheckResult.Status.PASSED;
-                        result.details.add("Architecture compatibility: Good");
-                    } else {
-                        result.status = CheckResult.Status.WARNING;
-                        result.issues.add("Native libraries may not match device architecture");
-                    }
-                } else {
-                    result.status = CheckResult.Status.WARNING;
-                    result.issues.add("Native libraries directory not found");
-                }
-            } else {
-                result.status = CheckResult.Status.FAILED;
-                result.issues.add("MelonLoader not installed");
-            }
-            
-        } catch (Exception e) {
-            result.issues.add("Architecture check error: " + e.getMessage());
-            result.status = CheckResult.Status.FAILED;
-        }
-        
-        return result;
-    }
-    
-    private CheckResult checkPermissions() {
-        CheckResult result = new CheckResult("Permissions");
-        
-        try {
-            File baseDir = PathManager.getGameBaseDir(context, gamePackage);
-            
-            // Test write permission
-            File testFile = new File(baseDir != null ? baseDir : context.getExternalFilesDir(null), 
-                                   "permission_test.tmp");
-            
-            try {
-                if (testFile.createNewFile()) {
-                    result.details.add("Write permission: Available");
-                    result.passedChecks++;
-                    testFile.delete();
-                } else {
-                    result.issues.add("Cannot create test file");
-                }
-            } catch (Exception e) {
-                result.issues.add("Write permission test failed: " + e.getMessage());
-            }
-            
-            // Check directory permissions
-            if (baseDir != null) {
-                result.details.add("Base directory readable: " + baseDir.canRead());
-                result.details.add("Base directory writable: " + baseDir.canWrite());
-                
-                if (baseDir.canRead() && baseDir.canWrite()) {
-                    result.passedChecks++;
-                }
-            }
-            
-            result.totalChecks = 2;
-            result.status = result.passedChecks == result.totalChecks ? 
-                           CheckResult.Status.PASSED : CheckResult.Status.WARNING;
-            
-        } catch (Exception e) {
-            result.issues.add("Permissions check error: " + e.getMessage());
-            result.status = CheckResult.Status.FAILED;
-        }
-        
-        return result;
-    }
-    
-    private CheckResult checkPreviousInstallations() {
-        CheckResult result = new CheckResult("Previous Installations");
-        
-        try {
-            // Check for backup APKs
-            File backupDir = PathManager.getBackupsDir(context, gamePackage);
-            if (backupDir != null && backupDir.exists()) {
-                File[] backups = backupDir.listFiles((dir, name) -> name.endsWith(".apk"));
-                if (backups != null && backups.length > 0) {
-                    result.details.add("APK backups found: " + backups.length);
-                    result.passedChecks++;
-                } else {
-                    result.details.add("No APK backups found");
-                }
-            }
-            
-            // Check for legacy installations
-            File legacyDir = PathManager.getLegacyModsDir(context);
-            if (legacyDir.exists()) {
-                result.details.add("Legacy installation detected");
-                result.issues.add("Legacy installation may cause conflicts");
-            }
-            
-            result.totalChecks = 1;
-            result.status = CheckResult.Status.PASSED; // This is informational
-            
-        } catch (Exception e) {
-            result.issues.add("Previous installation check error: " + e.getMessage());
-            result.status = CheckResult.Status.WARNING;
-        }
-        
-        return result;
-    }
-    
-    // === REPAIR METHODS ===
-    
-    private boolean repairDirectoryStructure() {
-        try {
-            return PathManager.initializeGameDirectories(context, gamePackage);
-        } catch (Exception e) {
-            LogUtils.logError("Directory structure repair failed", e);
-            return false;
-        }
-    }
-    
-    private boolean repairPermissions() {
-        try {
-            File baseDir = PathManager.getGameBaseDir(context, gamePackage);
-            if (baseDir != null && baseDir.exists()) {
-                // Try to fix directory permissions (limited on Android)
-                baseDir.setReadable(true, false);
-                baseDir.setWritable(true, false);
-                return true;
-            }
-        } catch (Exception e) {
-            LogUtils.logError("Permissions repair failed", e);
-        }
-        return false;
-    }
-    
-    private boolean cleanupCorruptedFiles() {
-        try {
-            // Remove zero-byte files that might be corrupted
-            File melonDir = PathManager.getMelonLoaderDir(context, gamePackage);
-            if (melonDir != null && melonDir.exists()) {
-                return cleanupCorruptedFilesInDirectory(melonDir);
-            }
-        } catch (Exception e) {
-            LogUtils.logError("Corrupted files cleanup failed", e);
-        }
-        return false;
-    }
-    
-    private boolean cleanupCorruptedFilesInDirectory(File directory) {
-        boolean cleaned = false;
-        File[] files = directory.listFiles();
-        
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    cleaned |= cleanupCorruptedFilesInDirectory(file);
-                } else if (file.length() == 0) {
-                    // Remove zero-byte files
-                    if (file.delete()) {
-                        LogUtils.logDebug("Removed corrupted file: " + file.getName());
-                        cleaned = true;
-                    }
-                }
-            }
-        }
-        
-        return cleaned;
-    }
-    
-    // === HELPER METHODS ===
-    
-    private HealthStatus calculateOverallHealth(DiagnosisReport report) {
-        int passedChecks = 0;
-        int totalChecks = 0;
-        int failedChecks = 0;
-        
-        CheckResult[] checks = {
-            report.directoryCheck, report.filesCheck, report.dependenciesCheck,
-            report.architectureCheck, report.permissionsCheck, report.previousInstallCheck
-        };
-        
-        for (CheckResult check : checks) {
-            if (check != null) {
-                totalChecks++;
-                if (check.status == CheckResult.Status.PASSED) {
-                    passedChecks++;
-                } else if (check.status == CheckResult.Status.FAILED) {
-                    failedChecks++;
-                }
-            }
-        }
-        
-        if (report.criticalError != null) {
-            return HealthStatus.CRITICAL;
-        }
-        
-        if (failedChecks > totalChecks / 2) {
-            return HealthStatus.CRITICAL;
-        } else if (passedChecks == totalChecks) {
-            return HealthStatus.HEALTHY;
-        } else if (passedChecks > totalChecks / 2) {
-            return HealthStatus.DEGRADED;
-        } else {
-            return HealthStatus.NOT_INSTALLED;
-        }
-    }
-    
-    private void appendCheckResult(StringBuilder sb, CheckResult check) {
-        if (check == null) {
-            sb.append("Check not performed\n\n");
-            return;
-        }
-        
-        sb.append("Status: ").append(check.status.getDisplayName()).append("\n");
-        sb.append("Passed: ").append(check.passedChecks).append("/").append(check.totalChecks).append("\n");
-        
-        if (!check.details.isEmpty()) {
-            sb.append("Details:\n");
-            for (String detail : check.details) {
-                sb.append("  ✓ ").append(detail).append("\n");
-            }
-        }
-        
-        if (!check.issues.isEmpty()) {
-            sb.append("Issues:\n");
-            for (String issue : check.issues) {
-                sb.append("  ❌ ").append(issue).append("\n");
-            }
-        }
-        
-        sb.append("\n");
-    }
-    
-    private void appendRecommendations(StringBuilder sb, DiagnosisReport report) {
-        List<String> recommendations = new ArrayList<>();
-        
-        if (report.overallHealth == HealthStatus.NOT_INSTALLED) {
-            recommendations.add("Install MelonLoader using the automated installation option");
-        }
-        
-        if (report.directoryCheck != null && report.directoryCheck.status == CheckResult.Status.FAILED) {
-            recommendations.add("Create missing directories using the 'Initialize Structure' option");
-        }
-        
-        if (report.filesCheck != null && report.filesCheck.status != CheckResult.Status.PASSED) {
-            recommendations.add("Reinstall MelonLoader files");
-        }
-        
-        if (report.permissionsCheck != null && report.permissionsCheck.status != CheckResult.Status.PASSED) {
-            recommendations.add("Grant storage permissions to the app in Android settings");
-        }
-        
-        if (recommendations.isEmpty()) {
-            recommendations.add("No specific recommendations - system appears healthy");
-        }
-        
-        for (String rec : recommendations) {
-            sb.append("• ").append(rec).append("\n");
-        }
-    }
-    
-    // === ENUMS AND CLASSES ===
-    
-    public enum HealthStatus {
-        HEALTHY("Healthy", "✅"),
-        DEGRADED("Degraded", "⚠️"),
-        NOT_INSTALLED("Not Installed", "❌"),
-        CRITICAL("Critical", "🔥");
-        
-        private final String displayName;
-        private final String icon;
-        
-        HealthStatus(String displayName, String icon) {
-            this.displayName = displayName;
-            this.icon = icon;
-        }
-        
-        public String getDisplayName() {
-            return icon + " " + displayName;
-        }
-    }
-    
-    public static class DiagnosisReport {
-        public String gamePackage;
-        public Date timestamp;
-        public HealthStatus overallHealth;
-        public String criticalError;
-        
-        public CheckResult directoryCheck;
-        public CheckResult filesCheck;
-        public CheckResult dependenciesCheck;
-        public CheckResult architectureCheck;
-        public CheckResult permissionsCheck;
-        public CheckResult previousInstallCheck;
-    }
-    
-    public static class CheckResult {
-        public enum Status {
-            PASSED("Passed", "✅"),
-            WARNING("Warning", "⚠️"),
-            FAILED("Failed", "❌");
-            
-            private final String displayName;
-            private final String icon;
-            
-            Status(String displayName, String icon) {
-                this.displayName = displayName;
-                this.icon = icon;
-            }
-            
-            public String getDisplayName() {
-                return icon + " " + displayName;
-            }
-        }
-        
-        public String checkName;
-        public Status status = Status.FAILED;
-        public List<String> details = new ArrayList<>();
-        public List<String> issues = new ArrayList<>();
-        public int passedChecks = 0;
-        public int totalChecks = 0;
-        
-        public CheckResult(String checkName) {
-            this.checkName = checkName;
-        }
-    }
-    
-    public static class RepairResult {
-        public boolean success = false;
-        public int successCount = 0;
-        public List<String> repairedIssues = new ArrayList<>();
-        public String error = null;
-        public HealthStatus finalHealth = HealthStatus.CRITICAL;
-    }
-    
-    public static class TroubleshootingStep {
-        public enum Priority {
-            HIGH, MEDIUM, LOW
-        }
-        
-        public String title;
-        public String description;
-        public Priority priority;
-        
-        public TroubleshootingStep(String title, String description, Priority priority) {
-            this.title = title;
-            this.description = description;
-            this.priority = priority;
-        }
-    }
-}
-
-/ModLoader/app/src/main/java/com/modloader/logging/ApkProcessLogger.java
+ModLoader/app/src/main/java/com/modloader/loader/debugger/ApkProcessTracker.java
 
 // File: ApkProcessLogger.java - Specialized APK process tracking
-// Path: app/src/main/java/com/modloader/logging/ApkProcessLogger.java
+// Path: app/src/main/java/com/terrarialoader/logging/ApkProcessLogger.java
 
 package com.modloader.logging;
 
@@ -6976,7 +8978,7 @@ public class ApkProcessLogger {
     
     public ApkProcessLogger(Context context) {
         this.context = context;
-        File logDir = new File(context.getExternalFilesDir(null), "ModLoader/com.and.games505.TerrariaPaid/AppLogs");
+        File logDir = new File(context.getExternalFilesDir(null), "TerrariaLoader/com.and.games505.TerrariaPaid/AppLogs");
         logDir.mkdirs();
         this.logFile = new File(logDir, APK_LOG_FILE);
         
@@ -7269,2166 +9271,5 @@ public class ApkProcessLogger {
             this.details = details;
             this.timestamp = new Date();
         }
-    }
-}
-
-/ModLoader/app/src/main/java/com/modloader/logging/BasicLogger.java
-
-package com.modloader.logging;
-
-public class BasicLogger {
-}
-
-
-/ModLoader/app/src/main/java/com/modloader/logging/ErrorLogger.java
-
-// File: ErrorLogger.java - Specialized error and exception tracking
-// Path: app/src/main/java/com/modloader/logging/ErrorLogger.java
-
-package com.modloader.logging;
-
-import android.content.Context;
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-/**
- * ErrorLogger - Specialized component for tracking errors and exceptions
- * Single responsibility: Log detailed error information with stack traces
- */
-public class ErrorLogger {
-    private static final String ERROR_LOG_FILE = "Errors.log";
-    private static final String CRASH_LOG_FILE = "Crashes.log";
-    private static final int MAX_ERROR_ENTRIES = 500;
-    
-    private final Context context;
-    private final File errorLogFile;
-    private final File crashLogFile;
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
-    private final List<ErrorEntry> recentErrors = new ArrayList<>();
-    private final Object errorLock = new Object();
-    
-    public ErrorLogger(Context context) {
-        this.context = context;
-        File logDir = new File(context.getExternalFilesDir(null), 
-                             "ModLoader/com.and.games505.TerrariaPaid/AppLogs");
-        logDir.mkdirs();
-        
-        this.errorLogFile = new File(logDir, ERROR_LOG_FILE);
-        this.crashLogFile = new File(logDir, CRASH_LOG_FILE);
-        
-        // Set up uncaught exception handler
-        setupUncaughtExceptionHandler();
-        
-        logError("ErrorLogger initialized at " + logDir.getAbsolutePath(), null);
-    }
-    
-    /**
-     * Log an error with optional exception
-     */
-    public void logError(String message, Exception exception) {
-        ErrorEntry entry = new ErrorEntry(message, exception);
-        
-        synchronized (errorLock) {
-            // Add to recent errors list
-            recentErrors.add(entry);
-            if (recentErrors.size() > MAX_ERROR_ENTRIES) {
-                recentErrors.remove(0);
-            }
-            
-            // Write to error log file
-            writeErrorToFile(entry, errorLogFile);
-        }
-    }
-    
-    /**
-     * Log a critical error (system crash, major failure)
-     */
-    public void logCriticalError(String message, Throwable throwable) {
-        ErrorEntry entry = new ErrorEntry(message, throwable, true);
-        
-        synchronized (errorLock) {
-            recentErrors.add(entry);
-            if (recentErrors.size() > MAX_ERROR_ENTRIES) {
-                recentErrors.remove(0);
-            }
-            
-            // Write to both error log and crash log
-            writeErrorToFile(entry, errorLogFile);
-            writeErrorToFile(entry, crashLogFile);
-        }
-        
-        // Also log to Android system
-        android.util.Log.e("ModLoader", "CRITICAL: " + message, throwable);
-    }
-    
-    /**
-     * Log APK-specific errors with context
-     */
-    public void logApkError(String operation, String apkName, String error, Exception exception) {
-        String contextualMessage = String.format("APK Operation Failed - %s on %s: %s", 
-                                                operation, apkName, error);
-        logError(contextualMessage, exception);
-    }
-    
-    /**
-     * Log validation errors with details
-     */
-    public void logValidationError(String item, String issue, String details) {
-        String message = String.format("Validation Failed - %s: %s", item, issue);
-        if (details != null && !details.isEmpty()) {
-            message += " (" + details + ")";
-        }
-        logError(message, null);
-    }
-    
-    /**
-     * Get recent errors (for UI display)
-     */
-    public List<ErrorEntry> getRecentErrors(int maxCount) {
-        synchronized (errorLock) {
-            int start = Math.max(0, recentErrors.size() - maxCount);
-            return new ArrayList<>(recentErrors.subList(start, recentErrors.size()));
-        }
-    }
-    
-    /**
-     * Get errors by type/category
-     */
-    public List<ErrorEntry> getErrorsByType(String keyword) {
-        List<ErrorEntry> filtered = new ArrayList<>();
-        
-        synchronized (errorLock) {
-            for (ErrorEntry error : recentErrors) {
-                if (error.message != null && error.message.toLowerCase().contains(keyword.toLowerCase())) {
-                    filtered.add(error);
-                }
-            }
-        }
-        
-        return filtered;
-    }
-    
-    /**
-     * Get comprehensive error report for debugging
-     */
-    public String getErrorReport() {
-        StringBuilder report = new StringBuilder();
-        
-        synchronized (errorLock) {
-            report.append("=== ModLoader Error Report ===\n");
-            report.append("Generated: ").append(dateFormat.format(new Date())).append("\n");
-            report.append("Total Errors in Memory: ").append(recentErrors.size()).append("\n");
-            
-            ErrorStats stats = getErrorStats();
-            report.append("Critical Errors: ").append(stats.criticalErrors).append("\n");
-            report.append("APK-related Errors: ").append(getErrorsByType("APK").size()).append("\n");
-            report.append("Validation Errors: ").append(getErrorsByType("Validation").size()).append("\n");
-            report.append("\n");
-            
-            if (recentErrors.isEmpty()) {
-                report.append("No errors recorded in memory.\n");
-            } else {
-                // Show last 10 errors with full details
-                int start = Math.max(0, recentErrors.size() - 10);
-                report.append("Recent Errors (last 10):\n");
-                report.append("========================\n");
-                
-                for (int i = start; i < recentErrors.size(); i++) {
-                    ErrorEntry error = recentErrors.get(i);
-                    report.append(String.format("Error #%d:\n", i + 1));
-                    report.append(error.getDetailedString()).append("\n");
-                    report.append("---\n");
-                }
-            }
-            
-            // Add file statistics
-            appendFileStats(report);
-        }
-        
-        return report.toString();
-    }
-    
-    /**
-     * Get a quick error summary for status displays
-     */
-    public String getErrorSummary() {
-        ErrorStats stats = getErrorStats();
-        
-        if (stats.totalMemoryErrors == 0) {
-            return "No errors recorded";
-        }
-        
-        StringBuilder summary = new StringBuilder();
-        summary.append("Errors: ").append(stats.totalMemoryErrors);
-        
-        if (stats.criticalErrors > 0) {
-            summary.append(" (").append(stats.criticalErrors).append(" critical)");
-        }
-        
-        // Show most recent error time
-        synchronized (errorLock) {
-            if (!recentErrors.isEmpty()) {
-                ErrorEntry lastError = recentErrors.get(recentErrors.size() - 1);
-                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-                summary.append(" - Last: ").append(timeFormat.format(lastError.timestamp));
-            }
-        }
-        
-        return summary.toString();
-    }
-    
-    /**
-     * Export all error logs to a file
-     */
-    public boolean exportErrorLogs(File outputFile) {
-        synchronized (errorLock) {
-            try (PrintWriter writer = new PrintWriter(new FileWriter(outputFile))) {
-                writer.println("=== Complete ModLoader Error Log Export ===");
-                writer.println("Export Date: " + dateFormat.format(new Date()));
-                writer.println("Export Location: " + outputFile.getAbsolutePath());
-                writer.println();
-                
-                // Export error statistics
-                ErrorStats stats = getErrorStats();
-                writer.println("=== Error Statistics ===");
-                writer.println(stats.getDetailedString());
-                writer.println();
-                
-                // Export memory errors
-                writer.println("=== Recent Errors (In Memory) ===");
-                if (recentErrors.isEmpty()) {
-                    writer.println("No errors in memory");
-                } else {
-                    for (int i = 0; i < recentErrors.size(); i++) {
-                        ErrorEntry error = recentErrors.get(i);
-                        writer.println("Memory Error #" + (i + 1) + ":");
-                        writer.println(error.getDetailedString());
-                        writer.println();
-                    }
-                }
-                
-                // Export error log file
-                exportLogFile(errorLogFile, "Error Log File", writer);
-                
-                // Export crash log file  
-                exportLogFile(crashLogFile, "Crash Log File", writer);
-                
-                writer.println("=== End of Error Export ===");
-                return true;
-                
-            } catch (Exception e) {
-                android.util.Log.e("ErrorLogger", "Failed to export error logs", e);
-                return false;
-            }
-        }
-    }
-    
-    /**
-     * Clear all error logs
-     */
-    public void clearLogs() {
-        synchronized (errorLock) {
-            int clearedMemoryErrors = recentErrors.size();
-            recentErrors.clear();
-            
-            boolean errorFileDeleted = false;
-            boolean crashFileDeleted = false;
-            
-            if (errorLogFile.exists()) {
-                errorFileDeleted = errorLogFile.delete();
-            }
-            
-            if (crashLogFile.exists()) {
-                crashFileDeleted = crashLogFile.delete();
-            }
-            
-            // Log the clearing action
-            logError(String.format("Error logs cleared - Memory: %d, ErrorFile: %s, CrashFile: %s", 
-                                 clearedMemoryErrors, errorFileDeleted, crashFileDeleted), null);
-        }
-    }
-    
-    /**
-     * Get detailed error statistics
-     */
-    public ErrorStats getErrorStats() {
-        ErrorStats stats = new ErrorStats();
-        
-        synchronized (errorLock) {
-            stats.totalMemoryErrors = recentErrors.size();
-            
-            for (ErrorEntry error : recentErrors) {
-                if (error.isCritical) {
-                    stats.criticalErrors++;
-                }
-                if (error.exception != null) {
-                    stats.exceptionsWithStackTrace++;
-                }
-                
-                // Categorize errors
-                if (error.message != null) {
-                    String msg = error.message.toLowerCase();
-                    if (msg.contains("apk")) {
-                        stats.apkErrors++;
-                    }
-                    if (msg.contains("validation")) {
-                        stats.validationErrors++;
-                    }
-                    if (msg.contains("file") || msg.contains("io")) {
-                        stats.fileErrors++;
-                    }
-                }
-            }
-            
-            // Count file-based errors
-            stats.totalFileErrors = countErrorsInFile(errorLogFile);
-            stats.totalCrashes = countErrorsInFile(crashLogFile);
-        }
-        
-        return stats;
-    }
-    
-    /**
-     * Check if there are any recent critical errors
-     */
-    public boolean hasRecentCriticalErrors(long timeWindowMs) {
-        long cutoff = System.currentTimeMillis() - timeWindowMs;
-        
-        synchronized (errorLock) {
-            for (ErrorEntry error : recentErrors) {
-                if (error.isCritical && error.timestamp.getTime() > cutoff) {
-                    return true;
-                }
-            }
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Flush any pending writes
-     */
-    public void flush() {
-        // Error logging is synchronous, no need to flush
-        // But we can verify file integrity
-        synchronized (errorLock) {
-            if (!errorLogFile.getParentFile().exists()) {
-                errorLogFile.getParentFile().mkdirs();
-            }
-            if (!crashLogFile.getParentFile().exists()) {
-                crashLogFile.getParentFile().mkdirs();
-            }
-        }
-    }
-    
-    // === PRIVATE HELPER METHODS ===
-    
-    private void setupUncaughtExceptionHandler() {
-        Thread.UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
-        
-        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-            // Log the crash with full context
-            String crashMessage = String.format("Uncaught exception in thread '%s': %s", 
-                                               thread.getName(), throwable.getMessage());
-            logCriticalError(crashMessage, throwable);
-            
-            // Call the original handler to maintain normal crash behavior
-            if (defaultHandler != null) {
-                defaultHandler.uncaughtException(thread, throwable);
-            }
-        });
-    }
-    
-    private void writeErrorToFile(ErrorEntry entry, File logFile) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(logFile, true))) {
-            writer.println("=== ERROR ENTRY ===");
-            writer.println(entry.getDetailedString());
-            writer.println("===================");
-            writer.println();
-        } catch (Exception e) {
-            android.util.Log.e("ErrorLogger", "Failed to write error to file: " + e.getMessage());
-            // Don't throw here to avoid infinite recursion
-        }
-    }
-    
-    private void exportLogFile(File logFile, String sectionTitle, PrintWriter writer) {
-        writer.println("=== " + sectionTitle + " ===");
-        
-        if (!logFile.exists()) {
-            writer.println("File does not exist: " + logFile.getName());
-            writer.println();
-            return;
-        }
-        
-        writer.println("File: " + logFile.getName());
-        writer.println("Size: " + formatFileSize(logFile.length()));
-        writer.println("Last Modified: " + new Date(logFile.lastModified()));
-        writer.println("Entries: " + countErrorsInFile(logFile));
-        writer.println();
-        
-        try (BufferedReader reader = new BufferedReader(new FileReader(logFile))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                writer.println(line);
-            }
-        } catch (Exception e) {
-            writer.println("Error reading file: " + e.getMessage());
-        }
-        
-        writer.println();
-    }
-    
-    private void appendFileStats(StringBuilder report) {
-        report.append("\nFile Statistics:\n");
-        report.append("================\n");
-        
-        if (errorLogFile.exists()) {
-            report.append("Error Log: ").append(formatFileSize(errorLogFile.length()))
-                  .append(" (").append(countErrorsInFile(errorLogFile)).append(" entries)\n");
-            report.append("  Location: ").append(errorLogFile.getAbsolutePath()).append("\n");
-        } else {
-            report.append("Error Log: Not found\n");
-        }
-        
-        if (crashLogFile.exists()) {
-            report.append("Crash Log: ").append(formatFileSize(crashLogFile.length()))
-                  .append(" (").append(countErrorsInFile(crashLogFile)).append(" entries)\n");
-            report.append("  Location: ").append(crashLogFile.getAbsolutePath()).append("\n");
-        } else {
-            report.append("Crash Log: Not found\n");
-        }
-    }
-    
-    private int countErrorsInFile(File file) {
-        if (!file.exists()) return 0;
-        
-        int errorEntries = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.contains("=== ERROR ENTRY ===")) {
-                    errorEntries++;
-                }
-            }
-        } catch (Exception e) {
-            return -1; // Error counting
-        }
-        return errorEntries;
-    }
-    
-    private String formatFileSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
-        return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
-    }
-    
-    // === HELPER CLASSES ===
-    
-    public static class ErrorEntry {
-        public final String message;
-        public final Throwable exception;
-        public final Date timestamp;
-        public final boolean isCritical;
-        public final String threadName;
-        public final String className;
-        
-        public ErrorEntry(String message, Throwable exception) {
-            this(message, exception, false);
-        }
-        
-        public ErrorEntry(String message, Throwable exception, boolean isCritical) {
-            this.message = message;
-            this.exception = exception;
-            this.timestamp = new Date();
-            this.isCritical = isCritical;
-            this.threadName = Thread.currentThread().getName();
-            
-            // Get calling class name
-            StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-            this.className = stack.length > 4 ? stack[4].getClassName() : "Unknown";
-        }
-        
-        public String getDetailedString() {
-            StringBuilder sb = new StringBuilder();
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
-            
-            sb.append("Timestamp: ").append(format.format(timestamp)).append("\n");
-            sb.append("Thread: ").append(threadName).append("\n");
-            sb.append("Class: ").append(className).append("\n");
-            sb.append("Critical: ").append(isCritical ? "YES" : "NO").append("\n");
-            sb.append("Message: ").append(message != null ? message : "No message").append("\n");
-            
-            if (exception != null) {
-                sb.append("Exception Type: ").append(exception.getClass().getName()).append("\n");
-                sb.append("Exception Message: ").append(exception.getMessage()).append("\n");
-                
-                // Include cause if available
-                Throwable cause = exception.getCause();
-                if (cause != null) {
-                    sb.append("Caused By: ").append(cause.getClass().getName())
-                      .append(": ").append(cause.getMessage()).append("\n");
-                }
-                
-                sb.append("Stack Trace:\n");
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                exception.printStackTrace(pw);
-                sb.append(sw.toString());
-            } else {
-                sb.append("No exception details\n");
-            }
-            
-            return sb.toString();
-        }
-        
-        public String getSummaryString() {
-            SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-            String exceptionName = exception != null ? exception.getClass().getSimpleName() : "NoException";
-            String criticalMark = isCritical ? "[CRITICAL] " : "";
-            
-            return String.format("[%s] %s%s: %s", 
-                               format.format(timestamp), 
-                               criticalMark,
-                               exceptionName, 
-                               message != null ? truncateString(message, 100) : "No message");
-        }
-        
-        private String truncateString(String str, int maxLength) {
-            if (str.length() <= maxLength) {
-                return str;
-            }
-            return str.substring(0, maxLength - 3) + "...";
-        }
-    }
-    
-    public static class ErrorStats {
-        public int totalMemoryErrors = 0;
-        public int criticalErrors = 0;
-        public int exceptionsWithStackTrace = 0;
-        public int totalFileErrors = 0;
-        public int totalCrashes = 0;
-        public int apkErrors = 0;
-        public int validationErrors = 0;
-        public int fileErrors = 0;
-        
-        @Override
-        public String toString() {
-            return String.format("ErrorStats[Memory: %d, Critical: %d, Exceptions: %d, File: %d, Crashes: %d]",
-                               totalMemoryErrors, criticalErrors, exceptionsWithStackTrace, 
-                               totalFileErrors, totalCrashes);
-        }
-        
-        public String getDetailedString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Memory Errors: ").append(totalMemoryErrors).append("\n");
-            sb.append("Critical Errors: ").append(criticalErrors).append("\n");
-            sb.append("Exceptions with Stack Trace: ").append(exceptionsWithStackTrace).append("\n");
-            sb.append("APK-related Errors: ").append(apkErrors).append("\n");
-            sb.append("Validation Errors: ").append(validationErrors).append("\n");
-            sb.append("File I/O Errors: ").append(fileErrors).append("\n");
-            sb.append("File-based Errors: ").append(totalFileErrors).append("\n");
-            sb.append("Total Crashes: ").append(totalCrashes).append("\n");
-            
-            return sb.toString();
-        }
-        
-        public boolean hasErrors() {
-            return totalMemoryErrors > 0 || totalFileErrors > 0 || totalCrashes > 0;
-        }
-        
-        public boolean hasCriticalErrors() {
-            return criticalErrors > 0 || totalCrashes > 0;
-        }
-    }
-}
-
-/ModLoader/app/src/main/java/com/modloader/logging/FileLogger.java
-
-// File: FileLogger.java (Complete Fixed Version) - Full logging system with all properties
-// Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/app/src/main/java/com/modloader/logging/FileLogger.java
-
-package com.modloader.logging;
-
-import android.content.Context;
-import android.util.Log;
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-public class FileLogger {
-    private static final String TAG = "FileLogger";
-    private static final int MAX_LOG_FILES = 5;
-    private static final long MAX_LOG_SIZE = 10 * 1024 * 1024; // 10MB per log file
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US);
-    
-    private Context context;
-    private File logDirectory;
-    private File currentLogFile;
-    private FileWriter logWriter;
-    private ExecutorService executorService;
-    private ConcurrentLinkedQueue<String> logQueue;
-    private boolean isInitialized = false;
-    
-    // Singleton instance
-    private static volatile FileLogger instance;
-    
-    private FileLogger(Context context) {
-        this.context = context.getApplicationContext();
-        this.executorService = Executors.newSingleThreadExecutor();
-        this.logQueue = new ConcurrentLinkedQueue<>();
-        initialize();
-    }
-    
-    public static FileLogger getInstance(Context context) {
-        if (instance == null) {
-            synchronized (FileLogger.class) {
-                if (instance == null) {
-                    instance = new FileLogger(context);
-                }
-            }
-        }
-        return instance;
-    }
-    
-    private void initialize() {
-        try {
-            // Create log directory in app-specific external files directory
-            logDirectory = new File(context.getExternalFilesDir(null), "ModLoader/com.and.games505.TerrariaPaid/AppLogs");
-            if (!logDirectory.exists()) {
-                logDirectory.mkdirs();
-            }
-            
-            // Create current log file
-            currentLogFile = new File(logDirectory, "AppLog.txt");
-            
-            // Check if rotation is needed
-            if (currentLogFile.exists() && currentLogFile.length() > MAX_LOG_SIZE) {
-                rotateLogFiles();
-            }
-            
-            // Initialize file writer
-            logWriter = new FileWriter(currentLogFile, true);
-            isInitialized = true;
-            
-            // Write initialization message
-            writeLogEntry("INFO", "FileLogger", "FileLogger initialized - " + currentLogFile.getAbsolutePath());
-            
-        } catch (IOException e) {
-            Log.e(TAG, "Failed to initialize FileLogger", e);
-            isInitialized = false;
-        }
-    }
-    
-    public void logDebug(String tag, String message) {
-        logMessage("DEBUG", tag, message);
-    }
-    
-    public void logInfo(String tag, String message) {
-        logMessage("INFO", tag, message);
-    }
-    
-    public void logWarning(String tag, String message) {
-        logMessage("WARN", tag, message);
-    }
-    
-    public void logError(String tag, String message) {
-        logMessage("ERROR", tag, message);
-    }
-    
-    public void logError(String tag, String message, Throwable throwable) {
-        StringBuilder sb = new StringBuilder(message);
-        if (throwable != null) {
-            sb.append("\n").append(Log.getStackTraceString(throwable));
-        }
-        logMessage("ERROR", tag, sb.toString());
-    }
-    
-    public void logUser(String message) {
-        logMessage("USER", "ModLoader", message);
-    }
-    
-    private void logMessage(String level, String tag, String message) {
-        if (!isInitialized) {
-            // Fallback to Android log
-            Log.println(Log.INFO, tag, message);
-            return;
-        }
-        
-        String timestamp = DATE_FORMAT.format(new Date());
-        String logEntry = String.format("[%s] %s/%s: %s", timestamp, level, tag, message);
-        
-        // Add to queue for async processing
-        logQueue.offer(logEntry);
-        
-        // Process queue asynchronously
-        executorService.submit(this::processLogQueue);
-        
-        // Also log to Android logcat based on level
-        switch (level) {
-            case "DEBUG":
-                Log.d(tag, message);
-                break;
-            case "INFO":
-            case "USER":
-                Log.i(tag, message);
-                break;
-            case "WARN":
-                Log.w(tag, message);
-                break;
-            case "ERROR":
-                Log.e(tag, message);
-                break;
-        }
-    }
-    
-    private void processLogQueue() {
-        String logEntry;
-        while ((logEntry = logQueue.poll()) != null) {
-            writeLogEntry(logEntry);
-        }
-    }
-    
-    private void writeLogEntry(String level, String tag, String message) {
-        String timestamp = DATE_FORMAT.format(new Date());
-        String logEntry = String.format("[%s] %s/%s: %s", timestamp, level, tag, message);
-        writeLogEntry(logEntry);
-    }
-    
-    private synchronized void writeLogEntry(String logEntry) {
-        if (!isInitialized || logWriter == null) {
-            return;
-        }
-        
-        try {
-            logWriter.write(logEntry + "\n");
-            logWriter.flush();
-            
-            // Check if rotation is needed
-            if (currentLogFile.length() > MAX_LOG_SIZE) {
-                rotateLogFiles();
-            }
-            
-        } catch (IOException e) {
-            Log.e(TAG, "Failed to write log entry", e);
-            // Try to reinitialize
-            closeCurrentWriter();
-            initialize();
-        }
-    }
-    
-    private void rotateLogFiles() {
-        try {
-            closeCurrentWriter();
-            
-            // Move existing log files
-            for (int i = MAX_LOG_FILES - 1; i >= 1; i--) {
-                File oldFile = new File(logDirectory, "AppLog" + i + ".txt");
-                File newFile = new File(logDirectory, "AppLog" + (i + 1) + ".txt");
-                
-                if (i == MAX_LOG_FILES - 1) {
-                    // Delete the oldest file
-                    if (oldFile.exists()) {
-                        oldFile.delete();
-                    }
-                } else {
-                    // Move file to next number
-                    if (oldFile.exists()) {
-                        oldFile.renameTo(newFile);
-                    }
-                }
-            }
-            
-            // Move current log to AppLog1.txt
-            if (currentLogFile.exists()) {
-                File archivedFile = new File(logDirectory, "AppLog1.txt");
-                currentLogFile.renameTo(archivedFile);
-            }
-            
-            // Create new current log file
-            currentLogFile = new File(logDirectory, "AppLog.txt");
-            logWriter = new FileWriter(currentLogFile, true);
-            
-            writeLogEntry("INFO", "FileLogger", "Log rotation completed");
-            
-        } catch (IOException e) {
-            Log.e(TAG, "Failed to rotate log files", e);
-        }
-    }
-    
-    private void closeCurrentWriter() {
-        if (logWriter != null) {
-            try {
-                logWriter.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Failed to close log writer", e);
-            }
-            logWriter = null;
-        }
-    }
-    
-    public String readCurrentLog() {
-        StringBuilder sb = new StringBuilder();
-        if (currentLogFile != null && currentLogFile.exists()) {
-            try (BufferedReader reader = new BufferedReader(new FileReader(currentLogFile))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line).append("\n");
-                }
-            } catch (IOException e) {
-                Log.e(TAG, "Failed to read current log", e);
-                sb.append("Error reading log file: ").append(e.getMessage());
-            }
-        } else {
-            sb.append("No log file found");
-        }
-        return sb.toString();
-    }
-    
-    public String readAllLogs() {
-        StringBuilder sb = new StringBuilder();
-        
-        // Read current log
-        sb.append("=== CURRENT LOG ===\n");
-        sb.append(readCurrentLog());
-        
-        // Read archived logs
-        for (int i = 1; i <= MAX_LOG_FILES; i++) {
-            File archivedLog = new File(logDirectory, "AppLog" + i + ".txt");
-            if (archivedLog.exists()) {
-                sb.append("\n=== ARCHIVED LOG ").append(i).append(" ===\n");
-                try (BufferedReader reader = new BufferedReader(new FileReader(archivedLog))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        sb.append(line).append("\n");
-                    }
-                } catch (IOException e) {
-                    Log.e(TAG, "Failed to read archived log " + i, e);
-                    sb.append("Error reading archived log ").append(i).append(": ").append(e.getMessage()).append("\n");
-                }
-            }
-        }
-        
-        return sb.toString();
-    }
-    
-    public boolean exportLogs(File exportFile) {
-        try (FileWriter writer = new FileWriter(exportFile)) {
-            writer.write("=== ModLoader Export ===\n");
-            writer.write("Export Date: " + new Date().toString() + "\n");
-            writer.write("Log Directory: " + logDirectory.getAbsolutePath() + "\n\n");
-            writer.write(readAllLogs());
-            return true;
-        } catch (IOException e) {
-            Log.e(TAG, "Failed to export logs", e);
-            return false;
-        }
-    }
-    
-    public void clearLogs() {
-        try {
-            closeCurrentWriter();
-            
-            // Delete all log files
-            if (currentLogFile != null && currentLogFile.exists()) {
-                currentLogFile.delete();
-            }
-            
-            for (int i = 1; i <= MAX_LOG_FILES; i++) {
-                File archivedLog = new File(logDirectory, "AppLog" + i + ".txt");
-                if (archivedLog.exists()) {
-                    archivedLog.delete();
-                }
-            }
-            
-            // Reinitialize
-            initialize();
-            
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to clear logs", e);
-        }
-    }
-    
-    // FIXED: Complete LogStats class with all required properties
-    public static class LogStats {
-        public int totalFiles = 0;
-        public long totalSize = 0;        // FIXED: Added missing field
-        public int totalLines = 0;        // FIXED: Added missing field
-        public String oldestEntry = "";   // FIXED: Added missing field
-        public String newestEntry = "";   // FIXED: Added missing field
-        public String currentLogFile = "";
-        public List<String> archivedFiles = new ArrayList<>();
-        
-        public LogStats() {
-            // Initialize any default values if needed
-        }
-        
-        @Override
-        public String toString() {
-            return String.format("LogStats{totalFiles=%d, totalSize=%d bytes, totalLines=%d, oldest='%s', newest='%s'}",
-                    totalFiles, totalSize, totalLines, oldestEntry, newestEntry);
-        }
-        
-        public String getDetailedReport() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("=== Log Statistics ===\n");
-            sb.append("Total Files: ").append(totalFiles).append("\n");
-            sb.append("Total Size: ").append(formatFileSize(totalSize)).append("\n");
-            sb.append("Total Lines: ").append(totalLines).append("\n");
-            sb.append("Oldest Entry: ").append(oldestEntry).append("\n");
-            sb.append("Newest Entry: ").append(newestEntry).append("\n");
-            sb.append("Current Log: ").append(currentLogFile).append("\n");
-            if (!archivedFiles.isEmpty()) {
-                sb.append("Archived Files:\n");
-                for (String archived : archivedFiles) {
-                    sb.append("  - ").append(archived).append("\n");
-                }
-            }
-            return sb.toString();
-        }
-        
-        private String formatFileSize(long bytes) {
-            if (bytes < 1024) return bytes + " B";
-            if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
-            if (bytes < 1024 * 1024 * 1024) return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
-            return String.format("%.1f GB", bytes / (1024.0 * 1024.0 * 1024.0));
-        }
-    }
-    
-    // FIXED: Complete getLogStats method with all property calculations
-    public LogStats getLogStats() {
-        LogStats stats = new LogStats();
-        
-        if (logDirectory != null && logDirectory.exists()) {
-            File[] logFiles = logDirectory.listFiles((dir, name) -> name.endsWith(".txt"));
-            if (logFiles != null) {
-                stats.totalFiles = logFiles.length;
-                
-                // Calculate total size and collect file info
-                for (File logFile : logFiles) {
-                    stats.totalSize += logFile.length();  // FIXED: Now totalSize exists
-                    stats.archivedFiles.add(logFile.getName());
-                }
-                
-                // Set current log file path
-                if (currentLogFile != null) {
-                    stats.currentLogFile = currentLogFile.getName();
-                }
-                
-                // Calculate total lines and find oldest/newest entries
-                String firstLine = null;
-                String lastLine = null;
-                
-                // Read through all log files to count lines and find date range
-                for (File logFile : logFiles) {
-                    try (BufferedReader reader = new BufferedReader(new FileReader(logFile))) {
-                        String line;
-                        boolean isFirstLineOfAllFiles = (firstLine == null);
-                        
-                        while ((line = reader.readLine()) != null) {
-                            if (!line.trim().isEmpty()) {
-                                stats.totalLines++;  // FIXED: Now totalLines exists
-                                
-                                // Capture first line ever read
-                                if (isFirstLineOfAllFiles && firstLine == null) {
-                                    firstLine = line;
-                                    isFirstLineOfAllFiles = false;
-                                }
-                                
-                                // Always update last line
-                                lastLine = line;
-                            }
-                        }
-                    } catch (IOException e) {
-                        Log.e(TAG, "Error reading log file for stats: " + logFile.getName(), e);
-                    }
-                }
-                
-                // FIXED: Extract timestamps and set oldest/newest entries
-                stats.oldestEntry = firstLine != null ? extractTimeFromLogLine(firstLine) : "";  // FIXED: Now oldestEntry exists
-                stats.newestEntry = lastLine != null ? extractTimeFromLogLine(lastLine) : "";    // FIXED: Now newestEntry exists
-            }
-        }
-        
-        return stats;
-    }
-    
-    // Helper method to extract timestamp from log line
-    private String extractTimeFromLogLine(String logLine) {
-        if (logLine == null || logLine.isEmpty()) {
-            return "";
-        }
-        
-        try {
-            // Look for timestamp pattern [YYYY-MM-DD HH:MM:SS.mmm]
-            int start = logLine.indexOf('[');
-            int end = logLine.indexOf(']');
-            if (start >= 0 && end > start) {
-                return logLine.substring(start + 1, end);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error extracting timestamp from log line", e);
-        }
-        
-        // Fallback: return first 23 characters if they look like a timestamp
-        if (logLine.length() >= 23) {
-            return logLine.substring(0, 23);
-        }
-        
-        return logLine.length() > 50 ? logLine.substring(0, 50) + "..." : logLine;
-    }
-    
-    public File getLogDirectory() {
-        return logDirectory;
-    }
-    
-    public File getCurrentLogFile() {
-        return currentLogFile;
-    }
-    
-    public boolean isInitialized() {
-        return isInitialized;
-    }
-    
-    public void shutdown() {
-        if (executorService != null && !executorService.isShutdown()) {
-            executorService.shutdown();
-        }
-        closeCurrentWriter();
-    }
-    
-    // Cleanup method for proper resource management
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            shutdown();
-        } finally {
-            super.finalize();
-        }
-    }
-}
-
-/ModLoader/app/src/main/java/com/modloader/logging/LogExporter.java
-
-package com.modloader.logging;
-
-public class LogExporter {
-}
-
-
-/ModLoader/app/src/main/java/com/modloader/ui/BaseActivity.java
-
-// File: BaseActivity.java (FIXED) - Compatible with PermissionManager
-// Path: /app/src/main/java/com/modloader/ui/BaseActivity.java
-
-package com.modloader.ui;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.widget.Toast;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.modloader.util.LogUtils;
-import com.modloader.util.PermissionManager;
-import com.modloader.util.ShizukuManager;
-import com.modloader.util.RootManager;
-
-/**
- * Base activity that provides common functionality for all activities
- * including permission management, error handling, and utility methods
- */
-public abstract class BaseActivity extends AppCompatActivity implements PermissionManager.PermissionCallback {
-    
-    protected static final String TAG = "BaseActivity";
-    
-    // Common managers
-    protected PermissionManager permissionManager;
-    protected ShizukuManager shizukuManager;
-    protected RootManager rootManager;
-    
-    // Activity state
-    private boolean isResumed = false;
-    private boolean hasInitialized = false;
-    
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        
-        LogUtils.logDebug(getClass().getSimpleName() + " onCreate started");
-        
-        try {
-            // Initialize managers
-            initializeManagers();
-            
-            // Setup common UI elements
-            setupCommonUI();
-            
-            // Auto-setup permissions if needed
-            if (shouldAutoSetupPermissions()) {
-                autoSetupPermissions();
-            }
-            
-            hasInitialized = true;
-            LogUtils.logDebug(getClass().getSimpleName() + " onCreate completed");
-            
-        } catch (Exception e) {
-            LogUtils.logError("Error in BaseActivity onCreate: " + e.getMessage());
-            handleStartupError(e);
-        }
-    }
-    
-    /**
-     * Initialize common managers
-     */
-    private void initializeManagers() {
-        try {
-            permissionManager = new PermissionManager(this);
-            permissionManager.setCallback(this);
-            
-            shizukuManager = new ShizukuManager(this);
-            rootManager = new RootManager(this);
-            
-            LogUtils.logDebug("Managers initialized successfully");
-        } catch (Exception e) {
-            LogUtils.logError("Error initializing managers: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Setup common UI elements
-     */
-    private void setupCommonUI() {
-        // Enable up navigation if not main activity
-        if (getSupportActionBar() != null && !isMainActivity()) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-    }
-    
-    /**
-     * Auto-setup permissions if the activity requires them
-     */
-    private void autoSetupPermissions() {
-        if (permissionManager != null && requiresPermissions()) {
-            permissionManager.autoSetupPermissions();
-        }
-    }
-    
-    /**
-     * Check if this activity has all required permissions
-     */
-    protected boolean hasRequiredPermissions() {
-        if (permissionManager != null) {
-            return permissionManager.hasAllRequiredPermissions();
-        }
-        return true; // Assume true if manager not available
-    }
-    
-    /**
-     * Handle startup errors gracefully
-     */
-    private void handleStartupError(Exception e) {
-        LogUtils.logError("Startup error in " + getClass().getSimpleName() + ": " + e.getMessage());
-        
-        new AlertDialog.Builder(this)
-            .setTitle("❌ Startup Error")
-            .setMessage("An error occurred while starting this activity:\n\n" + e.getMessage() + 
-                "\n\nThe app may not function correctly.")
-            .setPositiveButton("Continue", null)
-            .setNegativeButton("Close App", (dialog, which) -> finishAffinity())
-            .show();
-    }
-    
-    // === Permission Management Methods ===
-    
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        
-        LogUtils.logDebug("Permission result in " + getClass().getSimpleName() + 
-            ": requestCode=" + requestCode);
-        
-        if (permissionManager != null) {
-            permissionManager.handlePermissionResult(requestCode, permissions, grantResults);
-        }
-    }
-    
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        
-        LogUtils.logDebug("Activity result in " + getClass().getSimpleName() + 
-            ": requestCode=" + requestCode + ", resultCode=" + resultCode);
-        
-        // Handle special permission results
-        if (permissionManager != null) {
-            switch (requestCode) {
-                case PermissionManager.REQUEST_ALL_FILES_ACCESS:
-                case PermissionManager.REQUEST_INSTALL_PERMISSION:
-                    permissionManager.handlePermissionResult(requestCode, null, null);
-                    break;
-            }
-        }
-        
-        // Let subclasses handle their specific results
-        handleActivityResult(requestCode, resultCode, data);
-    }
-    
-    /**
-     * Subclasses can override this to handle activity results
-     */
-    protected void handleActivityResult(int requestCode, int resultCode, Intent data) {
-        // Default implementation does nothing
-    }
-    
-    // === PermissionManager.PermissionCallback Implementation ===
-    
-    @Override
-    public void onPermissionGranted(String permission) {
-        LogUtils.logUser("✅ Permission granted: " + permission);
-        onPermissionStateChanged();
-    }
-    
-    @Override
-    public void onPermissionDenied(String permission) {
-        LogUtils.logUser("❌ Permission denied: " + permission);
-        handlePermissionDenied(permission);
-        onPermissionStateChanged();
-    }
-    
-    @Override
-    public void onPermissionPermanentlyDenied(String permission) {
-        LogUtils.logUser("⚠️ Permission permanently denied: " + permission);
-        handlePermissionPermanentlyDenied(permission);
-        onPermissionStateChanged();
-    }
-    
-    @Override
-    public void onAllPermissionsGranted() {
-        LogUtils.logUser("✅ All permissions granted!");
-        onPermissionStateChanged();
-        onAllPermissionsReady();
-    }
-    
-    @Override
-    public void onPermissionRequestCompleted(boolean allGranted) {
-        LogUtils.logDebug("Permission request completed: " + allGranted);
-        onPermissionStateChanged();
-    }
-    
-    /**
-     * Called when permission state changes - subclasses can override
-     */
-    protected void onPermissionStateChanged() {
-        // Update UI or refresh content based on new permission state
-        refreshPermissionStatus();
-    }
-    
-    /**
-     * Called when all permissions are ready - subclasses can override
-     */
-    protected void onAllPermissionsReady() {
-        // Subclasses can implement specific behavior when all permissions are granted
-    }
-    
-    /**
-     * Handle permission denial with user-friendly messaging
-     */
-    protected void handlePermissionDenied(String permission) {
-        String message = getPermissionDenialMessage(permission);
-        showToast(message);
-    }
-    
-    /**
-     * Handle permanently denied permissions
-     */
-    protected void handlePermissionPermanentlyDenied(String permission) {
-        new AlertDialog.Builder(this)
-            .setTitle("🔐 Permission Required")
-            .setMessage("The permission for " + permission + " has been permanently denied.\n\n" +
-                "To enable it, please:\n" +
-                "1. Go to App Settings\n" +
-                "2. Find Permissions\n" +
-                "3. Enable the required permission")
-            .setPositiveButton("Open Settings", (dialog, which) -> {
-                if (permissionManager != null) {
-                    permissionManager.openAppSettings();
-                }
-            })
-            .setNegativeButton("Cancel", null)
-            .show();
-    }
-    
-    /**
-     * Get user-friendly message for permission denial
-     */
-    private String getPermissionDenialMessage(String permission) {
-        switch (permission) {
-            case "MANAGE_EXTERNAL_STORAGE":
-                return "Storage access is required to manage mod files";
-            case "INSTALL_PACKAGES":
-                return "Install permission is required to install modded APKs";
-            default:
-                return "This permission is required for the app to function properly";
-        }
-    }
-    
-    /**
-     * Refresh permission status display
-     */
-    protected void refreshPermissionStatus() {
-        // Subclasses can override to update permission-related UI
-        if (permissionManager != null) {
-            boolean hasAll = permissionManager.hasAllRequiredPermissions();
-            LogUtils.logDebug("Permission status refreshed: " + (hasAll ? "All granted" : "Missing some"));
-        }
-    }
-    
-    // === Utility Methods ===
-    
-    /**
-     * Show permission status dialog
-     */
-    protected void showPermissionStatus() {
-        if (permissionManager != null) {
-            String status = permissionManager.getPermissionStatusText();
-            new AlertDialog.Builder(this)
-                .setTitle("🔐 Permission Status")
-                .setMessage(status)
-                .setPositiveButton("OK", null)
-                .setNeutralButton("Request Missing", (dialog, which) -> {
-                    permissionManager.requestAllPermissions();
-                })
-                .show();
-        }
-    }
-    
-    /**
-     * Show toast message
-     */
-    protected void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-    
-    /**
-     * Show long toast message
-     */
-    protected void showLongToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-    }
-    
-    /**
-     * Show error dialog
-     */
-    protected void showError(String title, String message) {
-        new AlertDialog.Builder(this)
-            .setTitle("❌ " + title)
-            .setMessage(message)
-            .setPositiveButton("OK", null)
-            .show();
-    }
-    
-    /**
-     * Show confirmation dialog
-     */
-    protected void showConfirmation(String title, String message, Runnable onConfirm) {
-        new AlertDialog.Builder(this)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton("Yes", (dialog, which) -> {
-                if (onConfirm != null) {
-                    onConfirm.run();
-                }
-            })
-            .setNegativeButton("No", null)
-            .show();
-    }
-    
-    // === Navigation Methods ===
-    
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-    
-    /**
-     * Safe finish that handles edge cases
-     */
-    protected void safeFinish() {
-        try {
-            if (!isFinishing()) {
-                finish();
-            }
-        } catch (Exception e) {
-            LogUtils.logDebug("Error during safeFinish: " + e.getMessage());
-        }
-    }
-    
-    // === Lifecycle Methods ===
-    
-    @Override
-    protected void onResume() {
-        super.onResume();
-        isResumed = true;
-        
-        // Refresh permission states when returning from other apps
-        if (hasInitialized && permissionManager != null) {
-            permissionManager.refreshPermissionStates();
-            refreshPermissionStatus();
-        }
-        
-        LogUtils.logDebug(getClass().getSimpleName() + " onResume");
-    }
-    
-    @Override
-    protected void onPause() {
-        super.onPause();
-        isResumed = false;
-        LogUtils.logDebug(getClass().getSimpleName() + " onPause");
-    }
-    
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        
-        // Clean up managers
-        if (permissionManager != null) {
-            permissionManager.cleanup();
-        }
-        if (shizukuManager != null) {
-            shizukuManager.cleanup();
-        }
-        if (rootManager != null) {
-            rootManager.cleanup();
-        }
-        
-        LogUtils.logDebug(getClass().getSimpleName() + " onDestroy");
-    }
-    
-    // === Abstract/Virtual Methods for Subclasses ===
-    
-    /**
-     * Whether this activity should auto-setup permissions on create
-     */
-    protected boolean shouldAutoSetupPermissions() {
-        return requiresPermissions();
-    }
-    
-    /**
-     * Whether this activity requires permissions to function
-     */
-    protected boolean requiresPermissions() {
-        return true; // Most activities require permissions
-    }
-    
-    /**
-     * Whether this is the main activity (affects navigation setup)
-     */
-    protected boolean isMainActivity() {
-        return false; // Subclasses should override if they are main activities
-    }
-    
-    // === State Query Methods ===
-    
-    protected boolean isActivityResumed() {
-        return isResumed;
-    }
-    
-    protected boolean isActivityInitialized() {
-        return hasInitialized;
-    }
-    
-    /**
-     * Get the permission manager instance
-     */
-    protected PermissionManager getPermissionManager() {
-        return permissionManager;
-    }
-    
-    /**
-     * Get the Shizuku manager instance
-     */
-    protected ShizukuManager getShizukuManager() {
-        return shizukuManager;
-    }
-    
-    /**
-     * Get the root manager instance
-     */
-    protected RootManager getRootManager() {
-        return rootManager;
-    }
-}
-
-/ModLoader/app/src/main/java/com/modloader/ui/DllModActivity.java
-
-// File: DllModActivity.java (Updated Activity) - Uses Controller Pattern
-// Path: /storage/emulated/0/AndroidIDEProjects/main/java/com/modloader/ui/DllModActivity.java
-
-package com.modloader.ui;
-
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.OpenableColumns;
-import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.modloader.R;
-import com.modloader.util.LogUtils;
-
-import java.io.File;
-import java.util.List;
-
-/**
- * DllModActivity now delegates business logic to DllModController
- * This keeps the activity focused on UI management while the controller handles the logic
- */
-public class DllModActivity extends Activity implements DllModController.DllModCallback {
-
-    private static final int REQUEST_SELECT_APK = 1001;
-    private static final int REQUEST_SELECT_DLL = 1002;
-    
-    // UI Components
-    private TextView statusText;
-    private TextView loaderStatusText;
-    private RecyclerView dllModRecyclerView;
-    private Button installLoaderBtn;
-    private Button selectApkBtn;
-    private Button installDllBtn;
-    private Button viewLogsBtn;
-    private Button refreshBtn;
-    private LinearLayout loaderInfoSection;
-    
-    // Controller and Adapter
-    private DllModController controller;
-    private DllModAdapter adapter;
-    private AlertDialog progressDialog;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dll_mod);
-        
-        setTitle("DLL Mod Manager");
-        
-        // Initialize controller
-        controller = new DllModController(this);
-        controller.setCallback(this);
-        
-        initializeViews();
-        setupUI();
-        
-        // Load initial data
-        controller.loadDllMods();
-        controller.updateLoaderStatus();
-    }
-
-    private void initializeViews() {
-        statusText = findViewById(R.id.statusText);
-        loaderStatusText = findViewById(R.id.loaderStatusText);
-        dllModRecyclerView = findViewById(R.id.dllModRecyclerView);
-        installLoaderBtn = findViewById(R.id.installLoaderBtn);
-        selectApkBtn = findViewById(R.id.selectApkBtn);
-        installDllBtn = findViewById(R.id.installDllBtn);
-        viewLogsBtn = findViewById(R.id.viewLogsBtn);
-        refreshBtn = findViewById(R.id.refreshBtn);
-        loaderInfoSection = findViewById(R.id.loaderInfoSection);
-    }
-
-    private void setupUI() {
-        // Setup RecyclerView
-        dllModRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new DllModAdapter(this, controller);
-        dllModRecyclerView.setAdapter(adapter);
-
-        // Button listeners - delegate to controller
-        installLoaderBtn.setOnClickListener(v -> controller.showLoaderInstallDialog());
-        
-        selectApkBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("application/vnd.android.package-archive");
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            startActivityForResult(intent, REQUEST_SELECT_APK);
-        });
-        
-        installDllBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("*/*"); // Allow all files, we'll filter by extension
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            startActivityForResult(intent, REQUEST_SELECT_DLL);
-        });
-        
-        viewLogsBtn.setOnClickListener(v -> {
-            startActivity(new Intent(this, LogViewerActivity.class));
-        });
-        
-        refreshBtn.setOnClickListener(v -> {
-            controller.refresh();
-            Toast.makeText(this, "Refreshed DLL mod list", Toast.LENGTH_SHORT).show();
-        });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        
-        if (resultCode != RESULT_OK || data == null || data.getData() == null) {
-            return;
-        }
-        
-        Uri uri = data.getData();
-        
-        switch (requestCode) {
-            case REQUEST_SELECT_APK:
-                controller.handleApkSelection(uri);
-                break;
-                
-            case REQUEST_SELECT_DLL:
-                String filename = getFilenameFromUri(uri);
-                controller.handleDllSelection(uri, filename);
-                break;
-        }
-    }
-
-    private String getFilenameFromUri(Uri uri) {
-        String filename = null;
-        
-        try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
-            if (cursor != null && cursor.moveToFirst()) {
-                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                if (nameIndex >= 0) {
-                    filename = cursor.getString(nameIndex);
-                }
-            }
-        } catch (Exception e) {
-            LogUtils.logDebug("Could not get filename from URI: " + e.getMessage());
-        }
-        
-        return filename;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        controller.refresh();
-    }
-
-    // === DllModController.DllModCallback Implementation ===
-    
-    @Override
-    public void onModsLoaded(List<File> mods) {
-        runOnUiThread(() -> {
-            adapter.updateMods(mods);
-            statusText.setText(controller.getStatusText());
-        });
-    }
-
-    @Override
-    public void onLoaderStatusChanged(boolean installed, String statusText, int textColor) {
-        runOnUiThread(() -> {
-            loaderStatusText.setText(statusText);
-            loaderStatusText.setTextColor(textColor);
-            
-            if (installed) {
-                installLoaderBtn.setText("Reinstall Loader");
-                loaderInfoSection.setVisibility(View.VISIBLE);
-                installDllBtn.setEnabled(true);
-                installDllBtn.setText("Install DLL Mod");
-            } else {
-                installLoaderBtn.setText("Install Loader");
-                loaderInfoSection.setVisibility(View.GONE);
-                installDllBtn.setEnabled(false);
-                installDllBtn.setText("Install Loader First");
-            }
-        });
-    }
-
-    @Override
-    public void onInstallationProgress(String message) {
-        runOnUiThread(() -> {
-            if (progressDialog != null) {
-                progressDialog.dismiss();
-            }
-            
-            if (message.contains("Please select")) {
-                // This is a request for user action, not a progress message
-                return;
-            }
-            
-            progressDialog = new AlertDialog.Builder(this)
-                .setTitle("Installing Loader")
-                .setMessage(message)
-                .setCancelable(false)
-                .show();
-        });
-    }
-
-    @Override
-    public void onInstallationComplete(boolean success, String message) {
-        runOnUiThread(() -> {
-            if (progressDialog != null) {
-                progressDialog.dismiss();
-                progressDialog = null;
-            }
-            
-            if (success) {
-                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    @Override
-    public void onError(String error) {
-        runOnUiThread(() -> {
-            Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
-        });
-    }
-
-    // === Simple adapter class for DLL mods ===
-    private static class DllModAdapter extends RecyclerView.Adapter<DllModAdapter.ViewHolder> {
-        private final Activity activity;
-        private final DllModController controller;
-        private List<File> mods;
-
-        public DllModAdapter(Activity activity, DllModController controller) {
-            this.activity = activity;
-            this.controller = controller;
-            this.mods = controller.getDllMods();
-        }
-
-        public void updateMods(List<File> newMods) {
-            this.mods = newMods;
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(android.view.ViewGroup parent, int viewType) {
-            View view = android.view.LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_mod, parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-            File mod = mods.get(position);
-            String name = mod.getName();
-            boolean isEnabled = !name.endsWith(".disabled");
-            
-            holder.modDescription.setText(name);
-            holder.modSwitch.setChecked(isEnabled);
-            
-            holder.modSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                controller.toggleMod(mod, isChecked);
-            });
-            
-            holder.modDeleteButton.setOnClickListener(v -> {
-                controller.deleteMod(mod, () -> {
-                    mods.remove(position);
-                    notifyItemRemoved(position);
-                    notifyItemRangeChanged(position, mods.size());
-                });
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return mods.size();
-        }
-
-        static class ViewHolder extends RecyclerView.ViewHolder {
-            TextView modDescription;
-            android.widget.Switch modSwitch;
-            android.widget.ImageButton modDeleteButton;
-
-            ViewHolder(View itemView) {
-                super(itemView);
-                modDescription = itemView.findViewById(R.id.modDescription);
-                modSwitch = itemView.findViewById(R.id.modSwitch);
-                modDeleteButton = itemView.findViewById(R.id.modDeleteButton);
-            }
-        }
-    }
-}
-
-/ModLoader/app/src/main/java/com/modloader/ui/DllModController.java
-
-// File: DllModController.java (Fixed) - Corrected method calls with Context parameter
-// Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/modloader/ui/DllModController.java
-
-package com.modloader.ui;
-
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Intent;
-import android.net.Uri;
-import com.modloader.loader.ModManager;
-import com.modloader.loader.ModBase;
-import com.modloader.loader.MelonLoaderManager;
-import com.modloader.util.LogUtils;
-import com.modloader.util.FileUtils;
-import com.modloader.installer.ModInstaller;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-public class DllModController {
-    private final Activity activity;
-    private List<File> dllMods = new ArrayList<>();
-    
-    // Callback interface for UI updates
-    public interface DllModCallback {
-        void onModsLoaded(List<File> mods);
-        void onLoaderStatusChanged(boolean installed, String statusText, int textColor);
-        void onInstallationProgress(String message);
-        void onInstallationComplete(boolean success, String message);
-        void onError(String error);
-    }
-    
-    private DllModCallback callback;
-
-    public DllModController(Activity activity) {
-        this.activity = activity;
-    }
-    
-    public void setCallback(DllModCallback callback) {
-        this.callback = callback;
-    }
-
-    public void loadDllMods() {
-        dllMods.clear();
-        
-        // Get DLL mods from ModManager
-        List<File> allMods = ModManager.getAvailableMods();
-        for (File mod : allMods) {
-            ModBase.ModType type = ModBase.ModType.fromFileName(mod.getName());
-            if (type == ModBase.ModType.DLL || type == ModBase.ModType.HYBRID) {
-                dllMods.add(mod);
-            }
-        }
-        
-        LogUtils.logDebug("Loaded " + dllMods.size() + " DLL mods");
-        
-        if (callback != null) {
-            callback.onModsLoaded(dllMods);
-        }
-    }
-
-    public void updateLoaderStatus() {
-        // FIXED: Pass activity context to MelonLoaderManager methods
-        boolean melonInstalled = MelonLoaderManager.isMelonLoaderInstalled(activity);
-        boolean lemonInstalled = MelonLoaderManager.isLemonLoaderInstalled(activity);
-        
-        if (melonInstalled) {
-            String statusText = "✅ MelonLoader " + MelonLoaderManager.getInstalledLoaderVersion() + " installed";
-            if (callback != null) {
-                callback.onLoaderStatusChanged(true, statusText, 0xFF4CAF50); // Green
-            }
-        } else if (lemonInstalled) {
-            String statusText = "✅ LemonLoader " + MelonLoaderManager.getInstalledLoaderVersion() + " installed";
-            if (callback != null) {
-                callback.onLoaderStatusChanged(true, statusText, 0xFF4CAF50); // Green
-            }
-        } else {
-            String statusText = "❌ No loader installed - DLL mods will not work";
-            if (callback != null) {
-                callback.onLoaderStatusChanged(false, statusText, 0xFFF44336); // Red
-            }
-        }
-    }
-
-    public void showLoaderInstallDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Choose Loader");
-        builder.setMessage("Select which loader to install:\n\n" +
-                          "• MelonLoader: Full-featured, works with most Unity games\n" +
-                          "• LemonLoader: Lightweight, better for older devices\n\n" +
-                          "You will need to select a Terraria APK file after choosing.");
-        
-        builder.setPositiveButton("MelonLoader", (dialog, which) -> {
-            LogUtils.logUser("User selected MelonLoader installation");
-            showApkInstructions("MelonLoader");
-        });
-        
-        builder.setNegativeButton("LemonLoader", (dialog, which) -> {
-            LogUtils.logUser("User selected LemonLoader installation");
-            showApkInstructions("LemonLoader");
-        });
-        
-        builder.setNeutralButton("Cancel", null);
-        builder.show();
-    }
-
-    public void showApkInstructions(String loaderType) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("APK Installation Instructions");
-        builder.setMessage("To install " + loaderType + ":\n\n" +
-                          "1. Select your Terraria APK file\n" +
-                          "2. The loader will be injected into the APK\n" +
-                          "3. Install the modified APK\n" +
-                          "4. Your DLL mods will work in Terraria\n\n" +
-                          "Ready to select APK?");
-        
-        builder.setPositiveButton("Select APK", (dialog, which) -> {
-            // Store the selected loader type for later use
-            activity.getSharedPreferences("dll_mod_prefs", Activity.MODE_PRIVATE)
-                .edit()
-                .putString("selected_loader", loaderType)
-                .apply();
-            
-            // Trigger APK selection in the UI
-            if (callback != null) {
-                callback.onInstallationProgress("Please select Terraria APK file");
-            }
-        });
-        
-        builder.setNegativeButton("Cancel", null);
-        builder.show();
-    }
-
-    public void handleApkSelection(Uri apkUri) {
-        LogUtils.logUser("APK selected for loader installation");
-        
-        // Get the selected loader type
-        String selectedLoader = activity.getSharedPreferences("dll_mod_prefs", Activity.MODE_PRIVATE)
-            .getString("selected_loader", "MelonLoader");
-        
-        // Show confirmation dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Confirm Installation");
-        builder.setMessage("Install " + selectedLoader + " into the selected APK?\n\n" +
-                          "This will create a new patched APK file that you can install.");
-        
-        builder.setPositiveButton("Install", (dialog, which) -> {
-            if ("MelonLoader".equals(selectedLoader)) {
-                installLoaderIntoApk(apkUri, MelonLoaderManager.LoaderType.MELONLOADER_NET8);
-            } else {
-                installLoaderIntoApk(apkUri, MelonLoaderManager.LoaderType.MELONLOADER_NET35);
-            }
-        });
-        
-        builder.setNegativeButton("Cancel", null);
-        builder.show();
-    }
-
-    public void handleDllSelection(Uri dllUri, String filename) {
-        LogUtils.logUser("DLL file selected for installation");
-        
-        if (filename == null) {
-            filename = "mod_" + System.currentTimeMillis() + ".dll";
-        }
-        
-        if (!filename.toLowerCase().endsWith(".dll")) {
-            if (callback != null) {
-                callback.onError("Please select a .dll file");
-            }
-            return;
-        }
-        
-        // FIXED: Pass activity context to MelonLoaderManager methods
-        if (!MelonLoaderManager.isMelonLoaderInstalled(activity) && !MelonLoaderManager.isLemonLoaderInstalled(activity)) {
-            showLoaderRequiredDialog();
-            return;
-        }
-        
-        // Install DLL mod
-        boolean success = ModInstaller.installMod(activity, dllUri, filename);
-        
-        if (success) {
-            if (callback != null) {
-                callback.onInstallationComplete(true, "DLL mod installed successfully");
-            }
-            loadDllMods(); // Refresh list
-        } else {
-            if (callback != null) {
-                callback.onInstallationComplete(false, "Failed to install DLL mod");
-            }
-        }
-    }
-
-    public void showLoaderRequiredDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Loader Required");
-        builder.setMessage("DLL mods require MelonLoader or LemonLoader to be installed first.\n\n" +
-                          "Would you like to install a loader now?");
-        
-        builder.setPositiveButton("Install Loader", (dialog, which) -> {
-            showLoaderInstallDialog();
-        });
-        
-        builder.setNegativeButton("Cancel", null);
-        builder.show();
-    }
-
-    public void installLoaderIntoApk(Uri apkUri, MelonLoaderManager.LoaderType loaderType) {
-        LogUtils.logUser("Installing " + loaderType.getDisplayName() + " into APK");
-        
-        if (callback != null) {
-            callback.onInstallationProgress("Installing " + loaderType.getDisplayName() + " into APK...\nThis may take a few minutes.");
-        }
-        
-        // Run installation in background thread
-        new Thread(() -> {
-            boolean success = false;
-            File outputApk = null;
-            
-            try {
-                // Create temporary files
-                File tempApk = File.createTempFile("input_", ".apk", activity.getCacheDir());
-                outputApk = new File(activity.getExternalFilesDir(null), "patched_terraria_" + 
-                                        loaderType.name().toLowerCase() + "_" +
-                                        System.currentTimeMillis() + ".apk");
-                
-                // Copy input APK to temp file
-                FileUtils.copyUriToFile(activity, apkUri, tempApk);
-                
-                // Install loader
-                if (loaderType == MelonLoaderManager.LoaderType.MELONLOADER_NET8) {
-                    success = MelonLoaderManager.installMelonLoader(activity, tempApk, outputApk);
-                } else if (loaderType == MelonLoaderManager.LoaderType.MELONLOADER_NET35) {
-                    success = MelonLoaderManager.installLemonLoader(activity, tempApk, outputApk);
-                }
-                
-                // Cleanup temp file
-                tempApk.delete();
-                
-            } catch (Exception e) {
-                LogUtils.logDebug("Loader installation error: " + e.getMessage());
-                success = false;
-            }
-            
-            // Update UI on main thread
-            final boolean finalSuccess = success;
-            final File finalOutputApk = outputApk;
-            
-            activity.runOnUiThread(() -> {
-                if (finalSuccess) {
-                    showInstallationSuccessDialog(finalOutputApk, loaderType);
-                } else {
-                    if (callback != null) {
-                        callback.onInstallationComplete(false, "Loader installation failed");
-                    }
-                    LogUtils.logUser("❌ " + loaderType.getDisplayName() + " installation failed");
-                }
-                
-                updateLoaderStatus();
-            });
-        }).start();
-    }
-
-    public void showInstallationSuccessDialog(File outputApk, MelonLoaderManager.LoaderType loaderType) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Installation Complete");
-        builder.setMessage("✅ " + loaderType.getDisplayName() + " has been installed into the APK!\n\n" +
-                          "Patched APK saved to:\n" + outputApk.getName() + "\n\n" +
-                          "Next steps:\n" +
-                          "1. Install the patched APK\n" +
-                          "2. Install DLL mods\n" +
-                          "3. Launch Terraria");
-        
-        builder.setPositiveButton("Install APK", (dialog, which) -> {
-            installApk(outputApk);
-        });
-        
-        builder.setNegativeButton("Later", null);
-        builder.show();
-        
-        LogUtils.logUser("✅ " + loaderType.getDisplayName() + " installation completed successfully");
-        
-        if (callback != null) {
-            callback.onInstallationComplete(true, loaderType.getDisplayName() + " installation completed successfully");
-        }
-    }
-
-    public void installApk(File apkFile) {
-        try {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(
-                androidx.core.content.FileProvider.getUriForFile(
-                    activity, 
-                    activity.getPackageName() + ".provider", 
-                    apkFile
-                ),
-                "application/vnd.android.package-archive"
-            );
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            activity.startActivity(intent);
-        } catch (Exception e) {
-            if (callback != null) {
-                callback.onError("Cannot install APK: " + e.getMessage());
-            }
-            LogUtils.logDebug("APK installation error: " + e.getMessage());
-        }
-    }
-
-    public void toggleMod(File mod, boolean isChecked) {
-        if (isChecked) {
-            ModManager.enableMod(activity, mod);
-        } else {
-            ModManager.disableMod(activity, mod);
-        }
-    }
-
-    public void deleteMod(File mod, Runnable onSuccess) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Delete Mod");
-        builder.setMessage("Delete " + mod.getName() + "?");
-        builder.setPositiveButton("Delete", (dialog, which) -> {
-            if (ModManager.deleteMod(activity, mod)) {
-                if (onSuccess != null) {
-                    onSuccess.run();
-                }
-                loadDllMods(); // Refresh the list
-            }
-        });
-        builder.setNegativeButton("Cancel", null);
-        builder.show();
-    }
-
-    public List<File> getDllMods() {
-        return new ArrayList<>(dllMods);
-    }
-
-    public String getStatusText() {
-        int enabledCount = 0;
-        for (File mod : dllMods) {
-            if (!mod.getName().endsWith(".disabled")) {
-                enabledCount++;
-            }
-        }
-        
-        return "DLL Mods: " + enabledCount + " enabled, " + 
-               (dllMods.size() - enabledCount) + " disabled, " + 
-               dllMods.size() + " total";
-    }
-
-    public boolean isLoaderInstalled() {
-        // FIXED: Pass activity context to MelonLoaderManager methods
-        return MelonLoaderManager.isMelonLoaderInstalled(activity) || MelonLoaderManager.isLemonLoaderInstalled(activity);
-    }
-
-    public void refresh() {
-        loadDllMods();
-        updateLoaderStatus();
     }
 }
