@@ -1,6 +1,6 @@
 
-================================================================================
-ModLoader/build.gradle
+
+===== ModLoader/build.gradle =====
 
 // Root-level build.gradle (for Gradle 7.0+ and AGP 8.0+)
 
@@ -14,8 +14,9 @@ tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
 
-================================================================================
-ModLoader/settings.gradle
+
+
+===== ModLoader/settings.gradle =====
 
 pluginManagement {
     repositories {
@@ -37,8 +38,9 @@ rootProject.name = "ModLoader"
 include ':app'
 
 
-================================================================================
-ModLoader/app/build.gradle
+
+
+===== ModLoader/app/build.gradle =====
 
 plugins {
     id 'com.android.application'
@@ -106,10 +108,14 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    implementation 'org.apache.logging.log4j:log4j-api:2.20.0'
+    implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.20.0'
 }
 
-================================================================================
-ModLoader/app/src/main/AndroidManifest.xml
+
+
+===== ModLoader/app/src/main/AndroidManifest.xml =====
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
@@ -298,8 +304,9 @@ ModLoader/app/src/main/AndroidManifest.xml
 
 </manifest>
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/AboutActivity.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/AboutActivity.java =====
 
 package com.modloader;
 
@@ -316,8 +323,9 @@ public class AboutActivity extends AppCompatActivity {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/IntegrationManager.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/IntegrationManager.java =====
 
 package com.modloader;
 
@@ -325,8 +333,9 @@ public class IntegrationManager {
 }
 
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/LogActivity.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/LogActivity.java =====
 
 package com.modloader;
 
@@ -396,8 +405,9 @@ public class LogActivity extends AppCompatActivity {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/MainActivity.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/MainActivity.java =====
 
 // File: MainActivity.java (Updated with Addon Integration)
 // Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/app/src/main/java/com/modloader/MainActivity.java
@@ -673,8 +683,9 @@ public class MainActivity extends AppCompatActivity {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/MyApplication.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/MyApplication.java =====
 
 // File: MyApplication.java (FIXED) - Initialize Logs and Handle Migration
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/MyApplication.java
@@ -974,8 +985,9 @@ public class MyApplication extends Application {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/SandboxActivity.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/SandboxActivity.java =====
 
 package com.modloader;
 
@@ -1006,8 +1018,9 @@ public class SandboxActivity extends Activity {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/SpecificSelectionActivity.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/SpecificSelectionActivity.java =====
 
 // File: SpecificSelectionActivity.java (Clean UI with Real Game Icons)
 // Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/ModLoader/app/src/main/java/com/modloader/SpecificSelectionActivity.java
@@ -1386,8 +1399,9 @@ public class SpecificSelectionActivity extends AppCompatActivity {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/TerrariaSpecificActivity.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/TerrariaSpecificActivity.java =====
 
 // File: TerrariaSpecificActivity.java (Updated with Addon Integration)
 // Path: /main/java/com/modloader/TerrariaSpecificActivity.java
@@ -2109,8 +2123,9 @@ public class TerrariaSpecificActivity extends AppCompatActivity {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/UniversalActivity.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/UniversalActivity.java =====
 
 package com.modloader;
 
@@ -2237,8 +2252,9 @@ public class UniversalActivity extends AppCompatActivity {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/Diagnostic/ApkProcessLogger.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/Diagnostic/ApkProcessLogger.java =====
 
 package com.modloader.Diagnostic;
 
@@ -2246,8 +2262,9 @@ public class ApkProcessLogger {
 }
 
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/Diagnostic/DiagnosticManager.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/Diagnostic/DiagnosticManager.java =====
 
 package com.modloader.diagnostic;
 
@@ -2475,8 +2492,9 @@ public class DiagnosticManager {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/addon/AddonConfig.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/addon/AddonConfig.java =====
 
 // File: AddonConfig.java - Addon Configuration Data Model
 // Path: app/src/main/java/com/modloader/addon/AddonConfig.java
@@ -3070,8 +3088,9 @@ public class AddonConfig {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/addon/AddonExecutors.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/addon/AddonExecutors.java =====
 
 // File: AddonExecutors.java - Addon Execution Engine Classes
 // Path: app/src/main/java/com/modloader/addon/AddonExecutors.java
@@ -3901,8 +3920,9 @@ class DiagnosticExecutor extends AddonExecutor {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/addon/AddonManagementActivity.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/addon/AddonManagementActivity.java =====
 
 // File: AddonManagementActivity.java - Addon Management UI
 // Path: app/src/main/java/com/modloader/addon/AddonManagementActivity.java
@@ -4438,8 +4458,9 @@ public class AddonManagementActivity extends AppCompatActivity {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/addon/AddonManager.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/addon/AddonManager.java =====
 
 // File: AddonManager.java - Core Configuration-Based Addon System
 // Path: app/src/main/java/com/modloader/addon/AddonManager.java
@@ -5083,8 +5104,9 @@ public class AddonManager {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/installer/ModInstaller.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/installer/ModInstaller.java =====
 
 // File: ModInstaller.java (FIXED) - Updated to use new directory structure
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/installer/ModInstaller.java
@@ -5559,8 +5581,9 @@ public class ModInstaller {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/loader/LoaderFileManager.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/loader/LoaderFileManager.java =====
 
 // File: LoaderFileManager.java (Fixed Component) - Complete Path Management Fix
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/LoaderFileManager.java
@@ -6105,8 +6128,9 @@ public class LoaderFileManager {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/loader/LoaderInstaller.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/loader/LoaderInstaller.java =====
 
 // File: LoaderInstaller.java (Complete Fixed Version) - Uses Correct App-Specific Paths
 // Path: /storage/emulated/0/AndroidIDEProjects/ModLoader/app/src/main/java/com/modloader/loader/LoaderInstaller.java
@@ -6542,8 +6566,9 @@ public class LoaderInstaller {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/loader/LoaderValidator.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/loader/LoaderValidator.java =====
 
 // File: LoaderValidator.java (Fixed Component) - Complete Path Management Fix
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/LoaderValidator.java
@@ -6945,8 +6970,9 @@ public class LoaderValidator {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/loader/MainLoader.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/loader/MainLoader.java =====
 
 package com.loader;
 
@@ -6983,8 +7009,9 @@ public class MainLoader extends Application {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/loader/MelonLoaderManager.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/loader/MelonLoaderManager.java =====
 
 // File: MelonLoaderManager.java (Fixed Facade) - Updated with PathManager
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/MelonLoaderManager.java
@@ -7447,8 +7474,9 @@ public class MelonLoaderManager {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/loader/ModBase.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/loader/ModBase.java =====
 
 // File: ModBase.java (Interface Class) - Phase 4 Enhanced with DLL Support
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModBase.java
@@ -7578,8 +7606,9 @@ public interface ModBase {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/loader/ModConfiguration.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/loader/ModConfiguration.java =====
 
 package com.modloader.loader;
 
@@ -7778,8 +7807,9 @@ public class ModConfiguration {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/loader/ModController.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/loader/ModController.java =====
 
 // File: ModController.java (Extracted Component) - Handles mod state management
 // Path: /storage/emulated/0/AndroidIDEProjects/main/java/com/terrarialoader/loader/ModController.java
@@ -8089,8 +8119,9 @@ public class ModController {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/loader/ModLoader.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/loader/ModLoader.java =====
 
 // File: ModLoader.java (Complete Fixed Component) - Updated Method Calls with Context
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModLoader.java
@@ -8504,8 +8535,9 @@ public class ModLoader {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/loader/ModManager.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/loader/ModManager.java =====
 
 // File: ModManager.java (Fixed Facade) - Updated with PathManager
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModManager.java
@@ -8810,8 +8842,9 @@ public class ModManager {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/loader/ModMetadata.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/loader/ModMetadata.java =====
 
 // File: ModMetadata.java (Fixed Class) - Enhanced Null Safety
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModMetadata.java
@@ -9040,8 +9073,9 @@ public class ModMetadata {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/loader/ModRepository.java
+
+
+===== ModLoader/app/src/main/java/com/modloader/loader/ModRepository.java =====
 
 // File: ModRepository.java (Fixed Component) - Updated Method Calls
 // Path: /storage/emulated/0/AndroidIDEProjects/TerrariaML/app/src/main/java/com/terrarialoader/loader/ModRepository.java
@@ -9244,554 +9278,3 @@ public class ModRepository {
     }
 }
 
-================================================================================
-ModLoader/app/src/main/java/com/modloader/loader/debugger/ApkProcessTracker.java
-
-// File: ApkProcessTracker.java - Real-time APK operation monitoring and debugging
-// Path: app/src/main/java/com/modloader/loader/debug/ApkProcessTracker.java
-
-package com.modloader.loader.debug;
-
-import android.content.Context;
-import com.modloader.util.LogUtils;
-import com.modloader.util.ApkValidator;
-import com.modloader.util.ApkPatcher;
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-
-/**
- * ApkProcessTracker - Real-time monitoring and debugging of APK operations
- * Single responsibility: Track, monitor, and debug APK patching processes in real-time
- */
-public class ApkProcessTracker {
-    private static final String TAG = "APKTracker";
-    private final Context context;
-    private final Map<String, ActiveProcess> activeProcesses = new ConcurrentHashMap<>();
-    private final AtomicLong processIdCounter = new AtomicLong(0);
-    private final List<ProcessListener> listeners = new ArrayList<>();
-    
-    public ApkProcessTracker(Context context) {
-        this.context = context;
-        LogUtils.logDebug("ApkProcessTracker initialized");
-    }
-    
-    /**
-     * Start tracking an APK process with detailed monitoring
-     */
-    public String startProcess(String operation, File inputApk, File outputApk) {
-        String processId = "APK_" + System.currentTimeMillis() + "_" + processIdCounter.incrementAndGet();
-        
-        ActiveProcess process = new ActiveProcess(processId, operation, inputApk, outputApk);
-        activeProcesses.put(processId, process);
-        
-        LogUtils.logApkProcessStart(operation, inputApk != null ? inputApk.getName() : "Unknown");
-        LogUtils.logDebug("Started tracking process: " + processId);
-        
-        // Notify listeners
-        notifyListeners(listener -> listener.onProcessStarted(process));
-        
-        return processId;
-    }
-    
-    /**
-     * Log a detailed step with performance metrics
-     */
-    public void logStep(String processId, String stepName, String details) {
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process == null) {
-            LogUtils.logDebug("Process not found for step logging: " + processId);
-            return;
-        }
-        
-        ProcessStep step = new ProcessStep(stepName, details);
-        process.addStep(step);
-        
-        LogUtils.logApkProcessStep(stepName, details);
-        LogUtils.logDebug(String.format("[%s] Step: %s (%dms since start)", 
-                                      processId, stepName, step.getElapsedTime()));
-        
-        // Notify listeners
-        notifyListeners(listener -> listener.onStepCompleted(process, step));
-    }
-    
-    /**
-     * Log step with file size information
-     */
-    public void logStepWithSize(String processId, String stepName, String details, long fileSize) {
-        String enhancedDetails = details + " (Size: " + formatFileSize(fileSize) + ")";
-        logStep(processId, stepName, enhancedDetails);
-        
-        // Track size changes
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process != null) {
-            process.trackSizeChange(stepName, fileSize);
-        }
-    }
-    
-    /**
-     * Log step with timing information
-     */
-    public void logStepWithTiming(String processId, String stepName, String details, long durationMs) {
-        String enhancedDetails = details + " (Duration: " + durationMs + "ms)";
-        logStep(processId, stepName, enhancedDetails);
-        
-        // Track performance
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process != null) {
-            process.trackPerformance(stepName, durationMs);
-        }
-    }
-    
-    /**
-     * Log validation results for the process
-     */
-    public void logValidationResults(String processId, ApkValidator.ValidationResult validation) {
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process == null) return;
-        
-        process.validationResult = validation;
-        
-        String status = validation.isValid ? "PASSED" : "FAILED";
-        String details = String.format("Validation %s - Size: %s, Entries: %d, Issues: %d", 
-                                     status, formatFileSize(validation.fileSize), 
-                                     validation.totalEntries, validation.issues.size());
-        
-        logStep(processId, "APK Validation", details);
-        
-        if (!validation.isValid) {
-            for (String issue : validation.issues) {
-                LogUtils.logError("Validation issue: " + issue);
-            }
-        }
-    }
-    
-    /**
-     * Log patching results for the process
-     */
-    public void logPatchingResults(String processId, ApkPatcher.PatchResult patchResult) {
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process == null) return;
-        
-        process.patchResult = patchResult;
-        
-        String status = patchResult.success ? "SUCCESS" : "FAILED";
-        String details = String.format("Patching %s - Added: %d files, Modified: %d files, Size change: %s", 
-                                     status, patchResult.addedFiles, patchResult.modifiedFiles,
-                                     formatFileSize(patchResult.patchedSize - patchResult.originalSize));
-        
-        logStep(processId, "APK Patching", details);
-        
-        if (!patchResult.success && patchResult.errorMessage != null) {
-            LogUtils.logError("Patching error: " + patchResult.errorMessage);
-        }
-    }
-    
-    /**
-     * Complete a process with final results
-     */
-    public void completeProcess(String processId, boolean success, String result) {
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process == null) {
-            LogUtils.logDebug("Process not found for completion: " + processId);
-            return;
-        }
-        
-        process.complete(success, result);
-        
-        LogUtils.logApkProcessComplete(success, result);
-        LogUtils.logDebug(String.format("Process completed: %s (%s, %dms total)", 
-                                       processId, success ? "SUCCESS" : "FAILED", 
-                                       process.getTotalDuration()));
-        
-        // Notify listeners
-        notifyListeners(listener -> listener.onProcessCompleted(process));
-        
-        // Remove from active processes
-        activeProcesses.remove(processId);
-    }
-    
-    /**
-     * Get detailed process report
-     */
-    public String getProcessReport(String processId) {
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process == null) {
-            return "Process not found: " + processId;
-        }
-        
-        return process.generateDetailedReport();
-    }
-    
-    /**
-     * Get summary of all active processes
-     */
-    public String getActiveProcessesSummary() {
-        if (activeProcesses.isEmpty()) {
-            return "No active APK processes";
-        }
-        
-        StringBuilder summary = new StringBuilder();
-        summary.append("=== Active APK Processes ===\n");
-        summary.append("Total: ").append(activeProcesses.size()).append("\n\n");
-        
-        for (ActiveProcess process : activeProcesses.values()) {
-            summary.append(process.getSummary()).append("\n");
-        }
-        
-        return summary.toString();
-    }
-    
-    /**
-     * Get performance statistics
-     */
-    public ProcessStatistics getStatistics() {
-        ProcessStatistics stats = new ProcessStatistics();
-        
-        for (ActiveProcess process : activeProcesses.values()) {
-            stats.totalProcesses++;
-            stats.totalSteps += process.steps.size();
-            
-            if (process.isCompleted) {
-                if (process.success) {
-                    stats.successfulProcesses++;
-                } else {
-                    stats.failedProcesses++;
-                }
-                
-                stats.totalDuration += process.getTotalDuration();
-                
-                // Track step performance
-                for (ProcessStep step : process.steps) {
-                    stats.stepPerformance.merge(step.name, step.getElapsedTime(), Long::sum);
-                }
-            }
-        }
-        
-        return stats;
-    }
-    
-    /**
-     * Kill a running process (if possible)
-     */
-    public boolean killProcess(String processId) {
-        ActiveProcess process = activeProcesses.get(processId);
-        if (process == null) {
-            return false;
-        }
-        
-        process.killed = true;
-        logStep(processId, "Process Killed", "Process terminated by user");
-        completeProcess(processId, false, "Process killed by user");
-        
-        LogUtils.logUser("Killed APK process: " + processId);
-        return true;
-    }
-    
-    /**
-     * Clean up completed processes older than specified time
-     */
-    public int cleanupOldProcesses(long maxAgeMs) {
-        int cleaned = 0;
-        long cutoff = System.currentTimeMillis() - maxAgeMs;
-        
-        Iterator<Map.Entry<String, ActiveProcess>> iterator = activeProcesses.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, ActiveProcess> entry = iterator.next();
-            ActiveProcess process = entry.getValue();
-            
-            if (process.isCompleted && process.startTime < cutoff) {
-                iterator.remove();
-                cleaned++;
-            }
-        }
-        
-        LogUtils.logDebug("Cleaned up " + cleaned + " old APK processes");
-        return cleaned;
-    }
-    
-    /**
-     * Add a process listener for real-time updates
-     */
-    public void addProcessListener(ProcessListener listener) {
-        synchronized (listeners) {
-            listeners.add(listener);
-        }
-    }
-    
-    /**
-     * Remove a process listener
-     */
-    public void removeProcessListener(ProcessListener listener) {
-        synchronized (listeners) {
-            listeners.remove(listener);
-        }
-    }
-    
-    // === PRIVATE HELPER METHODS ===
-    
-    private void notifyListeners(ListenerAction action) {
-        synchronized (listeners) {
-            for (ProcessListener listener : listeners) {
-                try {
-                    action.execute(listener);
-                } catch (Exception e) {
-                    LogUtils.logError("Process listener error", e);
-                }
-            }
-        }
-    }
-    
-    private String formatFileSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
-        return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
-    }
-    
-    // === INTERFACES AND CLASSES ===
-    
-    @FunctionalInterface
-    private interface ListenerAction {
-        void execute(ProcessListener listener);
-    }
-    
-    public interface ProcessListener {
-        void onProcessStarted(ActiveProcess process);
-        void onStepCompleted(ActiveProcess process, ProcessStep step);
-        void onProcessCompleted(ActiveProcess process);
-    }
-    
-    public static class ActiveProcess {
-        public final String processId;
-        public final String operation;
-        public final File inputApk;
-        public final File outputApk;
-        public final long startTime;
-        public final List<ProcessStep> steps = new ArrayList<>();
-        public final Map<String, Long> sizeChanges = new HashMap<>();
-        public final Map<String, Long> performanceMetrics = new HashMap<>();
-        
-        public boolean isCompleted = false;
-        public boolean success = false;
-        public boolean killed = false;
-        public String result;
-        public long completionTime;
-        public ApkValidator.ValidationResult validationResult;
-        public ApkPatcher.PatchResult patchResult;
-        
-        public ActiveProcess(String processId, String operation, File inputApk, File outputApk) {
-            this.processId = processId;
-            this.operation = operation;
-            this.inputApk = inputApk;
-            this.outputApk = outputApk;
-            this.startTime = System.currentTimeMillis();
-        }
-        
-        public void addStep(ProcessStep step) {
-            synchronized (steps) {
-                steps.add(step);
-            }
-        }
-        
-        public void complete(boolean success, String result) {
-            this.isCompleted = true;
-            this.success = success;
-            this.result = result;
-            this.completionTime = System.currentTimeMillis();
-        }
-        
-        public void trackSizeChange(String stepName, long size) {
-            sizeChanges.put(stepName, size);
-        }
-        
-        public void trackPerformance(String stepName, long durationMs) {
-            performanceMetrics.put(stepName, durationMs);
-        }
-        
-        public long getTotalDuration() {
-            long endTime = isCompleted ? completionTime : System.currentTimeMillis();
-            return endTime - startTime;
-        }
-        
-        public String getSummary() {
-            return String.format("[%s] %s: %s (%d steps, %dms)", 
-                               processId, operation, 
-                               isCompleted ? (success ? "SUCCESS" : "FAILED") : "RUNNING",
-                               steps.size(), getTotalDuration());
-        }
-        
-        public String generateDetailedReport() {
-            StringBuilder report = new StringBuilder();
-            
-            report.append("=== APK Process Report ===\n");
-            report.append("Process ID: ").append(processId).append("\n");
-            report.append("Operation: ").append(operation).append("\n");
-            report.append("Input APK: ").append(inputApk != null ? inputApk.getName() : "None").append("\n");
-            report.append("Output APK: ").append(outputApk != null ? outputApk.getName() : "None").append("\n");
-            report.append("Started: ").append(new Date(startTime)).append("\n");
-            
-            if (isCompleted) {
-                report.append("Completed: ").append(new Date(completionTime)).append("\n");
-                report.append("Duration: ").append(getTotalDuration()).append("ms\n");
-                report.append("Status: ").append(success ? "SUCCESS" : "FAILED").append("\n");
-                if (result != null) {
-                    report.append("Result: ").append(result).append("\n");
-                }
-            } else {
-                report.append("Status: RUNNING (").append(getTotalDuration()).append("ms elapsed)\n");
-            }
-            
-            if (killed) {
-                report.append("NOTE: Process was killed\n");
-            }
-            
-            report.append("\n=== Process Steps ===\n");
-            synchronized (steps) {
-                if (steps.isEmpty()) {
-                    report.append("No steps recorded\n");
-                } else {
-                    for (int i = 0; i < steps.size(); i++) {
-                        ProcessStep step = steps.get(i);
-                        report.append(String.format("Step %d: %s\n", i + 1, step.getDetailedString()));
-                        if (step.details != null) {
-                            report.append("  Details: ").append(step.details).append("\n");
-                        }
-                        report.append("  Elapsed: ").append(step.getElapsedTime()).append("ms\n");
-                        
-                        // Add performance metrics if available
-                        Long performance = performanceMetrics.get(step.name);
-                        if (performance != null) {
-                            report.append("  Duration: ").append(performance).append("ms\n");
-                        }
-                        
-                        // Add size information if available
-                        Long size = sizeChanges.get(step.name);
-                        if (size != null) {
-                            report.append("  File Size: ").append(formatSize(size)).append("\n");
-                        }
-                        
-                        report.append("\n");
-                    }
-                }
-            }
-            
-            // Add validation results
-            if (validationResult != null) {
-                report.append("=== Validation Results ===\n");
-                report.append("Valid: ").append(validationResult.isValid).append("\n");
-                report.append("File Size: ").append(formatSize(validationResult.fileSize)).append("\n");
-                report.append("ZIP Entries: ").append(validationResult.totalEntries).append("\n");
-                if (validationResult.packageName != null) {
-                    report.append("Package: ").append(validationResult.packageName).append("\n");
-                }
-                if (!validationResult.issues.isEmpty()) {
-                    report.append("Issues:\n");
-                    for (String issue : validationResult.issues) {
-                        report.append("  - ").append(issue).append("\n");
-                    }
-                }
-                report.append("\n");
-            }
-            
-            // Add patching results
-            if (patchResult != null) {
-                report.append("=== Patching Results ===\n");
-                report.append("Success: ").append(patchResult.success).append("\n");
-                report.append("Original Size: ").append(formatSize(patchResult.originalSize)).append("\n");
-                report.append("Patched Size: ").append(formatSize(patchResult.patchedSize)).append("\n");
-                report.append("Size Change: ").append(formatSize(patchResult.patchedSize - patchResult.originalSize)).append("\n");
-                report.append("Files Added: ").append(patchResult.addedFiles).append("\n");
-                report.append("Files Modified: ").append(patchResult.modifiedFiles).append("\n");
-                
-                if (!patchResult.injectedFiles.isEmpty()) {
-                    report.append("Injected Files:\n");
-                    for (String file : patchResult.injectedFiles) {
-                        report.append("  + ").append(file).append("\n");
-                    }
-                }
-                
-                if (patchResult.errorMessage != null) {
-                    report.append("Error: ").append(patchResult.errorMessage).append("\n");
-                }
-                report.append("\n");
-            }
-            
-            return report.toString();
-        }
-        
-        private String formatSize(long bytes) {
-            if (bytes < 1024) return bytes + " B";
-            if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
-            return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
-        }
-    }
-    
-    public static class ProcessStep {
-        public final String name;
-        public final String details;
-        public final long timestamp;
-        public final long startTime;
-        
-        public ProcessStep(String name, String details) {
-            this.name = name;
-            this.details = details;
-            this.timestamp = System.currentTimeMillis();
-            this.startTime = System.currentTimeMillis();
-        }
-        
-        public long getElapsedTime() {
-            return timestamp - startTime;
-        }
-        
-        public String getDetailedString() {
-            return String.format("[%s] %s", 
-                               new java.text.SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(new Date(timestamp)),
-                               name);
-        }
-    }
-    
-    public static class ProcessStatistics {
-        public int totalProcesses = 0;
-        public int successfulProcesses = 0;
-        public int failedProcesses = 0;
-        public int totalSteps = 0;
-        public long totalDuration = 0;
-        public Map<String, Long> stepPerformance = new HashMap<>();
-        
-        public double getSuccessRate() {
-            int completed = successfulProcesses + failedProcesses;
-            return completed > 0 ? (double) successfulProcesses / completed * 100 : 0;
-        }
-        
-        public long getAverageDuration() {
-            return totalProcesses > 0 ? totalDuration / totalProcesses : 0;
-        }
-        
-        @Override
-        public String toString() {
-            return String.format("Stats[Processes: %d, Success: %.1f%%, Avg Duration: %dms]",
-                               totalProcesses, getSuccessRate(), getAverageDuration());
-        }
-        
-        public String getDetailedString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("=== APK Process Statistics ===\n");
-            sb.append("Total Processes: ").append(totalProcesses).append("\n");
-            sb.append("Successful: ").append(successfulProcesses).append("\n");
-            sb.append("Failed: ").append(failedProcesses).append("\n");
-            sb.append("Success Rate: ").append(String.format("%.1f%%", getSuccessRate())).append("\n");
-            sb.append("Total Steps: ").append(totalSteps).append("\n");
-            sb.append("Average Duration: ").append(getAverageDuration()).append("ms\n");
-            
-            if (!stepPerformance.isEmpty()) {
-                sb.append("\nStep Performance:\n");
-                for (Map.Entry<String, Long> entry : stepPerformance.entrySet()) {
-                    sb.append("  ").append(entry.getKey()).append(": ").append(entry.getValue()).append("ms\n");
-                }
-            }
-            
-            return sb.toString();
-        }
-    }
-}
